@@ -39,3 +39,4 @@ supabase/signing_keys.json
 .DS_Store
 npm-debug.log*
 .vercel
+supabase/functions/.local-ca.crt
