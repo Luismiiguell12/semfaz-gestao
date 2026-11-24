@@ -1,0 +1,50 @@
+# Aplica migrations, seed estrutural e Edge Functions nos projetos Supabase
+# REMOTOS. Nunca a partir do navegador. Segredos ficam nos "environments" do
+# GitHub (staging/production), e production exige aprovação manual.
+name: Supabase migrations
+
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/**"]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Ambiente de destino
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-${{ github.event.inputs.environment || 'staging' }}
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.4.0
+      - name: Vincular projeto
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+      - name: Migrations pendentes (prévia)
+        run: supabase migration list --password "$SUPABASE_DB_PASSWORD"
+      - name: Aplicar migrations e seed estrutural (idempotente)
+        run: supabase db push --include-seed --password "$SUPABASE_DB_PASSWORD"
+      - name: Configurar variáveis das Edge Functions (não secretas)
+        run: |
+          supabase secrets set \
+            ALLOWED_ORIGINS="${{ vars.ALLOWED_ORIGINS }}" \
+            APP_URL="${{ vars.APP_URL }}"
+      - name: Publicar Edge Functions
+        run: supabase functions deploy --use-api

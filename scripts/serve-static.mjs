@@ -9,8 +9,15 @@ const root = join(process.cwd(), "out");
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/semfaz-gestao";
 const port = Number(process.env.PORT ?? 4173);
 const types = {
-  ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml",
-  ".json": "application/json", ".png": "image/png", ".ico": "image/x-icon", ".woff2": "font/woff2", ".txt": "text/plain",
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript",
+  ".css": "text/css",
+  ".svg": "image/svg+xml",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".woff2": "font/woff2",
+  ".txt": "text/plain",
 };
 
 function send(res, file, status = 200) {
@@ -24,7 +31,10 @@ createServer((req, res) => {
     res.writeHead(302, { Location: `${basePath}/` });
     return res.end();
   }
-  const rel = normalize(decodeURIComponent(url.pathname.slice(basePath.length) || "/")).replace(/^(\.\.[/\\])+/, "");
+  const rel = normalize(decodeURIComponent(url.pathname.slice(basePath.length) || "/")).replace(
+    /^(\.\.[/\\])+/,
+    "",
+  );
   let file = join(root, rel);
   if (existsSync(file) && statSync(file).isDirectory()) {
     if (!url.pathname.endsWith("/")) {

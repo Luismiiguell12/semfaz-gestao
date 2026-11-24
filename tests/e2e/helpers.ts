@@ -4,7 +4,11 @@ import { TOTP } from "otpauth";
 
 export const PASSWORD = "SenhaTeste123";
 
-export function e2eState(): { admin: { id: string; email: string }; colab: { id: string; email: string }; totpSecret: string } {
+export function e2eState(): {
+  admin: { id: string; email: string };
+  colab: { id: string; email: string };
+  totpSecret: string;
+} {
   return JSON.parse(readFileSync("tests/e2e/.auth/state.json", "utf8"));
 }
 
@@ -29,6 +33,8 @@ export async function loginAdmin(page: Page) {
 
 /** A página não pode ter rolagem horizontal (requisito de responsividade). */
 export async function expectNoHorizontalScroll(page: Page) {
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
   expect(overflow).toBeLessThanOrEqual(1);
 }

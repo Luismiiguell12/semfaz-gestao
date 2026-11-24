@@ -4,7 +4,10 @@
 import { execSync } from "node:child_process";
 
 function readLocalStatus(): Record<string, string> {
-  const out = execSync("npx supabase status -o env", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  const out = execSync("npx supabase status -o env", {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  });
   const env: Record<string, string> = {};
   for (const line of out.split("\n")) {
     const m = line.match(/^([A-Z_]+)="?(.*?)"?$/);
@@ -16,7 +19,10 @@ function readLocalStatus(): Record<string, string> {
 const status = readLocalStatus();
 function required(key: string): string {
   const v = status[key];
-  if (!v) throw new Error(`Supabase local não está em execução (variável ${key} ausente). Rode: npx supabase start`);
+  if (!v)
+    throw new Error(
+      `Supabase local não está em execução (variável ${key} ausente). Rode: npx supabase start`,
+    );
   return v;
 }
 export const SUPABASE_URL = required("API_URL");

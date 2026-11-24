@@ -2,7 +2,16 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ANON_KEY, SUPABASE_URL } from "./env";
-import { bootstrapAdmin, callFunction, PASSWORD, ROLE, SEMFAZ_ID, serviceClient, signIn, uniq } from "./helpers";
+import {
+  bootstrapAdmin,
+  callFunction,
+  PASSWORD,
+  ROLE,
+  SEMFAZ_ID,
+  serviceClient,
+  signIn,
+  uniq,
+} from "./helpers";
 
 const PDF = new TextEncoder().encode("%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
@@ -11,7 +20,13 @@ let admin: { client: SupabaseClient; id: string };
 let outsider: SupabaseClient;
 let otherDeptId: string;
 
-async function upload(client: SupabaseClient, bytes: Uint8Array, name: string, entityId = SEMFAZ_ID, extra: Record<string, string> = {}) {
+async function upload(
+  client: SupabaseClient,
+  bytes: Uint8Array,
+  name: string,
+  entityId = SEMFAZ_ID,
+  extra: Record<string, string> = {},
+) {
   const { data } = await client.auth.getSession();
   const form = new FormData();
   form.set("entity_type", "department");
@@ -28,9 +43,15 @@ async function upload(client: SupabaseClient, bytes: Uint8Array, name: string, e
 
 beforeAll(async () => {
   admin = await bootstrapAdmin();
-  const dept = await admin.client.from("departments")
-    .insert({ organization_id: "00000000-0000-4000-8000-000000000001", kind: "secretariat", name: uniq("Secretaria Teste ") })
-    .select("id").single();
+  const dept = await admin.client
+    .from("departments")
+    .insert({
+      organization_id: "00000000-0000-4000-8000-000000000001",
+      kind: "secretariat",
+      name: uniq("Secretaria Teste "),
+    })
+    .select("id")
+    .single();
   if (dept.error) throw dept.error;
   otherDeptId = dept.data.id;
 
@@ -38,10 +59,19 @@ beforeAll(async () => {
   const email = `${username}@teste.invalid`;
   const inv = await callFunction(admin.client, "admin-users", {
     action: "invite",
-    payload: { full_name: "Usuário Fora Teste", email, username, role_ids: [ROLE.collaborator], department_ids: [otherDeptId] },
+    payload: {
+      full_name: "Usuário Fora Teste",
+      email,
+      username,
+      role_ids: [ROLE.collaborator],
+      department_ids: [otherDeptId],
+    },
   });
   if (inv.status !== 201) throw new Error(JSON.stringify(inv.body));
-  await serviceClient().auth.admin.updateUserById(inv.body.user_id, { password: PASSWORD, email_confirm: true });
+  await serviceClient().auth.admin.updateUserById(inv.body.user_id, {
+    password: PASSWORD,
+    email_confirm: true,
+  });
   outsider = await signIn(email);
 });
 
@@ -70,7 +100,9 @@ describe("Documentos", () => {
   });
 
   it("substituição cria nova versão e preserva a anterior", async () => {
-    const res = await upload(admin.client, PDF, "Portaria Teste v2.pdf", SEMFAZ_ID, { replaces_document_id: docId });
+    const res = await upload(admin.client, PDF, "Portaria Teste v2.pdf", SEMFAZ_ID, {
+      replaces_document_id: docId,
+    });
     expect(res.status, JSON.stringify(res.body)).toBe(201);
     expect(res.body.document.version).toBe(2);
     const old = await admin.client.from("documents").select("is_current").eq("id", docId).single();
@@ -97,7 +129,11 @@ describe("Documentos", () => {
   });
 
   it("upload direto no Storage (sem a Edge Function) é negado", async () => {
-    const res = await outsider.storage.from("documents").upload(`00000000-0000-4000-8000-000000000001/department/${crypto.randomUUID()}`, PDF, { contentType: "application/pdf" });
+    const res = await outsider.storage
+      .from("documents")
+      .upload(`00000000-0000-4000-8000-000000000001/department/${crypto.randomUUID()}`, PDF, {
+        contentType: "application/pdf",
+      });
     expect(res.error).not.toBeNull();
   });
 

@@ -11,7 +11,9 @@ test.describe("Administração", () => {
     await dialog.getByLabel("Nível").selectOption("directorate");
     await dialog.getByRole("button", { name: "Cadastrar" }).click();
     await expect(dialog.getByText("Selecione o departamento superior.")).toBeVisible();
-    await dialog.getByLabel("Departamento superior").selectOption({ label: "Secretaria Municipal da Fazenda" });
+    await dialog
+      .getByLabel("Departamento superior")
+      .selectOption({ label: "Secretaria Municipal da Fazenda" });
     await dialog.getByLabel("Nome").fill(name);
     await dialog.getByRole("button", { name: "Cadastrar" }).click();
     await expect(page.getByText("Departamento cadastrado.")).toBeVisible();

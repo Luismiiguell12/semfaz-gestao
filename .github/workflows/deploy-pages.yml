@@ -1,0 +1,62 @@
+# Publicação do frontend estático no GitHub Pages após CI aprovada na main.
+# Só valores PÚBLICOS entram no build (URL e chave anon do Supabase de produção),
+# configurados como "variables" do ambiente "github-pages". Nenhum segredo.
+name: Deploy GitHub Pages
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment: github-pages
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verificar configuração pública
+        run: |
+          test -n "${{ vars.NEXT_PUBLIC_SUPABASE_URL }}" || { echo "Defina a variável NEXT_PUBLIC_SUPABASE_URL"; exit 1; }
+          test -n "${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" || { echo "Defina a variável NEXT_PUBLIC_SUPABASE_ANON_KEY"; exit 1; }
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_APP_ENV: ${{ vars.NEXT_PUBLIC_APP_ENV || 'production' }}
+      - run: touch out/.nojekyll
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

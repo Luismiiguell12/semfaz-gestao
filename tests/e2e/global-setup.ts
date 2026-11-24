@@ -19,7 +19,14 @@ export default async function globalSetup() {
     const created = await svc.auth.admin.createUser({ email, password: PASSWORD, email_confirm: true });
     if (created.error) throw created.error;
     const id = created.data.user.id;
-    const prof = await svc.from("profiles").insert({ id, organization_id: ORG, full_name: fullName, email: "", username, organization_wide_access: roleId === ADMIN_ROLE });
+    const prof = await svc.from("profiles").insert({
+      id,
+      organization_id: ORG,
+      full_name: fullName,
+      email: "",
+      username,
+      organization_wide_access: roleId === ADMIN_ROLE,
+    });
     if (prof.error) throw prof.error;
     const role = await svc.from("user_roles").insert({ organization_id: ORG, user_id: id, role_id: roleId });
     if (role.error) throw role.error;

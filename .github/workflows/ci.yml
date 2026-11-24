@@ -1,0 +1,85 @@
+# Integração contínua: lint, tipos, testes unitários, build estático,
+# testes do banco (pgTAP), integração com a API e E2E contra o Supabase local.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  DO_NOT_TRACK: "1"
+
+jobs:
+  quality:
+    name: Lint, tipos, unitários e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npm test
+      - name: Build estático (configuração de exemplo, sem segredos)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: chave-publica-de-exemplo
+          NEXT_PUBLIC_BASE_PATH: /semfaz-gestao
+
+  database-and-e2e:
+    name: Banco (pgTAP), integração e E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.4.0
+      - name: Subir Supabase local
+        run: supabase start -x studio,imgproxy,vector,logflare,supavisor,postgres-meta
+      - name: Testes do banco (RLS, constraints, triggers, funções)
+        run: supabase test db
+      - name: Edge Functions locais
+        run: |
+          cp supabase/functions/.env.example supabase/functions/.env
+          nohup supabase functions serve --env-file supabase/functions/.env > functions.log 2>&1 &
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:54321/functions/v1/admin-users || true)
+            [ "$code" = "401" ] && break; sleep 2
+          done
+      - name: Testes de integração (acesso direto à API com token de usuário)
+        run: npm run test:integration
+      - name: Build apontando para o Supabase local
+        run: |
+          eval "$(supabase status -o env)"
+          NEXT_PUBLIC_SUPABASE_URL="$API_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$ANON_KEY" npm run build
+      - name: Testes E2E (desktop, tablet e celular)
+        run: npx playwright install --with-deps chromium && npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: diagnostico
+          path: |
+            functions.log
+            playwright-report/
+          retention-days: 7

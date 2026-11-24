@@ -39,18 +39,24 @@ console.log(`Projeto: ${url}`);
 const fullName = (await rl.question("Nome completo: ")).trim();
 const email = (await rl.question("E-mail institucional: ")).trim().toLowerCase();
 const username = (await rl.question("Nome de usuário (ex.: joao.silva): ")).trim().toLowerCase();
-const confirm = (await rl.question(`Confirmar criação de ${fullName} <${email}>? (sim/não): `)).trim().toLowerCase();
+const confirm = (await rl.question(`Confirmar criação de ${fullName} <${email}>? (sim/não): `))
+  .trim()
+  .toLowerCase();
 rl.close();
 
 if (confirm !== "sim") fail("operação cancelada.");
 if (fullName.length < 3) fail("nome muito curto.");
 if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) fail("e-mail inválido.");
-if (!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(username)) fail("nome de usuário inválido (3 a 40 caracteres: a-z, 0-9, ponto, hífen, sublinhado).");
+if (!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(username))
+  fail("nome de usuário inválido (3 a 40 caracteres: a-z, 0-9, ponto, hífen, sublinhado).");
 
 const supabase = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
-const invited = await supabase.auth.admin.inviteUserByEmail(email, { redirectTo: `${appUrl}/auth/confirmar/` });
-if (invited.error || !invited.data.user) fail(`não foi possível enviar o convite: ${invited.error?.message ?? "sem detalhes"}`);
+const invited = await supabase.auth.admin.inviteUserByEmail(email, {
+  redirectTo: `${appUrl}/auth/confirmar/`,
+});
+if (invited.error || !invited.data.user)
+  fail(`não foi possível enviar o convite: ${invited.error?.message ?? "sem detalhes"}`);
 
 const boot = await supabase.rpc("bootstrap_first_admin", {
   p_user_id: invited.data.user.id,

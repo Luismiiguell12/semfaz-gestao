@@ -15,7 +15,9 @@ export const ROLE = {
 export const PASSWORD = "SenhaTeste123";
 
 export function serviceClient(): SupabaseClient {
-  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }
 
 export function anonClient(): SupabaseClient {
@@ -27,7 +29,11 @@ export const uniq = (prefix: string) => `${prefix}${randomUUID().slice(0, 8)}`;
 /** Cria uma conta de autenticação com senha (somente no ambiente local). */
 export async function createAuthUser(username: string) {
   const email = `${username}@teste.invalid`;
-  const { data, error } = await serviceClient().auth.admin.createUser({ email, password: PASSWORD, email_confirm: true });
+  const { data, error } = await serviceClient().auth.admin.createUser({
+    email,
+    password: PASSWORD,
+    email_confirm: true,
+  });
   if (error) throw error;
   return { id: data.user.id, email };
 }
@@ -41,7 +47,10 @@ export async function signIn(email: string): Promise<SupabaseClient> {
 
 /** Cadastra o TOTP e eleva a sessão para AAL2. Retorna o segredo para novos logins. */
 export async function enrollAndVerifyTotp(client: SupabaseClient): Promise<string> {
-  const enroll = await client.auth.mfa.enroll({ factorType: "totp", friendlyName: `teste-${randomUUID().slice(0, 6)}` });
+  const enroll = await client.auth.mfa.enroll({
+    factorType: "totp",
+    friendlyName: `teste-${randomUUID().slice(0, 6)}`,
+  });
   if (enroll.error) throw enroll.error;
   const secret = enroll.data.totp.secret;
   await verifyTotp(client, enroll.data.id, secret);
@@ -72,10 +81,16 @@ export async function bootstrapAdmin(): Promise<{ client: SupabaseClient; id: st
     if (!boot.error.message.includes("Já existe um administrador")) throw boot.error;
     // Já existe admin: concede o perfil diretamente (somente no ambiente local de testes).
     const ins = await svc.from("profiles").insert({
-      id: user.id, organization_id: ORG_ID, full_name: "Administrador Teste", email: "", username,
+      id: user.id,
+      organization_id: ORG_ID,
+      full_name: "Administrador Teste",
+      email: "",
+      username,
     });
     if (ins.error) throw ins.error;
-    const role = await svc.from("user_roles").insert({ organization_id: ORG_ID, user_id: user.id, role_id: ROLE.admin });
+    const role = await svc
+      .from("user_roles")
+      .insert({ organization_id: ORG_ID, user_id: user.id, role_id: ROLE.admin });
     if (role.error) throw role.error;
   }
   const client = await signIn(user.email);
