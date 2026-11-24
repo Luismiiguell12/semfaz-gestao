@@ -4,7 +4,13 @@ import { corsHeaders, isOriginAllowed } from "../_shared/cors.ts";
 import { handleError, HttpError, json } from "../_shared/http.ts";
 import { requireUser, serviceClient } from "../_shared/supabase.ts";
 import { documentUploadFieldsSchema } from "../_shared/schemas/documents.ts";
-import { detectKind, extensionMatches, MIME_BY_KIND, sanitizeFileName, sha256Hex } from "../_shared/file-type.ts";
+import {
+  detectKind,
+  extensionMatches,
+  MIME_BY_KIND,
+  sanitizeFileName,
+  sha256Hex,
+} from "../_shared/file-type.ts";
 
 const HARD_LIMIT_BYTES = 10 * 1024 * 1024;
 
@@ -17,7 +23,8 @@ Deno.serve(async (req) => {
     if (req.method !== "POST") throw new HttpError(405, "Método não permitido.");
 
     const length = Number(req.headers.get("content-length") ?? "0");
-    if (length > HARD_LIMIT_BYTES + 64 * 1024) throw new HttpError(413, "Arquivo maior que o limite de 10 MB.");
+    if (length > HARD_LIMIT_BYTES + 64 * 1024)
+      throw new HttpError(413, "Arquivo maior que o limite de 10 MB.");
 
     const { userId, userClient } = await requireUser(req);
     const form = await req.formData().catch(() => null);
@@ -42,10 +49,15 @@ Deno.serve(async (req) => {
     if (!can.data) throw new HttpError(403, "Você não tem permissão para anexar documentos a este registro.");
 
     // 2) Limite configurável (system_settings), nunca acima do limite físico.
-    const setting = await userClient.from("system_settings").select("value").eq("key", "documents.max_file_size_mb").maybeSingle();
+    const setting = await userClient
+      .from("system_settings")
+      .select("value")
+      .eq("key", "documents.max_file_size_mb")
+      .maybeSingle();
     const maxMb = Math.min(Number(setting.data?.value ?? 10) || 10, 10);
     if (file.size === 0) throw new HttpError(422, "O arquivo está vazio.");
-    if (file.size > maxMb * 1024 * 1024) throw new HttpError(413, `Arquivo maior que o limite de ${maxMb} MB.`);
+    if (file.size > maxMb * 1024 * 1024)
+      throw new HttpError(413, `Arquivo maior que o limite de ${maxMb} MB.`);
 
     // 3) Tipo real pelo conteúdo + coerência com a extensão.
     const bytes = new Uint8Array(await file.arrayBuffer());
@@ -66,7 +78,9 @@ Deno.serve(async (req) => {
 
     // 5) Grava no Storage com nome gerado pelo sistema.
     const path = `${orgId}/${fields.data.entity_type}/${crypto.randomUUID()}`;
-    const up = await admin.storage.from("documents").upload(path, bytes, { contentType: mimeType, upsert: false });
+    const up = await admin.storage
+      .from("documents")
+      .upload(path, bytes, { contentType: mimeType, upsert: false });
     if (up.error) throw new HttpError(500, "Falha ao armazenar o arquivo.");
     uploadedPath = path;
 
@@ -88,7 +102,11 @@ Deno.serve(async (req) => {
     return json(req, 201, { document: reg.data });
   } catch (err) {
     // Objeto órfão (sem metadados registrados) é removido; documentos registrados nunca são apagados.
-    if (uploadedPath) await admin.storage.from("documents").remove([uploadedPath]).catch(() => undefined);
+    if (uploadedPath)
+      await admin.storage
+        .from("documents")
+        .remove([uploadedPath])
+        .catch(() => undefined);
     return handleError(req, err);
   }
 });

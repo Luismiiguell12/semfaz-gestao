@@ -23,7 +23,10 @@ export function LoginForm() {
   const next = safeNextPath(params.get("next"));
   const { session } = useAuth();
   const [error, setError] = React.useState<string>();
-  const form = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "" } });
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
 
   React.useEffect(() => {
     if (session) router.replace(next);
@@ -42,12 +45,23 @@ export function LoginForm() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-brand">Entrar</h1>
-      <p className="mt-1.5 text-sm text-muted-foreground">Use seu e-mail institucional e sua senha.</p>
+      <h1 className="text-brand text-2xl font-bold">Entrar</h1>
+      <p className="text-muted-foreground mt-1.5 text-sm">Use seu e-mail institucional e sua senha.</p>
       <form className="mt-7 space-y-5" onSubmit={form.handleSubmit(onSubmit)} noValidate>
         {error && <InlineAlert tone="danger">{error}</InlineAlert>}
-        <FormField id="email" label="E-mail institucional" error={form.formState.errors.email?.message} required>
-          <Input type="email" autoComplete="username" inputMode="email" autoFocus {...form.register("email")} />
+        <FormField
+          id="email"
+          label="E-mail institucional"
+          error={form.formState.errors.email?.message}
+          required
+        >
+          <Input
+            type="email"
+            autoComplete="username"
+            inputMode="email"
+            autoFocus
+            {...form.register("email")}
+          />
         </FormField>
         <FormField id="password" label="Senha" error={form.formState.errors.password?.message} required>
           <Input type="password" autoComplete="current-password" {...form.register("password")} />
@@ -57,7 +71,7 @@ export function LoginForm() {
         </Button>
       </form>
       <p className="mt-6 text-center text-sm">
-        <Link href="/recuperar-senha/" className="font-medium text-primary hover:underline">
+        <Link href="/recuperar-senha/" className="text-primary font-medium hover:underline">
           Esqueci minha senha
         </Link>
       </p>

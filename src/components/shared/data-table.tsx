@@ -70,7 +70,10 @@ export function DataTable<TData>({
           <label htmlFor={searchId} className="sr-only">
             {searchPlaceholder}
           </label>
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Search
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
           <Input
             id={searchId}
             value={globalFilter}
@@ -92,7 +95,7 @@ export function DataTable<TData>({
             <table className="w-full text-sm">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
-                  <tr key={hg.id} className="border-b bg-surface">
+                  <tr key={hg.id} className="bg-surface border-b">
                     {hg.headers.map((header) => {
                       const sorted = header.column.getIsSorted();
                       const canSort = header.column.getCanSort();
@@ -100,14 +103,19 @@ export function DataTable<TData>({
                         <th
                           key={header.id}
                           scope="col"
-                          aria-sort={sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined}
-                          className={cn("px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground", header.column.columnDef.meta?.className)}
+                          aria-sort={
+                            sorted === "asc" ? "ascending" : sorted === "desc" ? "descending" : undefined
+                          }
+                          className={cn(
+                            "text-muted-foreground px-4 py-2.5 text-left text-xs font-semibold",
+                            header.column.columnDef.meta?.className,
+                          )}
                         >
                           {header.isPlaceholder ? null : canSort ? (
                             <button
                               type="button"
                               onClick={header.column.getToggleSortingHandler()}
-                              className="inline-flex cursor-pointer items-center gap-1 rounded hover:text-foreground"
+                              className="hover:text-foreground inline-flex cursor-pointer items-center gap-1 rounded"
                             >
                               {flexRender(header.column.columnDef.header, header.getContext())}
                               {sorted === "asc" ? (
@@ -129,9 +137,12 @@ export function DataTable<TData>({
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id} className="border-b last:border-b-0 hover:bg-surface/70">
+                  <tr key={row.id} className="hover:bg-surface/70 border-b last:border-b-0">
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className={cn("px-4 py-3 align-middle", cell.column.columnDef.meta?.className)}>
+                      <td
+                        key={cell.id}
+                        className={cn("px-4 py-3 align-middle", cell.column.columnDef.meta?.className)}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -152,8 +163,12 @@ export function DataTable<TData>({
                     .filter((c) => !c.column.columnDef.meta?.hideOnCard)
                     .map((cell) => (
                       <React.Fragment key={cell.id}>
-                        <dt className="text-muted-foreground">{cell.column.columnDef.meta?.label ?? cell.column.id}</dt>
-                        <dd className="min-w-0 break-words">{flexRender(cell.column.columnDef.cell, cell.getContext())}</dd>
+                        <dt className="text-muted-foreground">
+                          {cell.column.columnDef.meta?.label ?? cell.column.id}
+                        </dt>
+                        <dd className="min-w-0 break-words">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </dd>
                       </React.Fragment>
                     ))}
                 </dl>

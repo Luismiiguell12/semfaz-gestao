@@ -9,7 +9,10 @@ const Tabs = TabsPrimitive.Root;
 function TabsList({ className, ...props }: React.ComponentProps<typeof TabsPrimitive.List>) {
   return (
     <TabsPrimitive.List
-      className={cn("flex w-full gap-1 overflow-x-auto border-b border-border [scrollbar-width:none]", className)}
+      className={cn(
+        "border-border flex w-full [scrollbar-width:none] gap-1 overflow-x-auto border-b",
+        className,
+      )}
       {...props}
     />
   );
@@ -19,8 +22,8 @@ function TabsTrigger({ className, ...props }: React.ComponentProps<typeof TabsPr
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        "-mb-px cursor-pointer border-b-2 border-transparent px-3 py-2.5 text-sm font-medium whitespace-nowrap text-muted-foreground",
-        "hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring data-[state=active]:border-primary data-[state=active]:text-foreground",
+        "text-muted-foreground -mb-px cursor-pointer border-b-2 border-transparent px-3 py-2.5 text-sm font-medium whitespace-nowrap",
+        "hover:text-foreground focus-visible:outline-ring data-[state=active]:border-primary data-[state=active]:text-foreground focus-visible:outline-2",
         className,
       )}
       {...props}

@@ -19,17 +19,19 @@ function SheetContent({
 }: React.ComponentProps<typeof SheetPrimitive.Content> & { side?: "left" | "right" }) {
   return (
     <SheetPrimitive.Portal>
-      <SheetPrimitive.Overlay className="fixed inset-0 z-50 bg-brand/45 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
+      <SheetPrimitive.Overlay className="bg-brand/45 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 z-50" />
       <SheetPrimitive.Content
         className={cn(
-          "fixed inset-y-0 z-50 flex w-[86%] max-w-sm flex-col shadow-xl data-[state=open]:animate-in data-[state=open]:duration-200",
-          side === "left" ? "left-0 data-[state=open]:slide-in-from-left" : "right-0 data-[state=open]:slide-in-from-right",
+          "data-[state=open]:animate-in fixed inset-y-0 z-50 flex w-[86%] max-w-sm flex-col shadow-xl data-[state=open]:duration-200",
+          side === "left"
+            ? "data-[state=open]:slide-in-from-left left-0"
+            : "data-[state=open]:slide-in-from-right right-0",
           className,
         )}
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="absolute top-3.5 right-3.5 cursor-pointer rounded-md p-1.5 opacity-80 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-ring">
+        <SheetPrimitive.Close className="focus-visible:outline-ring absolute top-3.5 right-3.5 cursor-pointer rounded-md p-1.5 opacity-80 hover:opacity-100 focus-visible:outline-2">
           <X className="size-5" aria-hidden="true" />
           <span className="sr-only">Fechar menu</span>
         </SheetPrimitive.Close>

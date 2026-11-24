@@ -60,13 +60,20 @@ export default function MfaPage() {
       for (const f of data.all.filter((f) => f.status === "unverified")) {
         await supabase.auth.mfa.unenroll({ factorId: f.id });
       }
-      const enroll = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `SEMFAZ ${new Date().toISOString().slice(0, 10)}` });
+      const enroll = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: `SEMFAZ ${new Date().toISOString().slice(0, 10)}`,
+      });
       if (cancelled) return;
       if (enroll.error) {
         setError(errorMessage(enroll.error));
         return;
       }
-      setEnrollment({ factorId: enroll.data.id, qrCode: enroll.data.totp.qr_code, secret: enroll.data.totp.secret });
+      setEnrollment({
+        factorId: enroll.data.id,
+        qrCode: enroll.data.totp.qr_code,
+        secret: enroll.data.totp.secret,
+      });
       setFactorId(enroll.data.id);
       setMode("enroll");
     })();
@@ -89,39 +96,62 @@ export default function MfaPage() {
   }
 
   if (!session || mode === "loading") {
-    return error ? <InlineAlert tone="danger">{error}</InlineAlert> : <FullPageLoading label="Preparando verificação" />;
+    return error ? (
+      <InlineAlert tone="danger">{error}</InlineAlert>
+    ) : (
+      <FullPageLoading label="Preparando verificação" />
+    );
   }
 
   return (
     <div>
-      <ShieldCheck className="mb-3 size-8 text-brand" aria-hidden="true" />
-      <h1 className="text-2xl font-bold text-brand">Verificação em duas etapas</h1>
+      <ShieldCheck className="text-brand mb-3 size-8" aria-hidden="true" />
+      <h1 className="text-brand text-2xl font-bold">Verificação em duas etapas</h1>
       {mode === "enroll" ? (
         <>
-          <p className="mt-1.5 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1.5 text-sm">
             {access?.is_admin
               ? "Obrigatória para administradores. "
               : "Recomendada para proteger sua conta. "}
-            Leia o QR code com um aplicativo autenticador (por exemplo, Google Authenticator ou Microsoft Authenticator) e informe o código gerado.
+            Leia o QR code com um aplicativo autenticador (por exemplo, Google Authenticator ou Microsoft
+            Authenticator) e informe o código gerado.
           </p>
           {enrollment && (
-            <div className="mt-6 flex flex-col items-center gap-3 rounded-lg border bg-surface p-5">
+            <div className="bg-surface mt-6 flex flex-col items-center gap-3 rounded-lg border p-5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={enrollment.qrCode} alt="QR code para cadastrar o SEMFAZ Gestão no aplicativo autenticador" className="size-44 bg-white p-2" />
+              <img
+                src={enrollment.qrCode}
+                alt="QR code para cadastrar o SEMFAZ Gestão no aplicativo autenticador"
+                className="size-44 bg-white p-2"
+              />
               <div className="w-full text-center">
-                <p className="text-xs text-muted-foreground">Ou digite a chave manualmente:</p>
+                <p className="text-muted-foreground text-xs">Ou digite a chave manualmente:</p>
                 <code className="mt-1 block font-mono text-sm break-all select-all">{enrollment.secret}</code>
               </div>
             </div>
           )}
         </>
       ) : (
-        <p className="mt-1.5 text-sm text-muted-foreground">Informe o código de 6 dígitos exibido no seu aplicativo autenticador.</p>
+        <p className="text-muted-foreground mt-1.5 text-sm">
+          Informe o código de 6 dígitos exibido no seu aplicativo autenticador.
+        </p>
       )}
       <form className="mt-6 space-y-5" onSubmit={form.handleSubmit(onSubmit)} noValidate>
         {error && <InlineAlert tone="danger">{error}</InlineAlert>}
-        <FormField id="code" label="Código de verificação" required error={form.formState.errors.code?.message}>
-          <Input inputMode="numeric" autoComplete="one-time-code" maxLength={6} autoFocus className="tabular text-lg tracking-[0.3em]" {...form.register("code")} />
+        <FormField
+          id="code"
+          label="Código de verificação"
+          required
+          error={form.formState.errors.code?.message}
+        >
+          <Input
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            autoFocus
+            className="tabular text-lg tracking-[0.3em]"
+            {...form.register("code")}
+          />
         </FormField>
         <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
           {mode === "enroll" ? "Ativar verificação" : "Verificar"}
@@ -134,7 +164,7 @@ export default function MfaPage() {
       )}
       <Button
         variant="link"
-        className="mt-2 w-full text-muted-foreground"
+        className="text-muted-foreground mt-2 w-full"
         onClick={async () => {
           await signOut();
           router.replace("/login/");

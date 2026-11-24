@@ -17,7 +17,16 @@ import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAdminUsers, useResendInvite, useSetUserAccess, useSetUserStatus, useUpdateUser, USER_STATUS_LABEL, type AdminUser, type UserStatus } from "@/modules/users/api";
+import {
+  useAdminUsers,
+  useResendInvite,
+  useSetUserAccess,
+  useSetUserStatus,
+  useUpdateUser,
+  USER_STATUS_LABEL,
+  type AdminUser,
+  type UserStatus,
+} from "@/modules/users/api";
 import { RolePicker, ScopePicker, UserStatusBadge } from "@/modules/users/components";
 import { useRoles } from "@/modules/roles/api";
 import { toTree, useDepartments } from "@/modules/departments/api";
@@ -55,7 +64,13 @@ function ProfileForm({ user }: { user: AdminUser }) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="grid max-w-2xl gap-4 sm:grid-cols-2">
-      <FormField id="u-name" label="Nome completo" required error={errors.full_name?.message} className="sm:col-span-2">
+      <FormField
+        id="u-name"
+        label="Nome completo"
+        required
+        error={errors.full_name?.message}
+        className="sm:col-span-2"
+      >
         <Input {...form.register("full_name")} />
       </FormField>
       <FormField id="u-username" label="Nome de usuário" required error={errors.username?.message}>
@@ -81,7 +96,14 @@ function ProfileForm({ user }: { user: AdminUser }) {
           ))}
         </NativeSelect>
       </FormField>
-      <FormField id="u-reason" label="Justificativa" required error={errors.reason?.message} className="sm:col-span-2" hint="Registrada na auditoria.">
+      <FormField
+        id="u-reason"
+        label="Justificativa"
+        required
+        error={errors.reason?.message}
+        className="sm:col-span-2"
+        hint="Registrada na auditoria."
+      >
         <Textarea rows={2} {...form.register("reason")} />
       </FormField>
       <div className="sm:col-span-2">
@@ -106,25 +128,49 @@ function AccessForm({ user }: { user: AdminUser }) {
   const isSelf = access?.profile?.id === user.id;
 
   if (isSelf) {
-    return <InlineAlert tone="info">Por segurança, você não pode alterar as próprias permissões ou escopos. Peça a outro administrador.</InlineAlert>;
+    return (
+      <InlineAlert tone="info">
+        Por segurança, você não pode alterar as próprias permissões ou escopos. Peça a outro administrador.
+      </InlineAlert>
+    );
   }
 
   return (
     <div className="max-w-3xl space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
-        <RolePicker roles={roles.data ?? []} value={roleIds} onChange={setRoleIds} idPrefix="acc" disabledCodes={access?.is_admin ? [] : ["admin"]} />
+        <RolePicker
+          roles={roles.data ?? []}
+          value={roleIds}
+          onChange={setRoleIds}
+          idPrefix="acc"
+          disabledCodes={access?.is_admin ? [] : ["admin"]}
+        />
         <div className="space-y-4">
           <div className="flex items-start gap-2.5">
-            <Checkbox id="acc-orgwide" checked={orgWide} disabled={!access?.is_admin} onCheckedChange={(v) => setOrgWide(v === true)} className="mt-0.5" />
+            <Checkbox
+              id="acc-orgwide"
+              checked={orgWide}
+              disabled={!access?.is_admin}
+              onCheckedChange={(v) => setOrgWide(v === true)}
+              className="mt-0.5"
+            />
             <label htmlFor="acc-orgwide" className="cursor-pointer text-sm">
               <span className="font-medium">Acesso a toda a organização</span>
-              <span className="block text-xs text-muted-foreground">Somente administradores alteram esta opção.</span>
+              <span className="text-muted-foreground block text-xs">
+                Somente administradores alteram esta opção.
+              </span>
             </label>
           </div>
           <ScopePicker departments={tree} value={deptIds} onChange={setDeptIds} idPrefix="acc" />
         </div>
       </div>
-      <Button onClick={() => (roleIds.length === 0 ? toast.error("Selecione pelo menos um perfil de acesso.") : setConfirmOpen(true))}>
+      <Button
+        onClick={() =>
+          roleIds.length === 0
+            ? toast.error("Selecione pelo menos um perfil de acesso.")
+            : setConfirmOpen(true)
+        }
+      >
         Salvar acesso
       </Button>
       <ConfirmDialog
@@ -136,7 +182,13 @@ function AccessForm({ user }: { user: AdminUser }) {
         requireReason
         onConfirm={async (reason) => {
           try {
-            await save.mutateAsync({ user_id: user.id, role_ids: roleIds, department_ids: deptIds, organization_wide_access: orgWide, reason });
+            await save.mutateAsync({
+              user_id: user.id,
+              role_ids: roleIds,
+              department_ids: deptIds,
+              organization_wide_access: orgWide,
+              reason,
+            });
             toast.success("Acesso atualizado.");
           } catch (e) {
             toast.error((e as Error).message);
@@ -171,7 +223,11 @@ function StatusSection({ user }: { user: AdminUser }) {
         </div>
         <div>
           <dt className="text-muted-foreground">Convite</dt>
-          <dd className="tabular mt-1">{user.confirmed_at ? `Aceito em ${formatDateTime(user.confirmed_at)}` : `Enviado em ${formatDateTime(user.invited_at)}`}</dd>
+          <dd className="tabular mt-1">
+            {user.confirmed_at
+              ? `Aceito em ${formatDateTime(user.confirmed_at)}`
+              : `Enviado em ${formatDateTime(user.invited_at)}`}
+          </dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Último acesso</dt>
@@ -183,7 +239,12 @@ function StatusSection({ user }: { user: AdminUser }) {
       ) : (
         <div className="flex flex-wrap gap-2">
           {options.map((s) => (
-            <Button key={s} variant={s === "active" ? "default" : "outline"} className={s === "blocked" ? "border-danger/40 text-danger hover:bg-danger-soft" : undefined} onClick={() => setTarget(s)}>
+            <Button
+              key={s}
+              variant={s === "active" ? "default" : "outline"}
+              className={s === "blocked" ? "border-danger/40 text-danger hover:bg-danger-soft" : undefined}
+              onClick={() => setTarget(s)}
+            >
               {s === "active" ? "Reativar acesso" : s === "inactive" ? "Inativar" : "Bloquear"}
             </Button>
           ))}
@@ -191,15 +252,21 @@ function StatusSection({ user }: { user: AdminUser }) {
             <Button
               variant="ghost"
               loading={resend.isPending}
-              onClick={() => resend.mutate(user.id, { onSuccess: () => toast.success("Convite reenviado."), onError: (e) => toast.error(e.message) })}
+              onClick={() =>
+                resend.mutate(user.id, {
+                  onSuccess: () => toast.success("Convite reenviado."),
+                  onError: (e) => toast.error(e.message),
+                })
+              }
             >
               <Mail aria-hidden="true" /> Reenviar convite
             </Button>
           )}
         </div>
       )}
-      <p className="text-xs text-muted-foreground">
-        Usuário inativo ou bloqueado perde imediatamente o acesso aos dados, mesmo que esteja com uma sessão aberta. Nenhum registro é apagado.
+      <p className="text-muted-foreground text-xs">
+        Usuário inativo ou bloqueado perde imediatamente o acesso aos dados, mesmo que esteja com uma sessão
+        aberta. Nenhum registro é apagado.
       </p>
       <ConfirmDialog
         open={Boolean(target)}
@@ -246,7 +313,11 @@ export function UserDetail() {
           <ArrowLeft aria-hidden="true" /> Usuários
         </Link>
       </Button>
-      <PageHeader title={user.full_name} description={`${user.username}, ${user.email}`} actions={<UserStatusBadge status={user.status} />} />
+      <PageHeader
+        title={user.full_name}
+        description={`${user.username}, ${user.email}`}
+        actions={<UserStatusBadge status={user.status} />}
+      />
       <Panel bodyClassName="pt-1">
         <Tabs defaultValue="dados">
           <TabsList>

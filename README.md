@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SEMFAZ Gestão
 
-## Getting Started
+Plataforma de gestão administrativa da **Secretaria Municipal da Fazenda** da
+**Prefeitura Municipal de Lagarto/SE**: imóveis e locações, contratos,
+unidades consumidoras, faturas, demandas, aprovações e auditoria.
 
-First, run the development server:
+> Projeto em desenvolvimento por fases. Status atual: [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md).
+> Nenhum dado oficial real deve ser carregado antes da validação institucional.
+
+## Stack
+
+Next.js (exportação estática, GitHub Pages) · React · TypeScript · Tailwind CSS ·
+shadcn/ui · TanStack Query · Supabase (PostgreSQL, Auth, Storage, Edge Functions).
+Toda regra de negócio e autorização fica no banco (RLS, triggers e funções).
+
+## Documentação
+
+- [Arquitetura](docs/architecture.md)
+- [Banco de dados](docs/database.md)
+- [Permissões](docs/permissions.md)
+- [Regras de negócio](docs/business-rules.md)
+- [LGPD](docs/lgpd.md)
+- [Implantação e ambientes](docs/deployment.md)
+- [Changelog](docs/CHANGELOG.md)
+
+## Início rápido (desenvolvimento)
 
 ```bash
+npm ci
+npx supabase start
+npx supabase db reset
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Detalhes, testes e configuração de homologação/produção em [`docs/deployment.md`](docs/deployment.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Segurança
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Repositório público: nunca faça commit de `.env`, chaves, senhas ou dados reais.
+A service role key só é usada em scripts locais, nos secrets do GitHub Actions
+e dentro das Edge Functions.

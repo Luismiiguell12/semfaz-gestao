@@ -8,7 +8,11 @@ import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMarkAllNotificationsRead, useMarkNotificationRead, useNotifications } from "@/modules/notifications/api";
+import {
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  useNotifications,
+} from "@/modules/notifications/api";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +36,10 @@ export default function NotificationsPage() {
               loading={markAll.isPending}
               onClick={() =>
                 markAll.mutate(undefined, {
-                  onSuccess: (n) => toast.success(`${n} ${n === 1 ? "notificação marcada" : "notificações marcadas"} como lida${n === 1 ? "" : "s"}.`),
+                  onSuccess: (n) =>
+                    toast.success(
+                      `${n} ${n === 1 ? "notificação marcada" : "notificações marcadas"} como lida${n === 1 ? "" : "s"}.`,
+                    ),
                   onError: (e) => toast.error(e.message),
                 })
               }
@@ -61,15 +68,27 @@ export default function NotificationsPage() {
           )}
           <ul className="divide-y">
             {list.data?.map((n) => (
-              <li key={n.id} className={cn("flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start", !n.read_at && "bg-primary-soft/40")}>
-                <span className={cn("mt-1.5 hidden size-2 shrink-0 rounded-full sm:block", n.read_at ? "bg-border" : "bg-primary")} aria-hidden="true" />
+              <li
+                key={n.id}
+                className={cn(
+                  "flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start",
+                  !n.read_at && "bg-primary-soft/40",
+                )}
+              >
+                <span
+                  className={cn(
+                    "mt-1.5 hidden size-2 shrink-0 rounded-full sm:block",
+                    n.read_at ? "bg-border" : "bg-primary",
+                  )}
+                  aria-hidden="true"
+                />
                 <div className="min-w-0 flex-1">
                   <p className={cn("text-sm", !n.read_at && "font-semibold")}>
                     {n.title}
                     {!n.read_at && <span className="sr-only"> (não lida)</span>}
                   </p>
-                  {n.body && <p className="mt-0.5 text-sm text-muted-foreground">{n.body}</p>}
-                  <p className="tabular mt-1 text-xs text-muted-foreground">{formatDateTime(n.created_at)}</p>
+                  {n.body && <p className="text-muted-foreground mt-0.5 text-sm">{n.body}</p>}
+                  <p className="tabular text-muted-foreground mt-1 text-xs">{formatDateTime(n.created_at)}</p>
                 </div>
                 <div className="flex gap-2">
                   {n.link_path && (
@@ -85,7 +104,11 @@ export default function NotificationsPage() {
                     </Button>
                   )}
                   {!n.read_at && (
-                    <Button size="sm" variant="ghost" onClick={() => markRead.mutate(n.id, { onError: (e) => toast.error(e.message) })}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => markRead.mutate(n.id, { onError: (e) => toast.error(e.message) })}
+                    >
                       Marcar como lida
                     </Button>
                   )}

@@ -39,19 +39,19 @@ export function FormField({
       <Label htmlFor={id}>
         {label}
         {required && (
-          <span className="ml-0.5 text-danger" aria-hidden="true">
+          <span className="text-danger ml-0.5" aria-hidden="true">
             *
           </span>
         )}
       </Label>
       {control}
       {hint && !error && (
-        <p id={hintId} className="text-xs text-muted-foreground">
+        <p id={hintId} className="text-muted-foreground text-xs">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-xs font-medium text-danger">
+        <p id={errorId} className="text-danger text-xs font-medium">
           {error}
         </p>
       )}

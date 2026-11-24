@@ -33,7 +33,15 @@ export function useDocuments(entityType: DocumentEntityType, entityId: string) {
 export function useUploadDocument(entityType: DocumentEntityType, entityId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ file, description, replacesId }: { file: File; description?: string; replacesId?: string }) => {
+    mutationFn: async ({
+      file,
+      description,
+      replacesId,
+    }: {
+      file: File;
+      description?: string;
+      replacesId?: string;
+    }) => {
       // Verificação prévia na interface; a validação definitiva (tipo real,
       // tamanho e permissão) é feita pela Edge Function e pelo banco.
       if (file.size > MAX_FILE_MB * 1024 * 1024) throw new AppError(`O arquivo excede ${MAX_FILE_MB} MB.`);
@@ -52,9 +60,15 @@ export function useUploadDocument(entityType: DocumentEntityType, entityId: stri
 /** Gera URL temporária assinada (validade curta) e abre o arquivo. */
 export async function openDocument(doc: DocumentRow) {
   const supabase = getSupabase();
-  const { data: setting } = await supabase.from("system_settings").select("value").eq("key", "documents.signed_url_ttl_seconds").maybeSingle();
+  const { data: setting } = await supabase
+    .from("system_settings")
+    .select("value")
+    .eq("key", "documents.signed_url_ttl_seconds")
+    .maybeSingle();
   const ttl = Math.min(Number(setting?.value ?? 60) || 60, 300);
-  const { data, error } = await supabase.storage.from("documents").createSignedUrl(doc.storage_path, ttl, { download: doc.original_name });
+  const { data, error } = await supabase.storage
+    .from("documents")
+    .createSignedUrl(doc.storage_path, ttl, { download: doc.original_name });
   if (error || !data) throw new AppError("Você não tem acesso a este arquivo ou ele não está disponível.");
   await supabase.rpc("log_client_event", {
     p_operation: "DOCUMENT_VIEW",

@@ -26,7 +26,10 @@ export function handleError(req: Request, err: unknown): Response {
   const pg = err as { code?: string; message?: string; hint?: string };
   if (pg && typeof pg.code === "string" && typeof pg.message === "string") {
     const status = pg.code === "42501" ? 403 : pg.code === "P0002" ? 404 : pg.code === "23505" ? 409 : 400;
-    return json(req, status, { error: pg.message, code: pg.hint === "mfa_required" ? "mfa_required" : pg.code });
+    return json(req, status, {
+      error: pg.message,
+      code: pg.hint === "mfa_required" ? "mfa_required" : pg.code,
+    });
   }
   console.error("Erro inesperado na função:", err instanceof Error ? err.name : typeof err);
   return json(req, 500, { error: "Erro interno. Tente novamente ou contate o suporte." });

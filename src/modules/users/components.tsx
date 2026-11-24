@@ -28,7 +28,10 @@ export function RolePicker({
   return (
     <fieldset className="space-y-2">
       <legend className="mb-2 text-sm font-medium">
-        Perfis de acesso <span className="text-danger" aria-hidden="true">*</span>
+        Perfis de acesso{" "}
+        <span className="text-danger" aria-hidden="true">
+          *
+        </span>
       </legend>
       {roles.map((r) => {
         const id = `${idPrefix}-role-${r.id}`;
@@ -44,7 +47,7 @@ export function RolePicker({
             />
             <label htmlFor={id} className="cursor-pointer text-sm">
               <span className="font-medium">{r.name}</span>
-              {r.description && <span className="block text-xs text-muted-foreground">{r.description}</span>}
+              {r.description && <span className="text-muted-foreground block text-xs">{r.description}</span>}
             </label>
           </div>
         );
@@ -68,13 +71,23 @@ export function ScopePicker({
   return (
     <fieldset>
       <legend className="mb-1 text-sm font-medium">Escopo por departamento</legend>
-      <p className="mb-2 text-xs text-muted-foreground">Cada departamento selecionado inclui suas diretorias e unidades.</p>
+      <p className="text-muted-foreground mb-2 text-xs">
+        Cada departamento selecionado inclui suas diretorias e unidades.
+      </p>
       <div className="max-h-56 space-y-1.5 overflow-y-auto rounded-md border p-3">
         {departments.map((d) => {
           const id = `${idPrefix}-dep-${d.id}`;
           return (
-            <div key={d.id} className="flex items-center gap-2.5" style={{ paddingLeft: `${d.depth * 1.25}rem` }}>
-              <Checkbox id={id} checked={value.includes(d.id)} onCheckedChange={(v) => onChange(v ? [...value, d.id] : value.filter((x) => x !== d.id))} />
+            <div
+              key={d.id}
+              className="flex items-center gap-2.5"
+              style={{ paddingLeft: `${d.depth * 1.25}rem` }}
+            >
+              <Checkbox
+                id={id}
+                checked={value.includes(d.id)}
+                onCheckedChange={(v) => onChange(v ? [...value, d.id] : value.filter((x) => x !== d.id))}
+              />
               <label htmlFor={id} className="cursor-pointer text-sm">
                 {d.name}
               </label>

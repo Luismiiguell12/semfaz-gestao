@@ -11,12 +11,20 @@ export const passwordSchema = z
   .regex(/[0-9]/, "Inclua pelo menos um número.");
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().pipe(z.email({ message: "Informe um e-mail válido." })),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ message: "Informe um e-mail válido." })),
   password: z.string().min(1, "Informe a senha."),
 });
 
 export const recoverSchema = z.object({
-  email: z.string().trim().toLowerCase().pipe(z.email({ message: "Informe um e-mail válido." })),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ message: "Informe um e-mail válido." })),
 });
 
 export const newPasswordSchema = z
@@ -24,7 +32,10 @@ export const newPasswordSchema = z
   .refine((v) => v.password === v.confirm, { path: ["confirm"], message: "As senhas não conferem." });
 
 export const totpCodeSchema = z.object({
-  code: z.string().trim().regex(/^\d{6}$/, "Informe o código de 6 dígitos do aplicativo."),
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Informe o código de 6 dígitos do aplicativo."),
 });
 
 /** Aceita somente caminhos internos (evita redirecionamento aberto). */

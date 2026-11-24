@@ -3,7 +3,13 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/shared/form-field";
@@ -75,8 +81,20 @@ function ConfirmDialogBody({
       </DialogHeader>
       {requireReason && (
         <DialogBody>
-          <FormField id="confirm-reason" label={reasonLabel} required error={error} hint="Registrada na auditoria. Mínimo de 10 caracteres.">
-            <Textarea value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} rows={3} autoFocus />
+          <FormField
+            id="confirm-reason"
+            label={reasonLabel}
+            required
+            error={error}
+            hint="Registrada na auditoria. Mínimo de 10 caracteres."
+          >
+            <Textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              maxLength={1000}
+              rows={3}
+              autoFocus
+            />
           </FormField>
         </DialogBody>
       )}
@@ -84,7 +102,11 @@ function ConfirmDialogBody({
         <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
           Cancelar
         </Button>
-        <Button variant={tone === "destructive" ? "destructive" : "default"} onClick={handleConfirm} loading={pending}>
+        <Button
+          variant={tone === "destructive" ? "destructive" : "default"}
+          onClick={handleConfirm}
+          loading={pending}
+        >
           {confirmLabel}
         </Button>
       </DialogFooter>

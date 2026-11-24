@@ -37,9 +37,12 @@ Deno.serve(async (req) => {
       });
       if (invited.error || !invited.data.user) {
         const exists = invited.error?.message?.toLowerCase().includes("already");
-        throw new HttpError(exists ? 409 : 400, exists
-          ? "Já existe uma conta de autenticação com este e-mail."
-          : "Não foi possível enviar o convite. Verifique o e-mail informado.");
+        throw new HttpError(
+          exists ? 409 : 400,
+          exists
+            ? "Já existe uma conta de autenticação com este e-mail."
+            : "Não foi possível enviar o convite. Verifique o e-mail informado.",
+        );
       }
       const newUserId = invited.data.user.id;
 
@@ -80,7 +83,8 @@ Deno.serve(async (req) => {
       });
       if (ban.error) {
         return json(req, 207, {
-          warning: "Situação alterada, mas o bloqueio de login no Auth falhou. O acesso aos dados já está negado.",
+          warning:
+            "Situação alterada, mas o bloqueio de login no Auth falhou. O acesso aos dados já está negado.",
         });
       }
       return json(req, 200, { ok: true });
@@ -89,9 +93,14 @@ Deno.serve(async (req) => {
     // resend_invite
     const allowed = await userClient.rpc("has_permission", { permission: "users.manage" });
     if (allowed.error) throw allowed.error;
-    if (!allowed.data) throw new HttpError(403, "Acesso negado: requer users.manage com verificação em duas etapas.");
+    if (!allowed.data)
+      throw new HttpError(403, "Acesso negado: requer users.manage com verificação em duas etapas.");
 
-    const target = await userClient.from("profiles").select("id, email").eq("id", request.payload.user_id).maybeSingle();
+    const target = await userClient
+      .from("profiles")
+      .select("id, email")
+      .eq("id", request.payload.user_id)
+      .maybeSingle();
     if (target.error) throw target.error;
     if (!target.data) throw new HttpError(404, "Usuário não encontrado.");
 

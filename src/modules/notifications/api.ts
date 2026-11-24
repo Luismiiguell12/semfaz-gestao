@@ -36,7 +36,11 @@ export function useNotifications(filter: "all" | "unread") {
   return useQuery({
     queryKey: notificationKeys.list(filter),
     queryFn: async () => {
-      let q = getSupabase().from("notifications").select("*").order("created_at", { ascending: false }).limit(200);
+      let q = getSupabase()
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(200);
       if (filter === "unread") q = q.is("read_at", null);
       const { data, error } = await q;
       if (error) throw toAppError(error);

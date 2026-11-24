@@ -6,8 +6,14 @@ import { invokeFunction } from "@/lib/supabase/functions";
 import { toAppError } from "@/lib/errors";
 import type { Database } from "@/types/database";
 import {
-  inviteUserSchema, setUserAccessSchema, setUserStatusSchema, updateUserSchema,
-  type InviteUserInput, type SetUserAccessInput, type SetUserStatusInput, type UpdateUserInput,
+  inviteUserSchema,
+  setUserAccessSchema,
+  setUserStatusSchema,
+  updateUserSchema,
+  type InviteUserInput,
+  type SetUserAccessInput,
+  type SetUserStatusInput,
+  type UpdateUserInput,
 } from "@shared/schemas/users.ts";
 
 export type AdminUser = Database["public"]["Functions"]["admin_list_users"]["Returns"][number] & {
@@ -76,7 +82,10 @@ export function useSetUserStatus() {
   return useMutation({
     mutationFn: async (values: SetUserStatusInput) => {
       const payload = setUserStatusSchema.parse(values);
-      return invokeFunction<{ ok?: true; warning?: string }>("admin-users", { action: "set_status", payload });
+      return invokeFunction<{ ok?: true; warning?: string }>("admin-users", {
+        action: "set_status",
+        payload,
+      });
     },
     onSuccess: invalidate,
   });

@@ -49,12 +49,17 @@ export function errorMessage(error: unknown, fallback = "Não foi possível conc
 
 export function isMfaRequired(error: unknown): boolean {
   const e = error as MaybeError;
-  return e?.hint === "mfa_required" || e?.code === "mfa_required" || Boolean(e?.message?.includes("duas etapas"));
+  return (
+    e?.hint === "mfa_required" || e?.code === "mfa_required" || Boolean(e?.message?.includes("duas etapas"))
+  );
 }
 
 /** Erro lançado pelas camadas de serviço, já com mensagem para o usuário. */
 export class AppError extends Error {
-  constructor(message: string, public readonly cause?: unknown) {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
     super(message);
     this.name = "AppError";
   }

@@ -13,7 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MODULE_LABEL, MODULE_ORDER, useDeleteRole, usePermissions, useRoles, useSaveRole, type Permission } from "@/modules/roles/api";
+import {
+  MODULE_LABEL,
+  MODULE_ORDER,
+  useDeleteRole,
+  usePermissions,
+  useRoles,
+  useSaveRole,
+  type Permission,
+} from "@/modules/roles/api";
 import { roleSchema } from "@shared/schemas/organization.ts";
 import { useAuth } from "@/providers/auth-provider";
 
@@ -44,14 +52,16 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
   const [code, setCode] = React.useState(role?.code ?? "");
   const [name, setName] = React.useState(role?.name ?? "");
   const [description, setDescription] = React.useState(role?.description ?? "");
-  const [selected, setSelected] = React.useState<Set<string>>(() => new Set(role?.role_permissions.map((p) => p.permission_code) ?? []));
+  const [selected, setSelected] = React.useState<Set<string>>(
+    () => new Set(role?.role_permissions.map((p) => p.permission_code) ?? []),
+  );
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [confirm, setConfirm] = React.useState<"save" | "delete" | null>(null);
 
   const grouped = React.useMemo(() => {
     const map = new Map<string, Permission[]>();
     for (const p of permissions) map.set(p.module, [...(map.get(p.module) ?? []), p]);
-    const rank = (m: string) => (MODULE_ORDER.indexOf(m) + 1 || 99);
+    const rank = (m: string) => MODULE_ORDER.indexOf(m) + 1 || 99;
     return [...map.entries()].sort((a, b) => rank(a[0]) - rank(b[0]));
   }, [permissions]);
 
@@ -81,7 +91,11 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
         description="Permissões marcadas com escudo exigem verificação em duas etapas (MFA) na sessão."
         actions={
           role && !role.is_system && !readOnly ? (
-            <Button variant="outline" className="border-danger/40 text-danger hover:bg-danger-soft" onClick={() => setConfirm("delete")}>
+            <Button
+              variant="outline"
+              className="border-danger/40 text-danger hover:bg-danger-soft"
+              onClick={() => setConfirm("delete")}
+            >
               Excluir perfil
             </Button>
           ) : null
@@ -100,14 +114,25 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <Panel title="Identificação">
           <div className="space-y-4">
-            <FormField id="role-code" label="Código" required error={errors.code} hint="Identificador técnico, não pode ser alterado depois.">
+            <FormField
+              id="role-code"
+              label="Código"
+              required
+              error={errors.code}
+              hint="Identificador técnico, não pode ser alterado depois."
+            >
               <Input value={code} onChange={(e) => setCode(e.target.value)} disabled={!isNew} />
             </FormField>
             <FormField id="role-name" label="Nome" required error={errors.name}>
               <Input value={name} onChange={(e) => setName(e.target.value)} disabled={readOnly} />
             </FormField>
             <FormField id="role-desc" label="Descrição" error={errors.description}>
-              <Textarea value={description} onChange={(e) => setDescription(e.target.value)} disabled={readOnly} rows={3} />
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={readOnly}
+                rows={3}
+              />
             </FormField>
             {!readOnly && (
               <Button
@@ -120,11 +145,16 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
             )}
           </div>
         </Panel>
-        <Panel title="Permissões" description={`${isAdminRole ? permissions.length : selected.size} de ${permissions.length} selecionadas`}>
+        <Panel
+          title="Permissões"
+          description={`${isAdminRole ? permissions.length : selected.size} de ${permissions.length} selecionadas`}
+        >
           <div className="space-y-6">
             {grouped.map(([module, perms]) => (
               <fieldset key={module}>
-                <legend className="mb-2 text-sm font-semibold text-brand">{MODULE_LABEL[module] ?? module}</legend>
+                <legend className="text-brand mb-2 text-sm font-semibold">
+                  {MODULE_LABEL[module] ?? module}
+                </legend>
                 <div className="space-y-2">
                   {perms.map((p) => {
                     const cid = `perm-${p.code}`;
@@ -147,9 +177,11 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
                         <label htmlFor={cid} className="cursor-pointer text-sm">
                           <span className="flex items-center gap-1.5">
                             {p.description}
-                            {p.is_privileged && <ShieldAlert className="size-3.5 text-warning" aria-label="exige MFA" />}
+                            {p.is_privileged && (
+                              <ShieldAlert className="text-warning size-3.5" aria-label="exige MFA" />
+                            )}
                           </span>
-                          <span className="block font-mono text-[11px] text-muted-foreground">{p.code}</span>
+                          <span className="text-muted-foreground block font-mono text-[11px]">{p.code}</span>
                         </label>
                       </div>
                     );
@@ -158,7 +190,7 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
               </fieldset>
             ))}
             {isAdminRole && (
-              <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
                 <Lock className="size-3.5" aria-hidden="true" /> Somente leitura.
               </p>
             )}
@@ -178,7 +210,8 @@ function RoleEditor({ role, permissions }: { role: RoleWithPermissions | null; p
           try {
             const saved = await save.mutateAsync({ id: isNew ? null : role!.id, values });
             toast.success(isNew ? "Perfil criado." : "Perfil atualizado.");
-            if (isNew && saved) router.replace(`/administracao/perfis/detalhe/?id=${(saved as { id: string }).id}`);
+            if (isNew && saved)
+              router.replace(`/administracao/perfis/detalhe/?id=${(saved as { id: string }).id}`);
           } catch (e) {
             toast.error((e as Error).message);
             throw e;

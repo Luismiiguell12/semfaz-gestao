@@ -6,7 +6,10 @@ export const usernameSchema = z
   .string({ message: "Informe o nome de usuário." })
   .trim()
   .toLowerCase()
-  .regex(/^[a-z0-9][a-z0-9._-]{2,39}$/, "Use de 3 a 40 caracteres: letras minúsculas, números, ponto, hífen ou sublinhado.");
+  .regex(
+    /^[a-z0-9][a-z0-9._-]{2,39}$/,
+    "Use de 3 a 40 caracteres: letras minúsculas, números, ponto, hífen ou sublinhado.",
+  );
 
 export const fullNameSchema = z
   .string({ message: "Informe o nome completo." })
@@ -24,7 +27,10 @@ export const institutionalEmailSchema = z
 export const employeeNumberSchema = z
   .string()
   .trim()
-  .regex(/^[0-9A-Za-z./-]{1,30}$/, "Matrícula inválida (até 30 caracteres: letras, números, ponto, barra ou hífen).")
+  .regex(
+    /^[0-9A-Za-z./-]{1,30}$/,
+    "Matrícula inválida (até 30 caracteres: letras, números, ponto, barra ou hífen).",
+  )
   .optional()
   .or(z.literal(""))
   .transform((v) => (v ? v : undefined));
@@ -36,7 +42,10 @@ const profileFields = {
   username: usernameSchema,
   employee_number: employeeNumberSchema,
   job_title: optionalText(120, "Cargo"),
-  department_id: uuidSchema.optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
+  department_id: uuidSchema
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => (v ? v : undefined)),
 };
 
 export const inviteUserSchema = z.object({

@@ -19,11 +19,11 @@ export function EmptyState({
 }) {
   return (
     <div className={cn("flex flex-col items-center px-6 py-12 text-center", className)}>
-      <div className="ledger-rule mb-4 flex size-14 items-center justify-center rounded-lg border bg-background">
-        <Icon className="size-6 text-brand" aria-hidden="true" />
+      <div className="ledger-rule bg-background mb-4 flex size-14 items-center justify-center rounded-lg border">
+        <Icon className="text-brand size-6" aria-hidden="true" />
       </div>
-      <p className="text-base font-semibold text-foreground">{title}</p>
-      {description && <p className="mt-1 max-w-[52ch] text-sm text-muted-foreground">{description}</p>}
+      <p className="text-foreground text-base font-semibold">{title}</p>
+      {description && <p className="text-muted-foreground mt-1 max-w-[52ch] text-sm">{description}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );
@@ -40,9 +40,9 @@ export function ErrorState({
 }) {
   return (
     <div role="alert" className="flex flex-col items-center px-6 py-10 text-center">
-      <AlertTriangle className="mb-3 size-8 text-danger" aria-hidden="true" />
-      <p className="font-semibold text-foreground">{title}</p>
-      {message && <p className="mt-1 max-w-[56ch] text-sm text-muted-foreground">{message}</p>}
+      <AlertTriangle className="text-danger mb-3 size-8" aria-hidden="true" />
+      <p className="text-foreground font-semibold">{title}</p>
+      {message && <p className="text-muted-foreground mt-1 max-w-[56ch] text-sm">{message}</p>}
       {onRetry && (
         <Button variant="outline" size="sm" className="mt-4" onClick={onRetry}>
           Tentar novamente
@@ -65,8 +65,11 @@ export function LoadingRows({ rows = 5, label = "Carregando" }: { rows?: number;
 
 export function FullPageLoading({ label = "Carregando" }: { label?: string }) {
   return (
-    <div role="status" className="flex min-h-[60dvh] flex-col items-center justify-center gap-3 text-muted-foreground">
-      <Loader2 className="size-6 animate-spin text-primary" aria-hidden="true" />
+    <div
+      role="status"
+      className="text-muted-foreground flex min-h-[60dvh] flex-col items-center justify-center gap-3"
+    >
+      <Loader2 className="text-primary size-6 animate-spin" aria-hidden="true" />
       <span className="text-sm">{label}…</span>
     </div>
   );
@@ -90,7 +93,10 @@ export function InlineAlert({
     success: "border-success/30 bg-success-soft text-success",
   }[tone];
   return (
-    <div role={tone === "danger" ? "alert" : "status"} className={cn("rounded-md border px-4 py-3 text-sm", styles, className)}>
+    <div
+      role={tone === "danger" ? "alert" : "status"}
+      className={cn("rounded-md border px-4 py-3 text-sm", styles, className)}
+    >
       {title && <p className="font-semibold">{title}</p>}
       <div className={cn(title && "mt-0.5", "text-foreground/85")}>{children}</div>
     </div>

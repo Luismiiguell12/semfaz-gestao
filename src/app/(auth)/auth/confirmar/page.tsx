@@ -22,7 +22,11 @@ function linkError(hash: string): string | undefined {
 
 export default function ConfirmPage() {
   const router = useRouter();
-  const hash = React.useSyncExternalStore(noopSubscribe, () => initialAuthHash, () => "");
+  const hash = React.useSyncExternalStore(
+    noopSubscribe,
+    () => initialAuthHash,
+    () => "",
+  );
   const hashError = linkError(hash);
   const [timeoutError, setTimeoutError] = React.useState<string>();
   const error = hashError ?? timeoutError;
@@ -55,12 +59,12 @@ export default function ConfirmPage() {
   if (error) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-brand">Link inválido</h1>
+        <h1 className="text-brand text-2xl font-bold">Link inválido</h1>
         <InlineAlert tone="danger" className="mt-6">
           {error}
         </InlineAlert>
         <p className="mt-6 text-center text-sm">
-          <Link href="/recuperar-senha/" className="font-medium text-primary hover:underline">
+          <Link href="/recuperar-senha/" className="text-primary font-medium hover:underline">
             Solicitar novo link
           </Link>
         </p>

@@ -18,7 +18,10 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const mfaPending = Boolean(
-    access?.status === "active" && access.mfa && !access.mfa.satisfied && (access.mfa.required || access.mfa.enrolled),
+    access?.status === "active" &&
+    access.mfa &&
+    !access.mfa.satisfied &&
+    (access.mfa.required || access.mfa.enrolled),
   );
 
   React.useEffect(() => {
@@ -48,11 +51,11 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
         ? "Sua conta ainda não foi vinculada a um cadastro no sistema."
         : "Seu acesso está inativo ou bloqueado.";
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-surface p-6">
-        <div role="alert" className="max-w-md rounded-lg border bg-background p-8 text-center">
-          <ShieldAlert className="mx-auto mb-4 size-10 text-danger" aria-hidden="true" />
+      <div className="bg-surface flex min-h-dvh items-center justify-center p-6">
+        <div role="alert" className="bg-background max-w-md rounded-lg border p-8 text-center">
+          <ShieldAlert className="text-danger mx-auto mb-4 size-10" aria-hidden="true" />
           <h1 className="text-lg font-semibold">Acesso indisponível</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{reason} Procure um administrador do sistema.</p>
+          <p className="text-muted-foreground mt-2 text-sm">{reason} Procure um administrador do sistema.</p>
           <Button
             className="mt-6"
             variant="outline"
@@ -72,12 +75,21 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
 }
 
 /** Bloqueia a página (com mensagem) quando falta a permissão. */
-export function RequirePermission({ permission, children }: { permission: string; children: React.ReactNode }) {
+export function RequirePermission({
+  permission,
+  children,
+}: {
+  permission: string;
+  children: React.ReactNode;
+}) {
   const { can } = useAuth();
   if (!can(permission)) {
     return (
       <div className="mx-auto max-w-lg pt-12">
-        <ErrorState title="Você não tem acesso a esta página." message="Se precisar desse acesso, solicite a um administrador." />
+        <ErrorState
+          title="Você não tem acesso a esta página."
+          message="Se precisar desse acesso, solicite a um administrador."
+        />
       </div>
     );
   }

@@ -87,7 +87,10 @@ export function useDeleteDepartment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-      const { error } = await getSupabase().rpc("soft_delete_department", { p_department_id: id, p_reason: reason });
+      const { error } = await getSupabase().rpc("soft_delete_department", {
+        p_department_id: id,
+        p_reason: reason,
+      });
       if (error) throw toAppError(error);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: departmentKeys.all }),

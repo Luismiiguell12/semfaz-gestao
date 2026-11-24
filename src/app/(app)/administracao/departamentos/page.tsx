@@ -13,11 +13,25 @@ import { RequirePermission } from "@/components/auth/route-guard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/select";
 import {
-  DEPARTMENT_KIND_LABEL, toTree, useDeleteDepartment, useDepartments, useSaveDepartment, type Department, type DepartmentNode,
+  DEPARTMENT_KIND_LABEL,
+  toTree,
+  useDeleteDepartment,
+  useDepartments,
+  useSaveDepartment,
+  type Department,
+  type DepartmentNode,
 } from "@/modules/departments/api";
 import { DocumentsPanel } from "@/modules/documents/documents-panel";
 import { departmentSchema, type DepartmentInput } from "@shared/schemas/organization.ts";
@@ -46,7 +60,13 @@ function DepartmentDialog({
     if (open) {
       form.reset(
         editing
-          ? { kind: editing.kind, name: editing.name, acronym: editing.acronym ?? "", parent_id: editing.parent_id ?? "", is_active: editing.is_active }
+          ? {
+              kind: editing.kind,
+              name: editing.name,
+              acronym: editing.acronym ?? "",
+              parent_id: editing.parent_id ?? "",
+              is_active: editing.is_active,
+            }
           : { kind: "secretariat", name: "", acronym: "", parent_id: "", is_active: true },
       );
     }
@@ -89,7 +109,12 @@ function DepartmentDialog({
               </NativeSelect>
             </FormField>
             {kind !== "secretariat" && (
-              <FormField id="dep-parent" label="Departamento superior" required error={errors.parent_id?.message}>
+              <FormField
+                id="dep-parent"
+                label="Departamento superior"
+                required
+                error={errors.parent_id?.message}
+              >
                 <NativeSelect {...form.register("parent_id")}>
                   <option value="">Selecione</option>
                   {parentOptions.map((d) => (
@@ -104,11 +129,20 @@ function DepartmentDialog({
             <FormField id="dep-name" label="Nome" required error={errors.name?.message}>
               <Input {...form.register("name")} maxLength={200} />
             </FormField>
-            <FormField id="dep-acronym" label="Sigla" error={errors.acronym?.message} hint="Opcional. Letras maiúsculas e números.">
+            <FormField
+              id="dep-acronym"
+              label="Sigla"
+              error={errors.acronym?.message}
+              hint="Opcional. Letras maiúsculas e números."
+            >
               <Input {...form.register("acronym")} maxLength={20} className="uppercase" />
             </FormField>
             <div className="flex items-center gap-2">
-              <Checkbox id="dep-active" checked={form.watch("is_active")} onCheckedChange={(v) => form.setValue("is_active", v === true)} />
+              <Checkbox
+                id="dep-active"
+                checked={form.watch("is_active")}
+                onCheckedChange={(v) => form.setValue("is_active", v === true)}
+              />
               <label htmlFor="dep-active" className="cursor-pointer text-sm">
                 Ativo
               </label>
@@ -162,7 +196,9 @@ function DepartmentsContent() {
         <Panel bodyClassName="p-0" title="Estrutura">
           {list.isLoading && <LoadingRows />}
           {list.isError && <ErrorState message={list.error.message} onRetry={() => list.refetch()} />}
-          {list.data && tree.length === 0 && <EmptyState icon={FolderTree} title="Nenhum departamento cadastrado" />}
+          {list.data && tree.length === 0 && (
+            <EmptyState icon={FolderTree} title="Nenhum departamento cadastrado" />
+          )}
           <ul role="tree" aria-label="Departamentos" className="divide-y">
             {tree.map((d) => (
               <li
@@ -170,21 +206,24 @@ function DepartmentsContent() {
                 role="treeitem"
                 aria-level={d.depth + 1}
                 aria-selected={selected === d.id}
-                className={cn("flex items-center gap-2 py-2.5 pr-3", selected === d.id && "bg-primary-soft/60")}
+                className={cn(
+                  "flex items-center gap-2 py-2.5 pr-3",
+                  selected === d.id && "bg-primary-soft/60",
+                )}
                 style={{ paddingLeft: `${1 + d.depth * 1.5}rem` }}
               >
                 <button
                   type="button"
-                  className="flex min-w-0 flex-1 cursor-pointer flex-col items-start rounded text-left focus-visible:outline-2 focus-visible:outline-ring"
+                  className="focus-visible:outline-ring flex min-w-0 flex-1 cursor-pointer flex-col items-start rounded text-left focus-visible:outline-2"
                   onClick={() => setSelected(d.id)}
                 >
                   <span className="flex flex-wrap items-center gap-2">
-                    {d.depth > 0 && <span className="h-px w-3 bg-border" aria-hidden="true" />}
+                    {d.depth > 0 && <span className="bg-border h-px w-3" aria-hidden="true" />}
                     <span className="text-sm font-medium">{d.name}</span>
-                    {d.acronym && <span className="text-xs text-muted-foreground">{d.acronym}</span>}
+                    {d.acronym && <span className="text-muted-foreground text-xs">{d.acronym}</span>}
                     {!d.is_active && <Badge tone="warning">Inativo</Badge>}
                   </span>
-                  <span className="text-xs text-muted-foreground">{DEPARTMENT_KIND_LABEL[d.kind]}</span>
+                  <span className="text-muted-foreground text-xs">{DEPARTMENT_KIND_LABEL[d.kind]}</span>
                 </button>
                 {canManage && (
                   <div className="flex shrink-0 gap-1">
@@ -199,7 +238,12 @@ function DepartmentsContent() {
                     >
                       <Pencil aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" size="icon-sm" aria-label={`Excluir ${d.name}`} onClick={() => setDeleting(d)}>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Excluir ${d.name}`}
+                      onClick={() => setDeleting(d)}
+                    >
                       <Trash2 aria-hidden="true" />
                     </Button>
                   </div>
@@ -209,7 +253,10 @@ function DepartmentsContent() {
           </ul>
         </Panel>
 
-        <Panel title={current ? `Documentos: ${current.name}` : "Documentos"} description={current ? current.path : "Selecione um departamento para ver os documentos anexados."}>
+        <Panel
+          title={current ? `Documentos: ${current.name}` : "Documentos"}
+          description={current ? current.path : "Selecione um departamento para ver os documentos anexados."}
+        >
           {current ? (
             <DocumentsPanel entityType="department" entityId={current.id} canAttach={canManage} />
           ) : (

@@ -5,7 +5,8 @@ import { buildCsp } from "@/lib/csp";
 
 export const metadata: Metadata = {
   title: { default: "SEMFAZ Gestão", template: "%s | SEMFAZ Gestão" },
-  description: "Plataforma de gestão administrativa da Secretaria Municipal da Fazenda — Prefeitura Municipal de Lagarto.",
+  description:
+    "Plataforma de gestão administrativa da Secretaria Municipal da Fazenda — Prefeitura Municipal de Lagarto.",
   applicationName: "SEMFAZ Gestão",
   robots: { index: false, follow: false },
   referrer: "strict-origin-when-cross-origin",
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <a
           href="#conteudo"
-          className="sr-only z-[100] rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+          className="bg-primary text-primary-foreground sr-only z-[100] rounded-md px-4 py-2 focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
         >
           Pular para o conteúdo
         </a>

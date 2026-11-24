@@ -22,7 +22,9 @@ const AuthContext = React.createContext<AuthState | null>(null);
 function aalOf(session: Session | null | undefined): string {
   if (!session) return "none";
   try {
-    const payload = JSON.parse(atob(session.access_token.split(".")[1]!.replace(/-/g, "+").replace(/_/g, "/")));
+    const payload = JSON.parse(
+      atob(session.access_token.split(".")[1]!.replace(/-/g, "+").replace(/_/g, "/")),
+    );
     return String(payload.aal ?? "aal1");
   } catch {
     return "aal1";
@@ -93,7 +95,15 @@ export function useAuth(): AuthState {
 }
 
 /** Exibe o conteúdo somente se o usuário tiver a permissão (apenas interface; a RLS decide). */
-export function Can({ permission, children, fallback = null }: { permission: string; children: React.ReactNode; fallback?: React.ReactNode }) {
+export function Can({
+  permission,
+  children,
+  fallback = null,
+}: {
+  permission: string;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}) {
   const { can } = useAuth();
   return <>{can(permission) ? children : fallback}</>;
 }

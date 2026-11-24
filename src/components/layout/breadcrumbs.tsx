@@ -24,13 +24,21 @@ export function Breadcrumbs() {
           const linkable = !last && c.href !== "/administracao/";
           return (
             <li key={c.href} className={`flex min-w-0 items-center gap-1 ${!last ? "hidden sm:flex" : ""}`}>
-              {i > 0 && <ChevronRight className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />}
+              {i > 0 && (
+                <ChevronRight className="text-muted-foreground size-3.5 shrink-0" aria-hidden="true" />
+              )}
               {linkable ? (
-                <Link href={c.href} className="truncate text-muted-foreground hover:text-foreground hover:underline">
+                <Link
+                  href={c.href}
+                  className="text-muted-foreground hover:text-foreground truncate hover:underline"
+                >
                   {c.label}
                 </Link>
               ) : (
-                <span aria-current={last ? "page" : undefined} className={`truncate ${last ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                <span
+                  aria-current={last ? "page" : undefined}
+                  className={`truncate ${last ? "text-foreground font-semibold" : "text-muted-foreground"}`}
+                >
                   {c.label}
                 </span>
               )}

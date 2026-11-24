@@ -26,7 +26,7 @@ type PasswordValues = z.infer<typeof newPasswordSchema>;
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-1 py-2.5 sm:grid-cols-[12rem_1fr] sm:gap-4">
-      <dt className="text-sm text-muted-foreground">{label}</dt>
+      <dt className="text-muted-foreground text-sm">{label}</dt>
       <dd className="text-sm font-medium break-words">{children}</dd>
     </div>
   );
@@ -75,7 +75,11 @@ function NotificationPreferences() {
           const id = `pref-${t.code}`;
           return (
             <li key={t.code} className="flex items-center gap-3 py-3">
-              <Checkbox id={id} checked={inApp} onCheckedChange={(v) => save.mutate({ code: t.code, inApp: v === true })} />
+              <Checkbox
+                id={id}
+                checked={inApp}
+                onCheckedChange={(v) => save.mutate({ code: t.code, inApp: v === true })}
+              />
               <label htmlFor={id} className="cursor-pointer text-sm">
                 {t.description}
               </label>
@@ -83,8 +87,9 @@ function NotificationPreferences() {
           );
         })}
       </ul>
-      <p className="mt-3 text-xs text-muted-foreground">
-        O envio por e-mail será disponibilizado em versão futura. Novos tipos de aviso aparecem aqui quando os módulos forem liberados.
+      <p className="text-muted-foreground mt-3 text-xs">
+        O envio por e-mail será disponibilizado em versão futura. Novos tipos de aviso aparecem aqui quando os
+        módulos forem liberados.
       </p>
     </div>
   );
@@ -94,14 +99,20 @@ export default function MyAccountPage() {
   const { access, session } = useAuth();
   const departments = useDepartments();
   const [pwError, setPwError] = React.useState<string>();
-  const form = useForm<PasswordValues>({ resolver: zodResolver(newPasswordSchema), defaultValues: { password: "", confirm: "" } });
+  const form = useForm<PasswordValues>({
+    resolver: zodResolver(newPasswordSchema),
+    defaultValues: { password: "", confirm: "" },
+  });
   const p = access?.profile;
   const deptName = (id: string) => departments.data?.find((d) => d.id === id)?.name ?? "—";
   const scopeQuery = useQuery({
     queryKey: ["my-scope", p?.id],
     enabled: Boolean(p?.id),
     queryFn: async () => {
-      const { data, error } = await getSupabase().from("user_department_access").select("department_id").eq("user_id", p!.id);
+      const { data, error } = await getSupabase()
+        .from("user_department_access")
+        .select("department_id")
+        .eq("user_id", p!.id);
       if (error) throw toAppError(error);
       return data.map((r) => r.department_id);
     },
@@ -120,7 +131,10 @@ export default function MyAccountPage() {
 
   return (
     <>
-      <PageHeader title="Minha conta" description="Seus dados funcionais, perfis de acesso e segurança da conta." />
+      <PageHeader
+        title="Minha conta"
+        description="Seus dados funcionais, perfis de acesso e segurança da conta."
+      />
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-6">
           <Panel title="Dados funcionais" description="Alterações são feitas por um administrador.">
@@ -148,7 +162,10 @@ export default function MyAccountPage() {
               </Row>
             </dl>
           </Panel>
-          <Panel title="Avisos no sistema" description="Escolha quais avisos aparecem no sino de notificações.">
+          <Panel
+            title="Avisos no sistema"
+            description="Escolha quais avisos aparecem no sino de notificações."
+          >
             <NotificationPreferences />
           </Panel>
         </div>
@@ -157,17 +174,21 @@ export default function MyAccountPage() {
           <Panel title="Verificação em duas etapas">
             {access?.mfa?.enrolled ? (
               <div className="flex items-start gap-3">
-                <ShieldCheck className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
+                <ShieldCheck className="text-success mt-0.5 size-5 shrink-0" aria-hidden="true" />
                 <p className="text-sm">
-                  Ativa. Sua sessão atual está {access.mfa.current_aal === "aal2" ? "verificada" : "pendente de verificação"}.
+                  Ativa. Sua sessão atual está{" "}
+                  {access.mfa.current_aal === "aal2" ? "verificada" : "pendente de verificação"}.
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <ShieldOff className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
+                  <ShieldOff className="text-warning mt-0.5 size-5 shrink-0" aria-hidden="true" />
                   <p className="text-sm">
-                    Não configurada. {access?.is_admin ? "Obrigatória para o seu perfil." : "Recomendada, especialmente para gestores."}
+                    Não configurada.{" "}
+                    {access?.is_admin
+                      ? "Obrigatória para o seu perfil."
+                      : "Recomendada, especialmente para gestores."}
                   </p>
                 </div>
                 <Button asChild variant="outline">
@@ -181,10 +202,21 @@ export default function MyAccountPage() {
             <form className="space-y-4" onSubmit={form.handleSubmit(onChangePassword)} noValidate>
               {pwError && <InlineAlert tone="danger">{pwError}</InlineAlert>}
               <input type="email" autoComplete="username" value={session?.user.email ?? ""} readOnly hidden />
-              <FormField id="new-password" label="Nova senha" required error={form.formState.errors.password?.message} hint="Mínimo de 10 caracteres, com maiúsculas, minúsculas e números.">
+              <FormField
+                id="new-password"
+                label="Nova senha"
+                required
+                error={form.formState.errors.password?.message}
+                hint="Mínimo de 10 caracteres, com maiúsculas, minúsculas e números."
+              >
                 <Input type="password" autoComplete="new-password" {...form.register("password")} />
               </FormField>
-              <FormField id="confirm-password" label="Confirmar nova senha" required error={form.formState.errors.confirm?.message}>
+              <FormField
+                id="confirm-password"
+                label="Confirmar nova senha"
+                required
+                error={form.formState.errors.confirm?.message}
+              >
                 <Input type="password" autoComplete="new-password" {...form.register("confirm")} />
               </FormField>
               <Button type="submit" loading={form.formState.isSubmitting}>

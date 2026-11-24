@@ -7,12 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states";
-import { ACCEPTED_FILE_TYPES, MAX_FILE_MB, openDocument, useDocuments, useUploadDocument, type DocumentEntityType, type DocumentRow } from "./api";
+import {
+  ACCEPTED_FILE_TYPES,
+  MAX_FILE_MB,
+  openDocument,
+  useDocuments,
+  useUploadDocument,
+  type DocumentEntityType,
+  type DocumentRow,
+} from "./api";
 import { formatBytes, formatDateTime } from "@/lib/format";
 import { useUserDirectory } from "@/modules/users/api";
 
 /** Lista, envio, nova versão e download (URL assinada) de documentos de um registro. */
-export function DocumentsPanel({ entityType, entityId, canAttach }: { entityType: DocumentEntityType; entityId: string; canAttach: boolean }) {
+export function DocumentsPanel({
+  entityType,
+  entityId,
+  canAttach,
+}: {
+  entityType: DocumentEntityType;
+  entityId: string;
+  canAttach: boolean;
+}) {
   const docs = useDocuments(entityType, entityId);
   const upload = useUploadDocument(entityType, entityId);
   const directory = useUserDirectory();
@@ -50,11 +66,23 @@ export function DocumentsPanel({ entityType, entityId, canAttach }: { entityType
           <label htmlFor={inputId} className="sr-only">
             Selecionar arquivo
           </label>
-          <Input id={inputId} ref={inputRef} type="file" accept={ACCEPTED_FILE_TYPES} className="hidden" onChange={onFile} />
-          <Button variant="outline" size="sm" onClick={() => pick(null)} loading={upload.isPending && !replacing}>
+          <Input
+            id={inputId}
+            ref={inputRef}
+            type="file"
+            accept={ACCEPTED_FILE_TYPES}
+            className="hidden"
+            onChange={onFile}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => pick(null)}
+            loading={upload.isPending && !replacing}
+          >
             <Upload aria-hidden="true" /> Anexar documento
           </Button>
-          <p className="text-xs text-muted-foreground">PDF, JPG, PNG, DOCX ou XLSX, até {MAX_FILE_MB} MB.</p>
+          <p className="text-muted-foreground text-xs">PDF, JPG, PNG, DOCX ou XLSX, até {MAX_FILE_MB} MB.</p>
         </div>
       )}
       {docs.isLoading && <LoadingRows rows={2} />}
@@ -65,15 +93,17 @@ export function DocumentsPanel({ entityType, entityId, canAttach }: { entityType
       <ul className="divide-y rounded-md border empty:hidden">
         {visible.map((d) => (
           <li key={d.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center">
-            <FileText className="hidden size-5 shrink-0 text-brand/70 sm:block" aria-hidden="true" />
+            <FileText className="text-brand/70 hidden size-5 shrink-0 sm:block" aria-hidden="true" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">
                 {d.original_name} <Badge tone={d.is_current ? "info" : "neutral"}>v{d.version}</Badge>
               </p>
-              <p className="tabular text-xs text-muted-foreground">
-                {formatBytes(d.size_bytes)}, enviado por {directory.data?.get(d.uploaded_by)?.full_name ?? "usuário"} em {formatDateTime(d.uploaded_at)}
+              <p className="tabular text-muted-foreground text-xs">
+                {formatBytes(d.size_bytes)}, enviado por{" "}
+                {directory.data?.get(d.uploaded_by)?.full_name ?? "usuário"} em{" "}
+                {formatDateTime(d.uploaded_at)}
               </p>
-              <p className="truncate font-mono text-[11px] text-muted-foreground" title="SHA-256">
+              <p className="text-muted-foreground truncate font-mono text-[11px]" title="SHA-256">
                 SHA-256 {d.sha256}
               </p>
             </div>
@@ -87,7 +117,12 @@ export function DocumentsPanel({ entityType, entityId, canAttach }: { entityType
                 <Download aria-hidden="true" /> Baixar
               </Button>
               {canAttach && d.is_current && (
-                <Button size="sm" variant="ghost" onClick={() => pick(d)} loading={upload.isPending && replacing?.id === d.id}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => pick(d)}
+                  loading={upload.isPending && replacing?.id === d.id}
+                >
                   Nova versão
                 </Button>
               )}
@@ -97,7 +132,8 @@ export function DocumentsPanel({ entityType, entityId, canAttach }: { entityType
       </ul>
       {all.some((d) => !d.is_current) && (
         <Button variant="link" size="sm" className="mt-2" onClick={() => setShowHistory((s) => !s)}>
-          <History aria-hidden="true" /> {showHistory ? "Ocultar versões anteriores" : "Mostrar versões anteriores"}
+          <History aria-hidden="true" />{" "}
+          {showHistory ? "Ocultar versões anteriores" : "Mostrar versões anteriores"}
         </Button>
       )}
     </div>

@@ -1,6 +1,21 @@
 import {
-  Bell, Building2, CalendarDays, ClipboardList, FileBarChart, FileSignature, Gauge, History, Home, KeyRound,
-  Network, PlugZap, Stamp, TrendingUp, Users, Wallet, type LucideIcon,
+  Bell,
+  Building2,
+  CalendarDays,
+  ClipboardList,
+  FileBarChart,
+  FileSignature,
+  Gauge,
+  History,
+  Home,
+  KeyRound,
+  Network,
+  PlugZap,
+  Stamp,
+  TrendingUp,
+  Users,
+  Wallet,
+  type LucideIcon,
 } from "lucide-react";
 
 export interface NavItem {
@@ -43,9 +58,19 @@ export const NAVIGATION: NavSection[] = [
   {
     label: "Administração",
     items: [
-      { label: "Departamentos", href: "/administracao/departamentos/", icon: Network, permission: "departments.manage" },
+      {
+        label: "Departamentos",
+        href: "/administracao/departamentos/",
+        icon: Network,
+        permission: "departments.manage",
+      },
       { label: "Usuários", href: "/administracao/usuarios/", icon: Users, permission: "users.manage" },
-      { label: "Perfis de acesso", href: "/administracao/perfis/", icon: KeyRound, permission: "roles.manage" },
+      {
+        label: "Perfis de acesso",
+        href: "/administracao/perfis/",
+        icon: KeyRound,
+        permission: "roles.manage",
+      },
       { label: "Auditoria", href: "/administracao/auditoria/", icon: History, permission: "audit.view" },
     ],
   },

@@ -23,14 +23,22 @@ const columns: ColumnDef<AdminUser, unknown>[] = [
     meta: { label: "Nome", hideOnCard: true },
     cell: ({ row }) => (
       <Link href={`/administracao/usuarios/detalhe/?id=${row.original.id}`} className="group block min-w-0">
-        <span className="block font-semibold text-foreground group-hover:text-primary group-hover:underline">{row.original.full_name}</span>
-        <span className="block text-xs text-muted-foreground">
+        <span className="text-foreground group-hover:text-primary block font-semibold group-hover:underline">
+          {row.original.full_name}
+        </span>
+        <span className="text-muted-foreground block text-xs">
           {row.original.username}, {row.original.email}
         </span>
       </Link>
     ),
   },
-  { id: "department", accessorFn: (u) => u.department_name ?? "", header: "Lotação", meta: { label: "Lotação" }, cell: ({ getValue }) => (getValue() as string) || "—" },
+  {
+    id: "department",
+    accessorFn: (u) => u.department_name ?? "",
+    header: "Lotação",
+    meta: { label: "Lotação" },
+    cell: ({ getValue }) => (getValue() as string) || "—",
+  },
   {
     id: "roles",
     accessorFn: (u) => u.roles.map((r) => r.name).join(", "),
@@ -46,7 +54,13 @@ const columns: ColumnDef<AdminUser, unknown>[] = [
       </span>
     ),
   },
-  { id: "status", accessorKey: "status", header: "Situação", meta: { label: "Situação" }, cell: ({ row }) => <UserStatusBadge status={row.original.status} /> },
+  {
+    id: "status",
+    accessorKey: "status",
+    header: "Situação",
+    meta: { label: "Situação" },
+    cell: ({ row }) => <UserStatusBadge status={row.original.status} />,
+  },
   {
     id: "mfa",
     accessorFn: (u) => (u.mfa_enrolled ? 1 : 0),
@@ -54,11 +68,11 @@ const columns: ColumnDef<AdminUser, unknown>[] = [
     meta: { label: "MFA" },
     cell: ({ row }) =>
       row.original.mfa_enrolled ? (
-        <span className="inline-flex items-center gap-1 text-sm text-success">
+        <span className="text-success inline-flex items-center gap-1 text-sm">
           <ShieldCheck className="size-4" aria-hidden="true" /> Ativo
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+        <span className="text-muted-foreground inline-flex items-center gap-1 text-sm">
           <ShieldOff className="size-4" aria-hidden="true" /> Não
         </span>
       ),
@@ -101,11 +115,20 @@ function UsersContent() {
             getRowId={(u) => u.id}
             searchPlaceholder="Buscar por nome, usuário ou e-mail"
             cardTitle={(u) => (
-              <Link href={`/administracao/usuarios/detalhe/?id=${u.id}`} className="font-semibold text-primary hover:underline">
+              <Link
+                href={`/administracao/usuarios/detalhe/?id=${u.id}`}
+                className="text-primary font-semibold hover:underline"
+              >
                 {u.full_name}
               </Link>
             )}
-            emptyState={<EmptyState icon={Users} title="Nenhum usuário encontrado" description="Ajuste a busca ou convide um novo usuário." />}
+            emptyState={
+              <EmptyState
+                icon={Users}
+                title="Nenhum usuário encontrado"
+                description="Ajuste a busca ou convide um novo usuário."
+              />
+            }
           />
         )}
       </Panel>
