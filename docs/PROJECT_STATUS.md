@@ -61,11 +61,11 @@
 
 - GitHub Pages não permite cabeçalhos HTTP: sem `frame-ancestors`/`X-Frame-Options` (ver `docs/deployment.md`).
 - `script-src` requer `'unsafe-inline'` na exportação estática do Next.js.
-- O repositório remoto ainda se chama `sitepref` e esta sessão não tem permissão de push: renomear para `semfaz-gestao` e liberar o acesso do app do GitHub.
+- Workflow `Supabase migrations` pula com aviso enquanto os projetos remotos não existirem (Fase 7).
 - Avisos do React Compiler (não erros) em componentes que usam `useReactTable` e `watch` do React Hook Form.
 
 ## Próximas atividades
 
 1. Validação da Fase 1 pela SEMFAZ.
-2. Renomear o repositório, liberar o push e ativar secret scanning/push protection.
+2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
 3. Iniciar a Fase 2 pelo motor genérico de aprovações.
