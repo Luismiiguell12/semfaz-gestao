@@ -1,0 +1,79 @@
+-- Helpers compartilhados dos testes pgTAP (incluídos com \ir em cada arquivo).
+-- Tudo é criado dentro da transação do teste e desfeito no ROLLBACK.
+-- Dados exclusivamente fictícios.
+
+create schema if not exists tests;
+grant usage on schema tests to authenticated, anon;
+
+-- Cria um usuário de autenticação + perfil, com os papéis informados (códigos).
+create or replace function tests.create_user(
+  p_username text,
+  p_role_codes text[] default '{}',
+  p_org uuid default '00000000-0000-4000-8000-000000000001',
+  p_status public.user_status default 'active',
+  p_org_wide boolean default false,
+  p_department uuid default null
+) returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_id uuid := gen_random_uuid();
+  v_code text;
+begin
+  insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+  values ('00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated',
+          p_username || '@teste.invalid', '', now(), now(), now(), '{}', '{}');
+  insert into public.profiles (id, organization_id, full_name, email, username, status, organization_wide_access, department_id,
+                               status_reason)
+  values (v_id, p_org, 'Usuário Teste ' || p_username, '', p_username, 'active', p_org_wide, p_department, null);
+  foreach v_code in array p_role_codes loop
+    insert into public.user_roles (organization_id, user_id, role_id)
+    select p_org, v_id, r.id from public.roles r where r.organization_id = p_org and r.code = v_code;
+  end loop;
+  if p_status <> 'active' then
+    update public.profiles set status = p_status, status_reason = 'Situação definida pelo teste automatizado.' where id = v_id;
+  end if;
+  return v_id;
+end;
+$$;
+
+-- Marca o MFA (TOTP) do usuário como verificado.
+create or replace function tests.enroll_mfa(p_user uuid) returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at, secret)
+  values (gen_random_uuid(), p_user, 'teste', 'totp', 'verified', now(), now(), 'TESTSECRET');
+$$;
+
+-- Simula a sessão de um usuário (claims do JWT). O papel é trocado com SET LOCAL ROLE.
+create or replace function tests.set_claims(p_user uuid, p_aal text default 'aal1') returns void
+language sql
+set search_path = ''
+as $$
+  select set_config('request.jwt.claims',
+    json_build_object('sub', p_user, 'role', 'authenticated', 'aal', p_aal)::text, true);
+$$;
+
+create or replace function tests.clear_claims() returns void
+language sql
+set search_path = ''
+as $$
+  select set_config('request.jwt.claims', '', true);
+$$;
+
+-- Segunda organização, para testes de isolamento.
+insert into public.organizations (id, name, short_name)
+values ('00000000-0000-4000-8000-00000000000b', 'Organização Teste B', 'Org B')
+on conflict do nothing;
+insert into public.roles (id, organization_id, code, name, is_system)
+values ('00000000-0000-4000-8000-0000000002b1', '00000000-0000-4000-8000-00000000000b', 'admin', 'Administrador', true)
+on conflict do nothing;
+insert into public.departments (id, organization_id, kind, name)
+values ('00000000-0000-4000-8000-0000000001b1', '00000000-0000-4000-8000-00000000000b', 'secretariat', 'Secretaria Teste B')
+on conflict do nothing;
+
+grant execute on all functions in schema tests to authenticated, anon;
