@@ -1,0 +1,137 @@
+"use client";
+
+import Link from "next/link";
+import { Bell, Building2, Network, ShieldAlert, Users } from "lucide-react";
+import { useAuth } from "@/providers/auth-provider";
+import { useFoundationStats } from "@/modules/dashboard/api";
+import { PageHeader, Panel } from "@/components/shared/page-header";
+import { EmptyState, ErrorState, InlineAlert } from "@/components/shared/states";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatInteger } from "@/lib/format";
+
+function Indicator({
+  label,
+  value,
+  detail,
+  href,
+  icon: Icon,
+}: {
+  label: string;
+  value: number | undefined;
+  detail?: string;
+  href?: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) {
+  const body = (
+    <div className="flex h-full flex-col justify-between gap-4 rounded-lg border bg-surface-raised p-5 transition-colors hover:border-primary/40">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <Icon className="size-4 text-brand/70" aria-hidden="true" />
+      </div>
+      <div>
+        {value === undefined ? (
+          <Skeleton className="h-9 w-16" />
+        ) : (
+          <p className="tabular text-[2rem] leading-none font-bold text-brand">{formatInteger(value)}</p>
+        )}
+        {detail && <p className="mt-2 text-xs text-muted-foreground">{detail}</p>}
+      </div>
+    </div>
+  );
+  return href ? (
+    <Link href={href} className="block rounded-lg focus-visible:outline-2 focus-visible:outline-ring">
+      {body}
+    </Link>
+  ) : (
+    body
+  );
+}
+
+const UPCOMING = [
+  { phase: "Fase 2", title: "Aprovações, imóveis e contratos", text: "Imóveis ativos, contratos vigentes e próximos do vencimento, aprovações pendentes." },
+  { phase: "Fase 3", title: "Financeiro", text: "Faturas pendentes e vencidas, despesas de água, energia e aluguel." },
+  { phase: "Fase 4", title: "Demandas e calendário", text: "Demandas abertas, em andamento, concluídas, atrasadas e próximos compromissos." },
+  { phase: "Fase 5", title: "Produtividade", text: "Indicadores individuais e da equipe (sem pontuação nesta versão)." },
+];
+
+export default function DashboardPage() {
+  const { access, can } = useAuth();
+  const stats = useFoundationStats();
+  const firstName = access?.profile?.full_name.split(" ")[0] ?? "";
+  const d = stats.data;
+  const departmentsTotal = d ? d.departments.secretariats + d.departments.directorates + d.departments.units : undefined;
+
+  return (
+    <>
+      <PageHeader
+        title={`Olá, ${firstName}`}
+        description={`${access?.organization?.name ?? ""}${access?.department ? `, ${access.department.name}` : ""}`}
+      />
+
+      {d?.users && d.users.active_admins < 2 && (
+        <InlineAlert tone="warning" className="mb-4" title="Apenas um administrador ativo">
+          As solicitações feitas pelo próprio administrador precisam de outro administrador para serem aprovadas. Cadastre um
+          segundo administrador em <Link href="/administracao/usuarios/" className="font-semibold underline">Usuários</Link>.
+        </InlineAlert>
+      )}
+      {d?.users && d.users.admins_without_mfa > 0 && (
+        <InlineAlert tone="warning" className="mb-4" title="Administrador sem verificação em duas etapas">
+          {d.users.admins_without_mfa === 1 ? "Um administrador ainda não cadastrou" : `${d.users.admins_without_mfa} administradores ainda não cadastraram`}{" "}
+          o MFA. As operações administrativas ficam bloqueadas para eles até o cadastro.
+        </InlineAlert>
+      )}
+
+      {stats.isError ? (
+        <Panel>
+          <ErrorState message={stats.error.message} onRetry={() => stats.refetch()} />
+        </Panel>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Indicator
+            label="Notificações não lidas"
+            value={d?.unread_notifications}
+            href="/notificacoes/"
+            icon={Bell}
+          />
+          <Indicator
+            label="Departamentos ativos"
+            value={departmentsTotal}
+            detail={d ? `${d.departments.secretariats} secretarias, ${d.departments.directorates} diretorias, ${d.departments.units} unidades` : undefined}
+            href={can("departments.manage") ? "/administracao/departamentos/" : undefined}
+            icon={Network}
+          />
+          {can("users.manage") && (
+            <>
+              <Indicator
+                label="Usuários ativos"
+                value={d?.users?.active}
+                detail={d?.users ? `${d.users.inactive} inativos, ${d.users.blocked} bloqueados` : undefined}
+                href="/administracao/usuarios/"
+                icon={Users}
+              />
+              <Indicator label="Administradores ativos" value={d?.users?.active_admins} icon={ShieldAlert} />
+            </>
+          )}
+        </div>
+      )}
+
+      <Panel className="mt-6" title="Indicadores dos módulos de gestão" description="Aparecem aqui à medida que cada módulo for liberado.">
+        <EmptyState
+          icon={Building2}
+          title="Ainda não há indicadores de imóveis, contratos, financeiro ou demandas"
+          description="Nenhum número é exibido antes de existirem registros reais no sistema."
+          className="py-6"
+        />
+        <ol className="mt-2 grid gap-3 md:grid-cols-2">
+          {UPCOMING.map((u) => (
+            <li key={u.phase} className="rounded-md border border-dashed bg-surface px-4 py-3">
+              <p className="text-xs font-semibold text-primary-hover">{u.phase}</p>
+              <p className="mt-0.5 font-semibold text-foreground">{u.title}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{u.text}</p>
+            </li>
+          ))}
+        </ol>
+      </Panel>
+    </>
+  );
+}

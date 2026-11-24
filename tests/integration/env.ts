@@ -8,18 +8,22 @@ function readLocalStatus(): Record<string, string> {
   const env: Record<string, string> = {};
   for (const line of out.split("\n")) {
     const m = line.match(/^([A-Z_]+)="?(.*?)"?$/);
-    if (m) env[m[1]] = m[2];
+    if (m?.[1]) env[m[1]] = m[2] ?? "";
   }
   return env;
 }
 
 const status = readLocalStatus();
-export const SUPABASE_URL = status.API_URL;
-export const ANON_KEY = status.ANON_KEY;
-export const SERVICE_ROLE_KEY = status.SERVICE_ROLE_KEY;
-export const MAILPIT_URL = status.MAILPIT_URL ?? status.INBUCKET_URL;
-export const DB_URL = status.DB_URL;
+function required(key: string): string {
+  const v = status[key];
+  if (!v) throw new Error(`Supabase local não está em execução (variável ${key} ausente). Rode: npx supabase start`);
+  return v;
+}
+export const SUPABASE_URL = required("API_URL");
+export const ANON_KEY = required("ANON_KEY");
+export const SERVICE_ROLE_KEY = required("SERVICE_ROLE_KEY");
+export const MAILPIT_URL = status.MAILPIT_URL ?? status.INBUCKET_URL ?? "http://127.0.0.1:54324";
 
-if (!SUPABASE_URL?.startsWith("http://127.0.0.1") && !SUPABASE_URL?.startsWith("http://localhost")) {
+if (!SUPABASE_URL.startsWith("http://127.0.0.1") && !SUPABASE_URL.startsWith("http://localhost")) {
   throw new Error("Testes de integração só podem rodar contra o Supabase local.");
 }

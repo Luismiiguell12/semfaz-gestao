@@ -5,13 +5,27 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+    },
+  },
+  {
+    // Scripts administrativos de linha de comando usam o console como interface.
+    files: ["scripts/**"],
+    rules: { "no-console": "off" },
+  },
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
     "next-env.d.ts",
+    // Edge Functions (Deno) são verificadas pelo deno check/lint.
+    "supabase/**",
   ]),
 ]);
 
