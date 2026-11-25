@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Bell,
-  Building2,
   FileSignature,
   Home,
   Network,
@@ -20,7 +19,7 @@ import { useContractStats, useFoundationStats } from "@/modules/dashboard/api";
 import { useFinanceStats } from "@/modules/finance/api";
 import { MonthlySpendChart, PropertySpendChart } from "@/modules/finance/charts";
 import { PageHeader, Panel } from "@/components/shared/page-header";
-import { EmptyState, ErrorState, InlineAlert } from "@/components/shared/states";
+import { ErrorState, InlineAlert } from "@/components/shared/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatInteger } from "@/lib/format";
 import { HorizontalBars } from "@/modules/finance/charts";
@@ -68,19 +67,6 @@ function Indicator({
     body
   );
 }
-
-const UPCOMING = [
-  {
-    phase: "Fase 6",
-    title: "Relatórios e exportações",
-    text: "Relatórios consolidados e exportação auditada para Excel e PDF.",
-  },
-  {
-    phase: "Fase 7",
-    title: "Testes finais e implantação",
-    text: "Homologação, produção e publicação definitiva.",
-  },
-];
 
 export default function DashboardPage() {
   const { access, can } = useAuth();
@@ -415,28 +401,6 @@ export default function DashboardPage() {
           </p>
         </section>
       )}
-
-      <Panel
-        className="mt-6"
-        title="Próximos módulos"
-        description="Os indicadores aparecem aqui à medida que cada módulo for liberado."
-      >
-        <EmptyState
-          icon={Building2}
-          title="Relatórios consolidados chegam na próxima fase"
-          description="Nenhum número é exibido antes de existirem registros reais no sistema."
-          className="py-6"
-        />
-        <ol className="mt-2 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {UPCOMING.map((u) => (
-            <li key={u.phase} className="bg-surface rounded-md border border-dashed px-4 py-3">
-              <p className="text-primary-hover text-xs font-semibold">{u.phase}</p>
-              <p className="text-foreground mt-0.5 font-semibold">{u.title}</p>
-              <p className="text-muted-foreground mt-1 text-sm">{u.text}</p>
-            </li>
-          ))}
-        </ol>
-      </Panel>
     </>
   );
 }

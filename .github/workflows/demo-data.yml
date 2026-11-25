@@ -1,0 +1,61 @@
+# Carga (ou remoção) de DADOS FICTÍCIOS de demonstração em HOMOLOGAÇÃO.
+# Execução manual: GitHub → Actions → "Carga de demonstração" → Run workflow.
+# O ambiente é FIXO em "staging" (homologação): este workflow não tem como apontar
+# para produção. Usa os secrets já existentes do ambiente (token, senha e projeto).
+# Scripts: scripts/demo/carga-demonstracao.sql e scripts/demo/remover-demonstracao.sql.
+name: Carga de demonstração
+
+on:
+  workflow_dispatch:
+    inputs:
+      acao:
+        description: O que fazer
+        type: choice
+        options: [aplicar, remover]
+        default: aplicar
+      confirmacao:
+        description: Digite HOMOLOGACAO para confirmar
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-staging
+  cancel-in-progress: false
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - name: Conferir confirmação
+        if: inputs.confirmacao != 'HOMOLOGACAO'
+        run: |
+          echo "::error::Confirmação incorreta. Digite HOMOLOGACAO (em maiúsculas, sem acento)."
+          exit 1
+      - uses: actions/checkout@v7
+      - name: Conexão com o banco de homologação
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_ACCESS_TOKEN" && test -n "$SUPABASE_PROJECT_REF" && test -n "$PGPASSWORD" \
+            || { echo "::error::Secrets do ambiente staging ausentes."; exit 1; }
+          curl -sSf "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/config/database/pooler" \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" -o pooler.json
+          jq -r '[.[] | select(.database_type == "PRIMARY")][0] |
+            "PGHOST=\(.db_host)\nPGUSER=\(.db_user)\nPGDATABASE=\(.db_name)"' pooler.json >> "$GITHUB_ENV"
+          echo "PGPORT=5432" >> "$GITHUB_ENV"
+          echo "PGSSLMODE=require" >> "$GITHUB_ENV"
+          rm -f pooler.json
+          command -v psql || { sudo apt-get update -q && sudo apt-get install -y -q postgresql-client; }
+      - name: Aplicar carga de demonstração
+        if: inputs.acao == 'aplicar'
+        run: psql -v ON_ERROR_STOP=1 -q -f scripts/demo/carga-demonstracao.sql
+      - name: Remover carga de demonstração
+        if: inputs.acao == 'remover'
+        run: psql -v ON_ERROR_STOP=1 -q -f scripts/demo/remover-demonstracao.sql
