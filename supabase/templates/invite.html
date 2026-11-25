@@ -36,14 +36,26 @@
       </tr>
       <tr>
         <td style="padding: 28px">
-          <h1 style="font-size: 20px; margin: 0 0 12px">Você foi convidado para o SEMFAZ Gestão</h1>
-          <p style="font-size: 15px; line-height: 1.5; margin: 0 0 24px">
-            Um administrador criou sua conta no SEMFAZ Gestão, sistema de gestão administrativa da Secretaria
-            Municipal da Fazenda de Lagarto. Clique no botão abaixo para definir sua senha.
+          <h1 style="font-size: 20px; margin: 0 0 12px">Seu acesso ao SEMFAZ Gestão</h1>
+          <p style="font-size: 15px; line-height: 1.5; margin: 0 0 20px">
+            Um administrador criou sua conta no SEMFAZ Gestão. Para definir sua senha, abra a página de
+            <strong>Primeiro acesso</strong> e informe seu e-mail e o código abaixo.
+          </p>
+          <p style="font-size: 13px; color: #566476; margin: 0 0 6px">Seu código:</p>
+          <p
+            style="
+              font-size: 34px;
+              font-weight: bold;
+              letter-spacing: 8px;
+              margin: 0 0 24px;
+              font-family: &quot;Courier New&quot;, monospace;
+            "
+          >
+            {{ .Token }}
           </p>
           <p style="margin: 0 0 24px">
             <a
-              href="{{ .ConfirmationURL }}"
+              href="{{ .SiteURL }}/primeiro-acesso/"
               style="
                 background: #1d5fd1;
                 color: #ffffff;
@@ -53,12 +65,12 @@
                 font-weight: bold;
                 display: inline-block;
               "
-              >Definir minha senha</a
+              >Abrir a página de primeiro acesso</a
             >
           </p>
           <p style="font-size: 13px; color: #566476; line-height: 1.5; margin: 0">
-            O link expira em 1 hora e só pode ser usado uma vez. Se você não esperava esta mensagem, ignore-a;
-            nenhuma alteração será feita.
+            O código vale por 1 hora e só pode ser usado uma vez. Não compartilhe este código com ninguém. Se
+            você não esperava esta mensagem, ignore-a.
           </p>
         </td>
       </tr>

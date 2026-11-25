@@ -7,7 +7,7 @@
 # Uso: CA_BUNDLE=/caminho/ca.crt bash scripts/dev/prefetch-edge-deps.sh
 set -euo pipefail
 CA_BUNDLE="${CA_BUNDLE:?Informe CA_BUNDLE com o certificado da CA do proxy}"
-PROJECT_ID="$(grep -oE '"project_id": *"[^"]+"' supabase/config.jsonc | sed -E 's/.*"([^"]+)"$/\1/')"
+PROJECT_ID="$(grep -m1 -oE '"project_id": *"[^"]+"' supabase/config.jsonc | sed -E 's/.*"([^"]+)"$/\1/')"
 VOLUME_DIR="$(docker volume inspect "supabase_edge_runtime_${PROJECT_ID}" --format '{{ .Mountpoint }}')"
 for fn in supabase/functions/*/; do
   name="$(basename "$fn")"

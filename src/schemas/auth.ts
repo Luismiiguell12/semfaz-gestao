@@ -38,6 +38,18 @@ export const totpCodeSchema = z.object({
     .regex(/^\d{6}$/, "Informe o código de 6 dígitos do aplicativo."),
 });
 
+export const emailCodeSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email({ message: "Informe um e-mail válido." })),
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Informe o código de 6 números recebido por e-mail."),
+});
+
 /** Aceita somente caminhos internos (evita redirecionamento aberto). */
 export function safeNextPath(next: string | null): string {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return "/";

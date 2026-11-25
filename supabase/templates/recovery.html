@@ -36,14 +36,26 @@
       </tr>
       <tr>
         <td style="padding: 28px">
-          <h1 style="font-size: 20px; margin: 0 0 12px">Redefinição de senha do SEMFAZ Gestão</h1>
-          <p style="font-size: 15px; line-height: 1.5; margin: 0 0 24px">
-            Recebemos um pedido para redefinir a senha da sua conta no SEMFAZ Gestão. Se foi você, clique no
-            botão abaixo.
+          <h1 style="font-size: 20px; margin: 0 0 12px">Código para redefinir sua senha</h1>
+          <p style="font-size: 15px; line-height: 1.5; margin: 0 0 20px">
+            Recebemos um pedido para redefinir a senha da sua conta no SEMFAZ Gestão. Informe o código abaixo
+            na tela de recuperação de senha.
+          </p>
+          <p style="font-size: 13px; color: #566476; margin: 0 0 6px">Seu código:</p>
+          <p
+            style="
+              font-size: 34px;
+              font-weight: bold;
+              letter-spacing: 8px;
+              margin: 0 0 24px;
+              font-family: &quot;Courier New&quot;, monospace;
+            "
+          >
+            {{ .Token }}
           </p>
           <p style="margin: 0 0 24px">
             <a
-              href="{{ .ConfirmationURL }}"
+              href="{{ .SiteURL }}/recuperar-senha/"
               style="
                 background: #1d5fd1;
                 color: #ffffff;
@@ -53,12 +65,12 @@
                 font-weight: bold;
                 display: inline-block;
               "
-              >Redefinir senha</a
+              >Abrir a página de recuperação de senha</a
             >
           </p>
           <p style="font-size: 13px; color: #566476; line-height: 1.5; margin: 0">
-            O link expira em 1 hora e só pode ser usado uma vez. Se você não esperava esta mensagem, ignore-a;
-            nenhuma alteração será feita.
+            O código vale por 1 hora e só pode ser usado uma vez. Não compartilhe este código com ninguém. Se
+            você não esperava esta mensagem, ignore-a.
           </p>
         </td>
       </tr>

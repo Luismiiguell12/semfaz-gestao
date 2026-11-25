@@ -16,6 +16,13 @@ insert into public.role_permissions (role_id, permission_code, organization_id) 
   ('20000000-0000-4000-8000-000000000001', 'tasks.create', '00000000-0000-4000-8000-000000000001');
 select tests.create_user('rh1', array['rh_teste']) as rh1 \gset
 
+-- Isolamento: desativa administradores criados por outras suítes (desfeito no ROLLBACK).
+update public.profiles p
+   set status = 'inactive', status_reason = 'Isolamento do teste automatizado.'
+ where p.id <> :'admin1' and p.status = 'active'
+   and exists (select 1 from public.user_roles ur join public.roles r on r.id = ur.role_id
+               where ur.user_id = p.id and r.code = 'admin');
+
 set local role authenticated;
 
 -- Sem permissão

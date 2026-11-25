@@ -70,11 +70,14 @@ export function LoginForm() {
           Entrar
         </Button>
       </form>
-      <p className="mt-6 text-center text-sm">
+      <div className="mt-6 flex flex-col items-center gap-2 text-sm">
         <Link href="/recuperar-senha/" className="text-primary font-medium hover:underline">
           Esqueci minha senha
         </Link>
-      </p>
+        <Link href="/primeiro-acesso/" className="text-primary font-medium hover:underline">
+          Primeiro acesso (recebi um código por e-mail)
+        </Link>
+      </div>
     </div>
   );
 }

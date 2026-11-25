@@ -2,7 +2,15 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
-## [Não publicado] — Fase 1: Fundação
+## [Não publicado]
+
+### Alterado
+
+- Primeiro acesso e recuperação de senha passam a usar **código de 6 números** enviado por e-mail, em vez de link de uso único (que podia ser "gasto" pela pré-visualização de aplicativos de e-mail). Novas telas: Primeiro acesso e Recuperar senha com etapa de código.
+- Workflow de migrations aplica também a configuração de autenticação do projeto remoto (endereços, cadastro público desativado, política de senha, MFA e modelos de e-mail).
+- Workflow manual para criar o primeiro administrador e reenviar convite/código, sem expor dados pessoais nos registros públicos.
+
+## Fase 1: Fundação
 
 ### Adicionado
 
