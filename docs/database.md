@@ -17,6 +17,28 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | `20261124000800_admin_rpcs.sql`             | RPCs administrativas (usuários, perfis, departamentos, primeiro administrador)                                                     |
 | `20261124000900_dashboard_foundation.sql`   | indicadores do painel da fundação                                                                                                  |
 
+## Migrations da Fase 2
+
+| Arquivo                                   | Conteúdo                                                                                                                                                   |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20261125000050_permissions_catalog.sql`  | catálogo de permissões (movido do seed)                                                                                                                    |
+| `20261125000100_approvals_engine.sql`     | `approval_operations`, `approval_rules`, `approval_requests`, `approval_steps`, `approval_decisions`, funções do motor                                     |
+| `20261125000200_properties_landlords.sql` | `properties`, `user_property_access`, `landlords`, `property_landlords`, validação de CPF/CNPJ, operações de imóveis                                       |
+| `20261125000300_contracts.sql`            | `contract_modalities`, `adjustment_indexes`, `contracts`, `contract_landlords`, `contract_amendments`, visão `contracts_overview`, documentos por registro |
+| `20261125000400_alerts_dashboard.sql`     | `alert_rules`, `alerts`, rotina `pg_cron`, `dashboard_contract_stats`                                                                                      |
+
+## Tabelas da Fase 2
+
+| Tabela                | Observações                                                                                                                                   |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `approval_requests`   | snapshot, dados propostos, `base_hash`, justificativa; uma pendente por operação/registro (exceto aditivos)                                   |
+| `approval_decisions`  | imutável                                                                                                                                      |
+| `properties`          | CEP `00000-000`, UF válida, unidade dentro da estrutura do responsável; criada só após aprovação                                              |
+| `landlords`           | CPF/CNPJ com dígitos verificadores, único por organização; colunas mascaradas geradas; documento/telefone completos sem privilégio de leitura |
+| `contracts`           | número único por organização; datas coerentes; `numeric(14,2)`                                                                                |
+| `contract_amendments` | campos obrigatórios conforme o tipo; imutável após aprovação                                                                                  |
+| `alerts`              | único por regra, registro e data do marco (sem duplicidade)                                                                                   |
+
 ## Tabelas
 
 | Tabela                     | Finalidade                              | Observações                                                                                                         |

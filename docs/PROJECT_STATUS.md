@@ -4,7 +4,15 @@
 
 ## Fase atual
 
-**Fase 1 — Fundação: concluída, aguardando validação.** A Fase 2 só começa após a aprovação.
+**Fase 2 — Aprovações, imóveis e contratos: concluída, aguardando validação.** A Fase 3 (financeiro) só começa após a aprovação.
+
+## Funcionalidades concluídas (Fase 2)
+
+- **2A Motor de aprovações:** solicitação com snapshot, dados propostos e justificativa; decisão em nível único por administrador diferente do solicitante (AAL2); efetivação transacional por função no banco; bloqueio da efetivação quando o registro mudou desde a solicitação (hash do conteúdo); cancelamento pelo solicitante; regras configuráveis (`approval_rules`); etapas multinível preparadas (`approval_steps`); notificações de pendência, aprovação e rejeição.
+- **2B Imóveis e locadores:** cadastro e alteração de endereço/secretaria via aprovação; demais campos com edição direta auditada; locadores com CPF/CNPJ validados no banco, mascarados por padrão e consulta completa restrita e auditada (sem dados bancários); vínculo N:N com percentuais; escopo por imóvel selecionado (`user_property_access`).
+- **2C Contratos e aditivos:** cadastro, alteração de valor e de vigência via aprovação; aditivos aprovados e imutáveis; vigência e valor vigentes calculados (contrato + aditivos aprovados), sem sobrescrever o contrato; listas configuráveis de modalidade e índice de reajuste; documentos de imóveis, contratos, aditivos e solicitações.
+- **2D Alertas:** regras configuráveis (90/60/30 dias, vencido, data-base) e rotina diária às 6h de Maceió (`pg_cron`), sem duplicidade, com notificação ao gestor, ao fiscal e aos administradores.
+- **2E Telas:** Central de Aprovações, Imóveis, Locadores, Contratos, Regras e listas, escopo por imóveis na tela de usuários e indicadores do painel.
 
 ## Funcionalidades concluídas (Fase 1)
 
@@ -15,11 +23,10 @@
 
 ## Em andamento
 
-- Nada. Aguardando validação da Fase 1.
+- Nada. Aguardando validação da Fase 2.
 
 ## Pendentes (próximas fases)
 
-- Fase 2: motor de aprovações, central de aprovações, imóveis, locadores, contratos, aditivos, histórico, alertas (`pg_cron`), `user_property_access`.
 - Fase 3: fornecedores, unidades consumidoras, faturas, aluguéis, pagamentos, análise de consumo.
 - Fase 4: demandas e calendário.
 - Fase 5: produtividade (sem pontuação).
@@ -50,7 +57,7 @@
 
 ## Pontos pendentes de definição institucional
 
-1. Listas de modalidades de contrato e de índices de reajuste (Fase 2): serão configuráveis, sem valores oficiais.
+1. Listas de modalidades de contrato e de índices de reajuste: configuráveis em Administração > Regras e listas; o seed traz apenas exemplos genéricos (IPCA, IGP-M, "Locação de imóvel (exemplo)").
 2. Regras de pontuação de produtividade (adiadas).
 3. Bases legais LGPD, retenção x guarda permanente, aviso de privacidade (`docs/lgpd.md`).
 4. SMTP institucional para convites e recuperação de senha em produção.
@@ -66,6 +73,7 @@
 
 ## Próximas atividades
 
-1. Validação da Fase 1 pela SEMFAZ.
+1. Validação da Fase 2 pela SEMFAZ.
 2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
-3. Iniciar a Fase 2 pelo motor genérico de aprovações.
+3. Configurar SMTP próprio (ou plano Pro) para os e-mails com código de 6 números.
+4. Iniciar a Fase 3 (financeiro).

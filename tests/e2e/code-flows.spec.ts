@@ -54,6 +54,7 @@ test("recuperação de senha por código", async ({ page }) => {
   });
   await page.goto("login/");
   await page.getByRole("link", { name: "Esqueci minha senha" }).click();
+  await expect(page.getByRole("heading", { name: "Recuperar senha" })).toBeVisible();
   await page.getByLabel("E-mail institucional").fill(colab.email);
   await page.getByRole("button", { name: "Enviar código" }).click();
   await expect(page.getByLabel("Código recebido por e-mail")).toBeVisible();
@@ -107,6 +108,7 @@ test("primeiro acesso por código do convite", async ({ page }) => {
 
   await page.goto("login/");
   await page.getByRole("link", { name: /Primeiro acesso/ }).click();
+  await expect(page.getByRole("heading", { name: "Primeiro acesso" })).toBeVisible();
   await page.getByLabel("E-mail institucional").fill(email);
   await page.getByLabel("Código recebido por e-mail").fill(await latestCode(email));
   await page.getByRole("button", { name: "Continuar" }).click();

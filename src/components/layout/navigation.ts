@@ -1,5 +1,7 @@
 import {
   Bell,
+  SlidersHorizontal,
+  UserRound,
   Building2,
   CalendarDays,
   ClipboardList,
@@ -44,9 +46,15 @@ export const NAVIGATION: NavSection[] = [
   {
     label: "Gestão",
     items: [
-      { label: "Aprovações", href: "/aprovacoes/", icon: Stamp, comingSoon: true },
-      { label: "Imóveis e locações", href: "/imoveis/", icon: Home, comingSoon: true },
-      { label: "Contratos", href: "/contratos/", icon: FileSignature, comingSoon: true },
+      { label: "Aprovações", href: "/aprovacoes/", icon: Stamp },
+      { label: "Imóveis", href: "/imoveis/", icon: Home, permission: "properties.view" },
+      { label: "Locadores", href: "/locadores/", icon: UserRound, permission: "landlords.view" },
+      { label: "Contratos", href: "/contratos/", icon: FileSignature, permission: "contracts.view" },
+    ],
+  },
+  {
+    label: "Próximas fases",
+    items: [
       { label: "Unidades consumidoras", href: "/unidades/", icon: PlugZap, comingSoon: true },
       { label: "Financeiro", href: "/financeiro/", icon: Wallet, comingSoon: true },
       { label: "Demandas", href: "/demandas/", icon: ClipboardList, comingSoon: true },
@@ -71,6 +79,12 @@ export const NAVIGATION: NavSection[] = [
         icon: KeyRound,
         permission: "roles.manage",
       },
+      {
+        label: "Regras e listas",
+        href: "/administracao/regras/",
+        icon: SlidersHorizontal,
+        permission: "settings.manage",
+      },
       { label: "Auditoria", href: "/administracao/auditoria/", icon: History, permission: "audit.view" },
     ],
   },
@@ -86,6 +100,12 @@ export const ROUTE_LABELS: Record<string, string> = {
   perfis: "Perfis de acesso",
   auditoria: "Auditoria",
   detalhe: "Detalhe",
+  aprovacoes: "Aprovações",
+  imoveis: "Imóveis",
+  locadores: "Locadores",
+  contratos: "Contratos",
+  novo: "Nova solicitação",
+  regras: "Regras e listas",
 };
 
 export const ORGANIZATION_ICON = Building2;

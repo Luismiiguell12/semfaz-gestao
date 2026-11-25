@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Building2, Network, ShieldAlert, Users } from "lucide-react";
+import {
+  Bell,
+  Building2,
+  FileSignature,
+  Home,
+  Network,
+  ShieldAlert,
+  Stamp,
+  Users,
+  Wallet,
+} from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
-import { useFoundationStats } from "@/modules/dashboard/api";
+import { useContractStats, useFoundationStats } from "@/modules/dashboard/api";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, InlineAlert } from "@/components/shared/states";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatInteger } from "@/lib/format";
+import { formatCurrency, formatInteger } from "@/lib/format";
 
 function Indicator({
   label,
@@ -17,7 +27,7 @@ function Indicator({
   icon: Icon,
 }: {
   label: string;
-  value: number | undefined;
+  value: number | string | undefined;
   detail?: string;
   href?: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -32,7 +42,9 @@ function Indicator({
         {value === undefined ? (
           <Skeleton className="h-9 w-16" />
         ) : (
-          <p className="tabular text-brand text-[2rem] leading-none font-bold">{formatInteger(value)}</p>
+          <p className="tabular text-brand text-[2rem] leading-none font-bold">
+            {typeof value === "number" ? formatInteger(value) : value}
+          </p>
         )}
         {detail && <p className="text-muted-foreground mt-2 text-xs">{detail}</p>}
       </div>
@@ -48,11 +60,6 @@ function Indicator({
 }
 
 const UPCOMING = [
-  {
-    phase: "Fase 2",
-    title: "Aprovações, imóveis e contratos",
-    text: "Imóveis ativos, contratos vigentes e próximos do vencimento, aprovações pendentes.",
-  },
   {
     phase: "Fase 3",
     title: "Financeiro",
@@ -73,6 +80,8 @@ const UPCOMING = [
 export default function DashboardPage() {
   const { access, can } = useAuth();
   const stats = useFoundationStats();
+  const cs = useContractStats();
+  const c = cs.data;
   const firstName = access?.profile?.full_name.split(" ")[0] ?? "";
   const d = stats.data;
   const departmentsTotal = d
@@ -143,14 +152,60 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {c && (c.can_view_properties || c.can_view_contracts || c.approvals_pending > 0) && (
+        <section aria-label="Imóveis, contratos e aprovações" className="mt-6">
+          <h2 className="text-brand mb-3 text-base font-semibold">Imóveis, contratos e aprovações</h2>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {c.can_view_properties && (
+              <Indicator
+                label="Imóveis"
+                value={c.properties_total}
+                detail={`${c.properties_active} ativos`}
+                href="/imoveis/"
+                icon={Home}
+              />
+            )}
+            {c.can_view_contracts && (
+              <>
+                <Indicator
+                  label="Contratos vigentes"
+                  value={c.contracts_active}
+                  detail={`${c.contracts_expiring} próximos do vencimento, ${c.contracts_expired} vencidos`}
+                  href="/contratos/"
+                  icon={FileSignature}
+                />
+                <Indicator
+                  label="Valor mensal de locações"
+                  value={formatCurrency(c.monthly_rent_total)}
+                  detail="Soma dos contratos vigentes"
+                  href="/contratos/"
+                  icon={Wallet}
+                />
+              </>
+            )}
+            <Indicator
+              label={c.can_review ? "Aprovações pendentes" : "Minhas solicitações pendentes"}
+              value={c.approvals_pending}
+              href="/aprovacoes/"
+              icon={Stamp}
+            />
+          </div>
+          {c.can_view_contracts && c.contracts_active + c.contracts_expired === 0 && (
+            <p className="text-muted-foreground mt-3 text-sm">
+              Ainda não há contratos aprovados no seu escopo.
+            </p>
+          )}
+        </section>
+      )}
+
       <Panel
         className="mt-6"
-        title="Indicadores dos módulos de gestão"
-        description="Aparecem aqui à medida que cada módulo for liberado."
+        title="Próximos módulos"
+        description="Os indicadores aparecem aqui à medida que cada módulo for liberado."
       >
         <EmptyState
           icon={Building2}
-          title="Ainda não há indicadores de imóveis, contratos, financeiro ou demandas"
+          title="Ainda não há indicadores de financeiro, demandas ou produtividade"
           description="Nenhum número é exibido antes de existirem registros reais no sistema."
           className="py-6"
         />

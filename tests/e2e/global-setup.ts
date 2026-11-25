@@ -9,6 +9,8 @@ export const PASSWORD = "SenhaTeste123";
 const ORG = "00000000-0000-4000-8000-000000000001";
 const ADMIN_ROLE = "00000000-0000-4000-8000-000000000201";
 const COLLAB_ROLE = "00000000-0000-4000-8000-000000000203";
+const MANAGER_ROLE = "00000000-0000-4000-8000-000000000202";
+const SEMFAZ = "00000000-0000-4000-8000-000000000101";
 
 export default async function globalSetup() {
   const svc = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } });
@@ -35,6 +37,11 @@ export default async function globalSetup() {
 
   const admin = await makeUser(`e2e.admin.${suffix}`, "Administradora Teste E2E", ADMIN_ROLE);
   const colab = await makeUser(`e2e.colab.${suffix}`, "Colaborador Teste E2E", COLLAB_ROLE);
+  const manager = await makeUser(`e2e.gestor.${suffix}`, "Gestora Teste E2E", MANAGER_ROLE);
+  const scope = await svc
+    .from("user_department_access")
+    .insert({ organization_id: ORG, user_id: manager.id, department_id: SEMFAZ });
+  if (scope.error) throw scope.error;
 
   // Cadastra o TOTP do administrador e guarda o segredo para os testes.
   const client = createClient(SUPABASE_URL, ANON_KEY, { auth: { persistSession: false } });
@@ -47,5 +54,5 @@ export default async function globalSetup() {
   if (verify.error) throw verify.error;
 
   mkdirSync("tests/e2e/.auth", { recursive: true });
-  writeFileSync(E2E_STATE, JSON.stringify({ admin, colab, totpSecret: enroll.data.totp.secret }));
+  writeFileSync(E2E_STATE, JSON.stringify({ admin, colab, manager, totpSecret: enroll.data.totp.secret }));
 }

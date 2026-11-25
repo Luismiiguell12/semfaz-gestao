@@ -2,7 +2,16 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
-## [Não publicado]
+## [Não publicado] — Fase 2: Aprovações, imóveis e contratos
+
+### Adicionado
+
+- Motor genérico de aprovações e Central de Aprovações (aprovar, rejeitar com motivo, cancelar; comparação atual × proposto; bloqueio de autoaprovação e de efetivação sobre registro alterado).
+- Imóveis (com escopo por secretaria e por imóvel selecionado), locadores (CPF/CNPJ validados e mascarados) e vínculo imóvel–locador com percentuais.
+- Contratos e aditivos com vigência e valor vigentes calculados; listas configuráveis de modalidade e índice de reajuste.
+- Alertas diários de vencimento e data-base (`pg_cron`) e indicadores de imóveis, contratos e aprovações no painel.
+- Tela de Regras e listas (operações que exigem aprovação, prazos de alerta, listas).
+- 58 novos testes pgTAP (135 no total), 5 unitários e 6 E2E.
 
 ### Alterado
 

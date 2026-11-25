@@ -25,6 +25,33 @@ garantidas no backend.
 | Departamento superior da mesma organização                                                                  | FK composta                                |
 | Exclusão lógica com justificativa; bloqueada se houver subordinados ou usuários lotados                     | `soft_delete_department` + trigger         |
 
+## Aprovações
+
+| Regra                                                                                                                                                     | Implementação                            |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Exigem aprovação (configurável): criar imóvel, alterar endereço ou secretaria do imóvel, cadastrar contrato, alterar valor ou vigência, cadastrar aditivo | `approval_operations` + `approval_rules` |
+| O solicitante nunca decide a própria solicitação, mesmo sendo administrador                                                                               | `decide_approval`                        |
+| Decisão em nível único pelo Administrador (`approvals.review`, com MFA)                                                                                   | `require_permission('approvals.review')` |
+| Rejeição exige motivo e preserva os dados originais                                                                                                       | `decide_approval`                        |
+| Efetivação transacional; bloqueada se o registro mudou desde a solicitação                                                                                | handlers + `assert_not_stale` (hash)     |
+| Registro em criação não aparece como oficial antes da aprovação                                                                                           | o registro só é inserido pelo handler    |
+| O solicitante pode cancelar a própria solicitação pendente                                                                                                | `cancel_approval_request`                |
+| Com um único administrador ativo, solicitações dele ficam pendentes e o painel exibe alerta                                                               | `approval_reviewers` + painel            |
+
+## Imóveis, locadores e contratos
+
+| Regra                                                                                                                                            | Implementação                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
+| Um imóvel pode ter vários contratos; contratos antigos não são sobrescritos                                                                      | FK sem unicidade; alterações via solicitação auditada    |
+| Vigência efetiva = último aditivo de prazo aprovado, ou o fim original                                                                           | `private.contract_effective_end`                         |
+| Valor vigente numa data = último aditivo de valor em vigor naquela data, ou o valor original                                                     | `private.contract_monthly_value_at`                      |
+| Situação de vigência calculada (não iniciado, vigente, próximo do vencimento, vencido) no fuso de Maceió; "próximo" = até 90 dias (configurável) | `contracts_overview` + `contracts.expiring_days`         |
+| O sistema não calcula reajustes; apenas alerta sobre a data-base                                                                                 | `alert_rules` (contract_adjustment)                      |
+| Com mais de um locador, percentuais obrigatórios e soma 100%                                                                                     | `assert_landlord_shares`                                 |
+| Dados bancários de locadores não são armazenados                                                                                                 | ausência de colunas                                      |
+| CPF/telefone completos só com `landlords.view_sensitive`, com registro na auditoria                                                              | `get_landlord_sensitive`                                 |
+| Alertas: 90/60/30 dias antes, vencido e data-base; diários, sem duplicidade                                                                      | `generate_contract_alerts` + `pg_cron` + `alerts_unique` |
+
 ## Documentos
 
 | Regra                                                                  | Implementação                                                                             |

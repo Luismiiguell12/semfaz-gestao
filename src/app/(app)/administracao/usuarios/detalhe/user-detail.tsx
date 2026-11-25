@@ -32,6 +32,9 @@ import { useRoles } from "@/modules/roles/api";
 import { toTree, useDepartments } from "@/modules/departments/api";
 import { updateUserSchema, type UpdateUserInput } from "@shared/schemas/users.ts";
 import { useAuth } from "@/providers/auth-provider";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getSupabase } from "@/lib/supabase/client";
+import { toAppError } from "@/lib/errors";
 import { formatDateTime } from "@/lib/format";
 
 function ProfileForm({ user }: { user: AdminUser }) {
@@ -290,6 +293,84 @@ function StatusSection({ user }: { user: AdminUser }) {
   );
 }
 
+function PropertyScopeForm({ user }: { user: AdminUser }) {
+  const { access } = useAuth();
+  const qc = useQueryClient();
+  const isSelf = access?.profile?.id === user.id;
+  const props = useQuery({
+    queryKey: ["users", "property-scope", user.id],
+    queryFn: async () => {
+      const s = getSupabase();
+      const [all, mine] = await Promise.all([
+        s.rpc("admin_list_properties_for_scope"),
+        s.from("user_property_access").select("property_id").eq("user_id", user.id),
+      ]);
+      if (all.error) throw toAppError(all.error);
+      if (mine.error) throw toAppError(mine.error);
+      return { all: all.data ?? [], selected: (mine.data ?? []).map((r) => r.property_id) };
+    },
+  });
+  const [selected, setSelected] = React.useState<string[] | null>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const current = selected ?? props.data?.selected ?? [];
+
+  if (isSelf) return <InlineAlert tone="info">Você não pode alterar o próprio escopo de acesso.</InlineAlert>;
+  if (props.isLoading) return <FullPageLoading />;
+  if (props.isError) return <ErrorState message={props.error.message} />;
+  return (
+    <div className="max-w-2xl space-y-4">
+      <p className="text-muted-foreground text-sm">
+        Concede acesso a imóveis específicos, além do escopo por departamento. Útil para quem acompanha poucos
+        imóveis de outras secretarias.
+      </p>
+      {props.data!.all.length === 0 ? (
+        <p className="text-muted-foreground text-sm">Nenhum imóvel cadastrado.</p>
+      ) : (
+        <div className="max-h-72 space-y-1.5 overflow-y-auto rounded-md border p-3">
+          {props.data!.all.map((p) => (
+            <div key={p.id} className="flex items-center gap-2.5">
+              <Checkbox
+                id={`up-${p.id}`}
+                checked={current.includes(p.id)}
+                onCheckedChange={(v) =>
+                  setSelected(v ? [...current, p.id] : current.filter((x) => x !== p.id))
+                }
+              />
+              <label htmlFor={`up-${p.id}`} className="cursor-pointer text-sm">
+                {p.name}
+              </label>
+            </div>
+          ))}
+        </div>
+      )}
+      <Button onClick={() => setConfirmOpen(true)} disabled={selected === null}>
+        Salvar imóveis selecionados
+      </Button>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Salvar o escopo por imóveis?"
+        confirmLabel="Salvar"
+        requireReason
+        onConfirm={async (reason) => {
+          const { error } = await getSupabase().rpc("admin_set_user_property_access", {
+            p_user_id: user.id,
+            p_property_ids: current,
+            p_reason: reason,
+          });
+          if (error) {
+            toast.error(toAppError(error).message);
+            throw error;
+          }
+          toast.success("Escopo por imóveis atualizado.");
+          setSelected(null);
+          qc.invalidateQueries({ queryKey: ["users", "property-scope", user.id] });
+        }}
+      />
+    </div>
+  );
+}
+
 export function UserDetail() {
   const id = useSearchParams().get("id");
   const users = useAdminUsers();
@@ -323,6 +404,7 @@ export function UserDetail() {
           <TabsList>
             <TabsTrigger value="dados">Dados</TabsTrigger>
             <TabsTrigger value="acesso">Perfis e escopo</TabsTrigger>
+            <TabsTrigger value="imoveis">Imóveis selecionados</TabsTrigger>
             <TabsTrigger value="situacao">Situação</TabsTrigger>
           </TabsList>
           <TabsContent value="dados">
@@ -330,6 +412,9 @@ export function UserDetail() {
           </TabsContent>
           <TabsContent value="acesso">
             <AccessForm user={user} />
+          </TabsContent>
+          <TabsContent value="imoveis">
+            <PropertyScopeForm user={user} />
           </TabsContent>
           <TabsContent value="situacao">
             <StatusSection user={user} />

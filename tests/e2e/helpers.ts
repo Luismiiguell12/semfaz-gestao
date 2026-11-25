@@ -7,6 +7,7 @@ export const PASSWORD = "SenhaTeste123";
 export function e2eState(): {
   admin: { id: string; email: string };
   colab: { id: string; email: string };
+  manager: { id: string; email: string };
   totpSecret: string;
 } {
   return JSON.parse(readFileSync("tests/e2e/.auth/state.json", "utf8"));
