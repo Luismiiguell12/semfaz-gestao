@@ -9,6 +9,11 @@ name: Criar primeiro administrador
 on:
   workflow_dispatch:
     inputs:
+      action:
+        description: Ação
+        type: choice
+        options: [create, resend_invite]
+        default: create
       environment:
         description: Ambiente
         type: choice
@@ -18,11 +23,11 @@ on:
         description: E-mail do administrador
         required: true
       admin_full_name:
-        description: Nome completo
-        required: true
+        description: Nome completo (somente para create)
+        required: false
       admin_username:
-        description: Nome de usuário
-        required: true
+        description: Nome de usuário (somente para create)
+        required: false
 
 permissions:
   contents: read
@@ -38,8 +43,8 @@ jobs:
       - name: Mascarar dados pessoais
         run: |
           for k in admin_email admin_full_name admin_username; do
-            v=$(jq -r ".inputs.$k" "$GITHUB_EVENT_PATH")
-            echo "::add-mask::$v"
+            v=$(jq -r ".inputs.$k // empty" "$GITHUB_EVENT_PATH")
+            [ -n "$v" ] && echo "::add-mask::$v"
           done
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -50,7 +55,7 @@ jobs:
       - uses: supabase/setup-cli@v3
         with:
           version: 3.4.0
-      - name: Criar administrador
+      - name: Executar ação
         run: |
           set -euo pipefail
           KEY=$(supabase projects api-keys --remote="$SUPABASE_PROJECT_REF" --reveal -o json \
@@ -63,4 +68,8 @@ jobs:
           export ADMIN_EMAIL=$(jq -r '.inputs.admin_email' "$GITHUB_EVENT_PATH")
           export ADMIN_FULL_NAME=$(jq -r '.inputs.admin_full_name' "$GITHUB_EVENT_PATH")
           export ADMIN_USERNAME=$(jq -r '.inputs.admin_username' "$GITHUB_EVENT_PATH")
-          node scripts/create-admin.mjs
+          if [ "${{ inputs.action }}" = "resend_invite" ]; then
+            node scripts/resend-invite.mjs
+          else
+            node scripts/create-admin.mjs
+          fi
