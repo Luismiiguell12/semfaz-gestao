@@ -6,7 +6,7 @@ import { Stamp } from "lucide-react";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, InlineAlert, LoadingRows } from "@/components/shared/states";
 import { ApprovalStatusBadge } from "@/components/shared/status-badges";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import { useApprovalRequests } from "@/modules/approvals/api";
 import { useUserDirectory } from "@/modules/users/api";
 import { useFoundationStats } from "@/modules/dashboard/api";
@@ -36,13 +36,13 @@ export default function ApprovalsPage() {
         </InlineAlert>
       )}
       <Panel bodyClassName="p-0">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
-          <TabsList className="border-b-0">
-            {canReview && <TabsTrigger value="to_review">Aguardando minha decisão</TabsTrigger>}
-            <TabsTrigger value="mine">Minhas solicitações</TabsTrigger>
-            {canReview && <TabsTrigger value="all">Todas</TabsTrigger>}
-          </TabsList>
-        </Tabs>
+        <FilterTabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
+          <FilterTabsList className="border-b-0" aria-label="Filtrar solicitações">
+            {canReview && <FilterTab value="to_review">Aguardando minha decisão</FilterTab>}
+            <FilterTab value="mine">Minhas solicitações</FilterTab>
+            {canReview && <FilterTab value="all">Todas</FilterTab>}
+          </FilterTabsList>
+        </FilterTabs>
         <div className="border-t">
           {list.isLoading && <LoadingRows />}
           {list.isError && <ErrorState message={list.error.message} onRetry={() => list.refetch()} />}

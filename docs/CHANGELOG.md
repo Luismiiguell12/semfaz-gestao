@@ -2,6 +2,25 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado] — Fase 7: Testes finais e implantação
+
+### Segurança
+
+- Corrigido: usuário comum podia alterar o perfil de colegas escrevendo na visão `user_directory` pela API. Visões passaram a ser somente leitura; usuários sem DELETE/TRUNCATE; escrita direta só em 9 tabelas de configuração.
+
+### Adicionado
+
+- Teste de ataque direto à API em todas as tabelas e visões; matriz de privilégios; integridade estrutural; geração de aluguéis com aditivos; objetos de plataforma.
+- Varredura de todas as telas nos três tamanhos com verificação de acessibilidade (axe-core).
+- Backup lógico (`scripts/backup/backup.sh`) e exercício de restauração (`restore-test.sh`); `private.ensure_platform_objects()`.
+- Workflow `Release produção` (versões `vX.Y.Z` com aprovação) e site com homologação em `/homologacao/`.
+
+### Alterado
+
+- Relatório de despesas e painel financeiro muito mais rápidos (escopo calculado uma vez por consulta).
+- Acessibilidade: filtros como grupo de botões, tabelas largas roláveis pelo teclado, rótulos coerentes com o texto visível, contraste no calendário.
+- 351 testes pgTAP, 36 de integração, 34 unitários e 80 E2E.
+
 ## [Não publicado] — Fase 6: Relatórios e exportações
 
 ### Adicionado

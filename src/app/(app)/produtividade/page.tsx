@@ -22,6 +22,7 @@ import {
 } from "@/modules/productivity/api";
 import { formatInteger } from "@/lib/format";
 import { ExportButtons } from "@/modules/reports/export-buttons";
+import { ScrollRegion } from "@/components/shared/scroll-region";
 
 const pct = (v: number | null) =>
   v === null ? "—" : `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
@@ -225,7 +226,7 @@ function ProductivityContent() {
                 description="Ordem alfabética. Sem ranking nem pontuação."
                 bodyClassName="p-0"
               >
-                <div className="relative overflow-x-auto">
+                <ScrollRegion label="Indicadores por pessoa">
                   <table className="w-full min-w-[720px] text-sm">
                     <caption className="sr-only">Indicadores por pessoa</caption>
                     <thead>
@@ -278,7 +279,7 @@ function ProductivityContent() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </ScrollRegion>
               </Panel>
               <p className="text-muted-foreground mt-2 text-xs">
                 No coletivo, uma demanda com várias pessoas conta uma vez para cada participante.

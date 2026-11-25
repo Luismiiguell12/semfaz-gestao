@@ -11,7 +11,7 @@ import { EmptyState, ErrorState, FullPageLoading, LoadingRows } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { NativeSelect } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import { useAuth } from "@/providers/auth-provider";
 import {
   TASK_STATUSES,
@@ -145,12 +145,12 @@ function TasksContent() {
         }
       />
       <div className="mb-4 space-y-3">
-        <Tabs value={view} onValueChange={setView}>
-          <TabsList>
-            <TabsTrigger value="lista">Lista</TabsTrigger>
-            <TabsTrigger value="kanban">Kanban</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FilterTabs value={view} onValueChange={setView}>
+          <FilterTabsList aria-label="Visualização das demandas">
+            <FilterTab value="lista">Lista</FilterTab>
+            <FilterTab value="kanban">Kanban</FilterTab>
+          </FilterTabsList>
+        </FilterTabs>
         <div className="grid grid-cols-1 items-end gap-3 sm:flex sm:flex-wrap">
           {view === "lista" && (
             <label className="text-sm">

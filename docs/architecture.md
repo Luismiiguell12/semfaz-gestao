@@ -274,6 +274,21 @@ Funções no schema `private` (não exposto pela API), todas `STABLE`,
 - Consulta restrita a `audit.view` (privilegiada, exige MFA).
 - Exportações de relatórios: a Edge Function `reports-export` chama `log_report_export` com o token do usuário **antes** de gerar o arquivo (operação `EXPORT`, com relatório, filtros, formato e linhas).
 
+### Desempenho das políticas (Fase 7)
+
+Políticas de leitura não chamam funções de escopo por linha: o conjunto de imóveis e unidades acessíveis
+é calculado uma vez por consulta (`(select private.accessible_property_ids())`, executado como InitPlan) e
+as verificações de permissão também ficam dentro de `(select ...)`. As funções por registro
+(`can_access_property`, `can_access_unit`) continuam nas RPCs. O teste `17_integrity` garante a
+equivalência entre as duas formas e impede o retorno do padrão por linha.
+
+### Ambientes e publicação (Fase 7)
+
+Workflows: `CI` (todos os testes) → `Deploy GitHub Pages` (homologação em `/homologacao/` a partir da
+`main`; produção em `/` a partir da última versão concluída) e `Supabase migrations` (homologação a cada
+push; produção chamada por `Release produção`, disparado por tag `vX.Y.Z` e com aprovação manual).
+Detalhes em `docs/deployment.md`.
+
 ### Frontend
 
 - Somente URL e chave **anon** do Supabase no build. Nenhum outro segredo.

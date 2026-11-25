@@ -1,17 +1,24 @@
-# Publicação do frontend estático no GitHub Pages após CI aprovada na main.
-# Só valores PÚBLICOS entram no build (URL e chave anon do Supabase de produção),
-# configurados como "variables" do ambiente "github-pages". Nenhum segredo.
+# Publicação do frontend estático no GitHub Pages. Só valores PÚBLICOS entram no
+# build (URL e chave anon/publishable do Supabase), configurados como "variables"
+# do ambiente "github-pages". Nenhum segredo.
+#
+# Modo único (enquanto PROD_SUPABASE_URL não estiver definida):
+#   /semfaz-gestao/               ← main, banco de NEXT_PUBLIC_SUPABASE_URL
+# Modo homologação + produção (com PROD_SUPABASE_URL definida):
+#   /semfaz-gestao/               ← PRODUÇÃO: última versão vX.Y.Z cujo workflow
+#                                   "Release produção" terminou com sucesso (banco já migrado)
+#   /semfaz-gestao/homologacao/   ← HOMOLOGAÇÃO: main, banco de NEXT_PUBLIC_SUPABASE_URL
 name: Deploy GitHub Pages
 
 on:
   workflow_run:
-    workflows: [CI]
+    workflows: [CI, Release produção]
     types: [completed]
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -21,23 +28,29 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       (github.event.workflow_run.name == 'Release produção' || github.event.workflow_run.head_branch == 'main'))
     runs-on: ubuntu-latest
     environment: github-pages
     env:
       NEXT_TELEMETRY_DISABLED: "1"
+      REPO_NAME: ${{ github.event.repository.name }}
+      DUAL: ${{ vars.PROD_SUPABASE_URL != '' }}
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ (github.event.workflow_run.name == 'CI' && github.event.workflow_run.head_sha) || 'main' }}
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      # A conferência usa expressões avaliadas pelo GitHub, sem imprimir os valores:
+
+      # As conferências usam expressões avaliadas pelo GitHub, sem imprimir os valores:
       # se um segredo for colado por engano numa variável, ele não aparece no registro público.
-      - name: Verificar configuração pública
+      - name: Verificar configuração pública (homologação / modo único)
         if: >-
           ${{ !(
             startsWith(vars.NEXT_PUBLIC_SUPABASE_URL, 'https://') &&
@@ -50,12 +63,73 @@ jobs:
         run: |
           echo "::error::Configuração inválida no ambiente github-pages. NEXT_PUBLIC_SUPABASE_URL deve ser https://<codigo>.supabase.co e NEXT_PUBLIC_SUPABASE_ANON_KEY deve ser a chave PÚBLICA (anon, começa com eyJ, ou publishable, começa com sb_publishable_). Nunca coloque tokens (sbp_), chaves secretas (sb_secret_) ou a service_role em variáveis."
           exit 1
-      - run: npm run build
+      - name: Verificar configuração pública (produção)
+        if: >-
+          ${{ vars.PROD_SUPABASE_URL != '' && !(
+            startsWith(vars.PROD_SUPABASE_URL, 'https://') &&
+            endsWith(vars.PROD_SUPABASE_URL, '.supabase.co') &&
+            vars.PROD_SUPABASE_URL != vars.NEXT_PUBLIC_SUPABASE_URL &&
+            (startsWith(vars.PROD_SUPABASE_ANON_KEY, 'eyJ') || startsWith(vars.PROD_SUPABASE_ANON_KEY, 'sb_publishable_')) &&
+            !contains(vars.PROD_SUPABASE_ANON_KEY, 'c2VydmljZV9yb2xl') &&
+            !contains(vars.PROD_SUPABASE_ANON_KEY, 'NlcnZpY2Vfcm9sZ') &&
+            !contains(vars.PROD_SUPABASE_ANON_KEY, 'zZXJ2aWNlX3JvbG')
+          ) }}
+        run: |
+          echo "::error::Configuração de produção inválida. PROD_SUPABASE_URL deve ser https://<codigo>.supabase.co (diferente do projeto de homologação) e PROD_SUPABASE_ANON_KEY a chave PÚBLICA do projeto de produção."
+          exit 1
+
+      - run: npm ci
+
+      - name: Build — modo único
+        if: env.DUAL != 'true'
+        run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
-          NEXT_PUBLIC_APP_ENV: ${{ vars.NEXT_PUBLIC_APP_ENV || 'production' }}
+          NEXT_PUBLIC_APP_ENV: ${{ vars.NEXT_PUBLIC_APP_ENV || 'staging' }}
+
+      - name: Build — homologação (main)
+        if: env.DUAL == 'true'
+        run: npm run build && mv out "$RUNNER_TEMP/homologacao"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}/homologacao
+          NEXT_PUBLIC_APP_ENV: staging
+
+      - name: Versão aprovada para produção
+        if: env.DUAL == 'true'
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          read -r tag sha < <(gh run list --repo "$GITHUB_REPOSITORY" --workflow release-production.yml \
+            --status success --limit 1 --json headBranch,headSha --jq '.[0] | "\(.headBranch) \(.headSha)"' || true)
+          if [ -z "${sha:-}" ] || [ "$sha" = "null" ]; then
+            echo "::error::Nenhuma versão concluída em produção. Crie a primeira versão (tag v1.0.0) e aprove o workflow 'Release produção'."
+            exit 1
+          fi
+          echo "Produção: $tag ($sha)"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Build — produção (versão aprovada)
+        if: env.DUAL == 'true'
+        run: |
+          set -euo pipefail
+          git worktree add "$RUNNER_TEMP/prod" "${{ steps.release.outputs.sha }}"
+          cd "$RUNNER_TEMP/prod"
+          npm ci
+          npm run build
+          mv out "$GITHUB_WORKSPACE/out"
+          mv "$RUNNER_TEMP/homologacao" "$GITHUB_WORKSPACE/out/homologacao"
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.PROD_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PROD_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_APP_ENV: production
+
       - run: touch out/.nojekyll
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5

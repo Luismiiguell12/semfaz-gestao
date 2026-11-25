@@ -1,0 +1,42 @@
+# Publicação de uma versão em PRODUÇÃO.
+# Disparo: criar a tag vX.Y.Z num commit da main já validado em homologação
+#   (GitHub → Releases → "Draft a new release", ou `git tag v1.0.0 && git push origin v1.0.0`).
+# O job do banco usa o ambiente "production", que exige aprovação manual
+# (Required reviewers). Depois de aplicado, o workflow "Deploy GitHub Pages"
+# publica o site de produção a partir desta mesma versão.
+name: Release produção
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-production
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Conferir a versão
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Versão no formato vX.Y.Z e contida na main
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Use o formato vX.Y.Z (ex.: v1.0.0)."; exit 1; }
+          git fetch origin main --quiet
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "::error::A versão precisa apontar para um commit da main (já validado em homologação)."; exit 1; }
+          echo "Versão $GITHUB_REF_NAME ($GITHUB_SHA) aprovada para seguir."
+
+  database:
+    name: Banco de produção (exige aprovação)
+    needs: check
+    uses: ./.github/workflows/supabase-migrations.yml
+    with:
+      environment: production
+    secrets: inherit

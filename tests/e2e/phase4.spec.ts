@@ -105,9 +105,9 @@ test("calendário: evento no mês, semana e dia", async ({ page }) => {
   await expect(page.getByRole("dialog").getByText("Sala de reuniões da SEMFAZ")).toBeVisible();
   await page.keyboard.press("Escape");
 
-  await page.getByRole("tab", { name: "Semana" }).click();
+  await page.getByRole("button", { name: "Semana", exact: true }).click();
   await expect(page.getByRole("button", { name: new RegExp(title) })).toBeVisible();
-  await page.getByRole("tab", { name: "Mês" }).click();
+  await page.getByRole("button", { name: "Mês", exact: true }).click();
   await expect(
     page
       .getByRole("button", { name: new RegExp(title) })

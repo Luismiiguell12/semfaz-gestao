@@ -30,8 +30,8 @@ select throws_ok(
   format($$insert into public.user_roles (organization_id, user_id, role_id) values ('00000000-0000-4000-8000-000000000001', %L, '00000000-0000-4000-8000-000000000201')$$, :'colab_a2'),
   '42501', null, 'Colaborador não insere papéis diretamente (sem política de INSERT)'
 );
-update public.profiles set full_name = 'Alterado' where id = :'colab_a2';
-select is((select count(*)::int from public.profiles where full_name = 'Alterado'), 0, 'UPDATE direto em perfil de terceiro não afeta linhas');
+select throws_ok(format($$update public.profiles set full_name = 'Alterado' where id = %L$$, :'colab_a2'),
+  '42501', null, 'UPDATE direto em perfil de terceiro é negado (sem privilégio de escrita)');
 select throws_ok(
   $$insert into public.departments (organization_id, kind, name) values ('00000000-0000-4000-8000-000000000001', 'secretariat', 'Secretaria Invasora')$$,
   '42501', null, 'Colaborador não cria departamentos'

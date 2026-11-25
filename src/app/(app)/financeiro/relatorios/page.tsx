@@ -30,6 +30,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { ExportButtons } from "@/modules/reports/export-buttons";
 import type { ReportFilters } from "@/modules/reports/api";
 import { formatCurrency } from "@/lib/format";
+import { ScrollRegion } from "@/components/shared/scroll-region";
 
 const KINDS: ExpenseKind[] = ["rent", "water", "energy"];
 const STATUSES: ExpenseStatus[] = ["paid", "pending", "partially_paid", "overdue"];
@@ -108,7 +109,7 @@ function Table({
   foot?: React.ReactNode;
 }) {
   return (
-    <div className="relative overflow-x-auto">
+    <ScrollRegion label={caption}>
       <table className="w-full min-w-[520px] text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -117,7 +118,7 @@ function Table({
         <tbody className="divide-y">{children}</tbody>
         {foot && <tfoot className="border-t-2 font-semibold">{foot}</tfoot>}
       </table>
-    </div>
+    </ScrollRegion>
   );
 }
 const Th = ({ children, right }: { children: React.ReactNode; right?: boolean }) => (

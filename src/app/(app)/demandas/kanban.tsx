@@ -190,6 +190,7 @@ export function Kanban({ tasks }: { tasks: TaskListItem[] }) {
           className="relative -mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
           role="region"
           aria-label="Quadro de demandas"
+          tabIndex={0}
         >
           <div className="flex items-start gap-3">
             {TASK_STATUSES.map((s) => (

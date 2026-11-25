@@ -35,6 +35,7 @@ import { ExportButtons } from "@/modules/reports/export-buttons";
 import { formatInteger } from "@/lib/format";
 import { toAppError } from "@/lib/errors";
 import { useAuth } from "@/providers/auth-provider";
+import { ScrollRegion } from "@/components/shared/scroll-region";
 
 const GROUPS: ReportDef["group"][] = ["Gestão", "Financeiro", "Acompanhamento"];
 const RIGHT = new Set(["money", "number", "percent"]);
@@ -262,7 +263,7 @@ function ReportView({ def }: { def: ReportDef }) {
             description="Não há dados no seu escopo com os filtros informados."
           />
         ) : (
-          <div className="relative overflow-x-auto">
+          <ScrollRegion label={def.title}>
             <table className="w-full min-w-[640px] text-sm">
               <caption className="sr-only">{def.title}</caption>
               <thead>
@@ -293,7 +294,7 @@ function ReportView({ def }: { def: ReportDef }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
         )}
       </Panel>
       <p className="text-muted-foreground mt-2 flex items-start gap-1.5 text-xs">

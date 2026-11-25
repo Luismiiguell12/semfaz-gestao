@@ -42,9 +42,9 @@ function SensitiveButton({ landlord }: { landlord: Landlord }) {
           setLoading(false);
         }
       }}
-      aria-label={`Ver dados completos de ${landlord.name}`}
     >
       <Eye aria-hidden="true" /> Ver completo
+      <span className="sr-only"> o documento de {landlord.name}</span>
     </Button>
   );
 }

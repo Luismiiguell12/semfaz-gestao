@@ -36,6 +36,7 @@ import { useDepartments } from "@/modules/departments/api";
 import { useAuth } from "@/providers/auth-provider";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
 import { parseBrlInput } from "@shared/schemas/br.ts";
+import { ScrollRegion } from "@/components/shared/scroll-region";
 
 interface Memo {
   amount: string;
@@ -170,7 +171,7 @@ export function RentDetail() {
               Com aditivo de valor no meio do mês, cada período usa o seu valor. O total é arredondado para
               centavos (meio para cima).
             </p>
-            <div className="relative overflow-x-auto rounded-md border">
+            <ScrollRegion label="Memória de cálculo" className="rounded-md border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-surface text-muted-foreground border-b text-left text-xs">
@@ -219,7 +220,7 @@ export function RentDetail() {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
             {canManage && !cancelled && (
               <div className="flex flex-wrap gap-2 border-t pt-4">
                 <Button

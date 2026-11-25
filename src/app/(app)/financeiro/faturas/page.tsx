@@ -9,7 +9,7 @@ import { DataTable } from "@/components/shared/data-table";
 import { EmptyState, ErrorState, FullPageLoading, LoadingRows } from "@/components/shared/states";
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import { formatCompetence, useInvoices, type InvoiceOverview } from "@/modules/finance/api";
 import { ChargeStatusBadge } from "@/modules/finance/components";
 import { useAuth } from "@/providers/auth-provider";
@@ -113,14 +113,14 @@ function InvoicesContent() {
       />
       {drilled && <DrillBanner filters={drill} clearHref="/financeiro/faturas/" />}
       <Panel bodyClassName="p-0">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
-          <TabsList className="border-b-0">
-            <TabsTrigger value="open">Em aberto</TabsTrigger>
-            <TabsTrigger value="overdue">Vencidas</TabsTrigger>
-            <TabsTrigger value="paid">Pagas</TabsTrigger>
-            <TabsTrigger value="all">Todas</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FilterTabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
+          <FilterTabsList className="border-b-0" aria-label="Filtrar faturas por situação">
+            <FilterTab value="open">Em aberto</FilterTab>
+            <FilterTab value="overdue">Vencidas</FilterTab>
+            <FilterTab value="paid">Pagas</FilterTab>
+            <FilterTab value="all">Todas</FilterTab>
+          </FilterTabsList>
+        </FilterTabs>
         <div className="border-t">
           {list.isLoading && <LoadingRows />}
           {list.isError && <ErrorState message={list.error.message} onRetry={() => list.refetch()} />}

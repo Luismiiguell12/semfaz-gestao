@@ -13,6 +13,7 @@ import {
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ScrollRegion } from "@/components/shared/scroll-region";
 
 declare module "@tanstack/react-table" {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,6 +38,7 @@ export function DataTable<TData>({
   cardTitle,
   getRowId,
   toolbar,
+  tableLabel = "Tabela de registros",
 }: {
   columns: ColumnDef<TData, unknown>[];
   data: TData[];
@@ -46,6 +48,8 @@ export function DataTable<TData>({
   cardTitle: (row: TData) => React.ReactNode;
   getRowId?: (row: TData) => string;
   toolbar?: React.ReactNode;
+  /** Nome da tabela para leitores de tela (área com rolagem horizontal). */
+  tableLabel?: string;
 }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -91,7 +95,7 @@ export function DataTable<TData>({
       ) : (
         <>
           {/* Desktop e tablet */}
-          <div className="hidden md:block">
+          <ScrollRegion label={tableLabel} className="hidden md:block">
             <table className="w-full text-sm">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
@@ -150,7 +154,7 @@ export function DataTable<TData>({
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
 
           {/* Celular: cartões */}
           <ul className="divide-y md:hidden">

@@ -9,7 +9,7 @@ import { DataTable } from "@/components/shared/data-table";
 import { EmptyState, ErrorState, FullPageLoading, LoadingRows } from "@/components/shared/states";
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import {
   EXPENSE_KIND_LABEL,
   formatCompetence,
@@ -131,13 +131,13 @@ function PaymentsContent() {
       {drilled && <DrillBanner filters={drill} clearHref="/financeiro/pagamentos/" />}
       <Panel bodyClassName="p-0">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-2">
-          <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
-            <TabsList className="border-b-0">
-              <TabsTrigger value="all">Todos</TabsTrigger>
-              <TabsTrigger value="payment">Pagamentos</TabsTrigger>
-              <TabsTrigger value="reversal">Estornos</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <FilterTabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+            <FilterTabsList className="border-b-0" aria-label="Filtrar movimentos">
+              <FilterTab value="all">Todos</FilterTab>
+              <FilterTab value="payment">Pagamentos</FilterTab>
+              <FilterTab value="reversal">Estornos</FilterTab>
+            </FilterTabsList>
+          </FilterTabs>
           {list.data && (
             <p className="text-muted-foreground pb-2 text-sm">
               Total líquido:{" "}

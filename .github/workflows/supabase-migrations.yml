@@ -1,6 +1,9 @@
 # Aplica migrations, seed estrutural e Edge Functions nos projetos Supabase
 # REMOTOS. Nunca a partir do navegador. Segredos ficam nos "environments" do
-# GitHub (staging/production), e production exige aprovação manual.
+# GitHub (staging = homologação; production = produção, com aprovação manual).
+#   - push na main (mudanças em supabase/): homologação, automático;
+#   - versão vX.Y.Z (workflow "Release produção"): produção, após aprovação;
+#   - execução manual: ambiente escolhido.
 name: Supabase migrations
 
 on:
@@ -14,18 +17,23 @@ on:
         type: choice
         options: [staging, production]
         default: staging
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
 
 permissions:
   contents: read
 
 concurrency:
-  group: supabase-${{ github.event.inputs.environment || 'staging' }}
+  group: supabase-${{ inputs.environment || 'staging' }}
   cancel-in-progress: false
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'staging' }}
+    environment: ${{ inputs.environment || 'staging' }}
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}

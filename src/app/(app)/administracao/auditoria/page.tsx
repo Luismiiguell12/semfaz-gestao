@@ -20,6 +20,7 @@ import {
 } from "@/modules/audit/api";
 import { useUserDirectory } from "@/modules/users/api";
 import { formatDateTime, formatInteger } from "@/lib/format";
+import { ScrollRegion } from "@/components/shared/scroll-region";
 
 const HIDDEN_FIELDS = new Set(["updated_at", "updated_by", "created_at", "created_by"]);
 
@@ -46,7 +47,7 @@ function Diff({ log }: { log: AuditLog }) {
         </p>
       )}
       {fields.length > 0 && (
-        <div className="bg-background relative overflow-x-auto rounded-md border">
+        <ScrollRegion label="Campos alterados" className="bg-background rounded-md border">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-muted-foreground border-b text-left">
@@ -73,7 +74,7 @@ function Diff({ log }: { log: AuditLog }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollRegion>
       )}
     </div>
   );

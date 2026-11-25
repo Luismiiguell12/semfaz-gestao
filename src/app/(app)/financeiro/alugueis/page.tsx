@@ -8,7 +8,7 @@ import { PageHeader, Panel } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { EmptyState, ErrorState, FullPageLoading, LoadingRows } from "@/components/shared/states";
 import { RequirePermission } from "@/components/auth/route-guard";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import { formatCompetence, useRents, type RentOverview } from "@/modules/finance/api";
 import { ChargeStatusBadge } from "@/modules/finance/components";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
@@ -113,14 +113,14 @@ function RentsContent() {
       />
       {drilled && <DrillBanner filters={drill} clearHref="/financeiro/alugueis/" />}
       <Panel bodyClassName="p-0">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
-          <TabsList className="border-b-0">
-            <TabsTrigger value="open">Em aberto</TabsTrigger>
-            <TabsTrigger value="overdue">Vencidos</TabsTrigger>
-            <TabsTrigger value="paid">Pagos</TabsTrigger>
-            <TabsTrigger value="all">Todos</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FilterTabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
+          <FilterTabsList className="border-b-0" aria-label="Filtrar aluguéis por situação">
+            <FilterTab value="open">Em aberto</FilterTab>
+            <FilterTab value="overdue">Vencidos</FilterTab>
+            <FilterTab value="paid">Pagos</FilterTab>
+            <FilterTab value="all">Todos</FilterTab>
+          </FilterTabsList>
+        </FilterTabs>
         <div className="border-t">
           {list.isLoading && <LoadingRows />}
           {list.isError && <ErrorState message={list.error.message} onRetry={() => list.refetch()} />}

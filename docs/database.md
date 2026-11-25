@@ -36,6 +36,24 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | `20261125000800_structural_defaults.sql`         | aplica de forma idempotente os dados estruturais das Fases 2 e 3 nos ambientes remotos                                                                                                                            |
 | `20261125000700_unit_create_with_assignment.sql` | cadastro de unidade exige imóvel e data de vinculação (mesma transação)                                                                                                                                           |
 
+## Migrations da Fase 7
+
+| Arquivo                                  | Conteúdo                                                                                                                                                                                            |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20261125001600_privilege_hardening.sql` | visões somente leitura; sem DELETE/TRUNCATE/REFERENCES/TRIGGER para usuários; INSERT/UPDATE diretos apenas em 9 tabelas de configuração; tabelas futuras nascem sem escrita (privilégios padrão)    |
+| `20261125001700_integrity_indexes.sql`   | índices nas chaves estrangeiras usadas em consultas (locador, fornecedor, categoria, escopo por imóvel, estornos, gestor/fiscal)                                                                    |
+| `20261125001800_rls_performance.sql`     | `accessible_property_ids()` / `accessible_unit_ids()`: escopo calculado uma vez por consulta; 10 políticas de leitura reescritas com as mesmas regras (relatório de despesas de 11,5 s para 0,37 s) |
+| `20261125001900_platform_objects.sql`    | `ensure_platform_objects()`: recria auditoria de login, política do Storage, bucket e rotinas `pg_cron` (passo obrigatório após restauração)                                                        |
+
+### Privilégios dos papéis da API (Fase 7)
+
+A RLS continua sendo a regra de acesso; os privilégios são a segunda barreira.
+`anon` não lê nem escreve nada. `authenticated` lê (sob RLS) e só escreve diretamente em
+`departments`, `notification_preferences`, `registration_drafts`, `task_categories`,
+`contract_modalities`, `adjustment_indexes`, `suppliers` (INSERT/UPDATE) e `approval_rules`,
+`alert_rules` (UPDATE). Todo o resto é gravado por funções `SECURITY DEFINER` com verificação de
+permissão. Visões são somente leitura. O teste `15_privileges` trava essa lista.
+
 ## Migrations da Fase 6
 
 | Arquivo                             | Conteúdo                                                                                                                                      |

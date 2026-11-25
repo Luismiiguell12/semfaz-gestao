@@ -4,7 +4,15 @@
 
 ## Fase atual
 
-**Fase 6 — Relatórios e exportações: concluída, aguardando validação.** A Fase 5 foi validada pelo responsável ("vamos para a fase 6"). Próxima atividade, após a validação: **Fase 7 (testes finais, homologação/produção e publicação)**.
+**Fase 7 — Testes finais e implantação: parte técnica concluída, aguardando validação.** A Fase 6 foi validada pelo responsável ("comece a parte 7"). A entrada em produção depende de ações institucionais (criação do projeto Supabase Pro de produção, SMTP, aprovação da primeira versão), descritas em `docs/deployment.md`.
+
+## Funcionalidades concluídas (Fase 7)
+
+- **7A Cobertura:** lista obrigatória da seção 12 conferida item a item; novos testes de geração de aluguéis com aditivos (proporcionalidade, mês dividido pelo reajuste, prorrogação, idempotência, contrato encerrado).
+- **7B Ataque direto à API:** teste de integração que, para **todas** as tabelas e visões publicadas pelo PostgREST, tenta ler, inserir, alterar e apagar como anônimo, sem perfil, Consulta e Colaborador, conferindo pelo banco que nada mudou. **Achado e corrigido:** a visão `user_directory` permitia a um usuário comum alterar o perfil de colegas (privilégio padrão do Supabase); migration `20261125001600` remove escrita de visões e de tabelas gravadas só por funções, e o teste `15_privileges` trava a lista.
+- **7C Segurança, integridade e responsividade:** `db lint` sem erros; `npm audit` (produção) sem vulnerabilidades; integridade estrutural (valores `numeric(14,2)`, `timestamptz`, chaves primárias, `organization_id`, exclusão física bloqueada) em teste; índices em chaves estrangeiras; varredura de **todas as 33 telas + 4 fichas** nos três tamanhos (sem rolagem horizontal, sem erros de console, sem violações graves de acessibilidade WCAG 2.1 A/AA com axe-core). **Achados e corrigidos:** filtros com semântica de abas sem painéis (8 telas), rótulos acessíveis diferentes do texto visível, contraste no calendário, tabelas largas sem rolagem por teclado e transbordando no tablet. **Desempenho:** Relatório de despesas de 11,5 s para 0,37 s (escopo calculado uma vez por consulta, mesmas regras, equivalência testada).
+- **7D Backup e restauração:** scripts `scripts/backup/backup.sh` e `restore-test.sh`; exercício completo executado (55 itens da impressão digital idênticos, inclusive o hash da auditoria; 45 testes de segurança e login com MFA aprovados no banco restaurado). **Achados e corrigidos:** o backup de estrutura não inclui auditoria de login, política do Storage e rotinas `pg_cron` (agora recriados por `private.ensure_platform_objects()`, passo obrigatório) nem o histórico de migrations (agora em `history.sql`).
+- **7E Ambientes:** homologação em `/semfaz-gestao/homologacao/` (a partir da `main`) e produção em `/semfaz-gestao/` (a partir da última versão `vX.Y.Z` aprovada); workflow `Release produção` com aprovação manual; site de produção só muda depois do banco migrado. Passo a passo em `docs/deployment.md`.
 
 ## Funcionalidades concluídas (Fase 6)
 
@@ -61,11 +69,11 @@
 
 ## Em andamento
 
-- Nada. Aguardando a validação da Fase 6.
+- Nada. Aguardando a validação da Fase 7 e as ações institucionais de implantação.
 
 ## Pendentes (próximas fases)
 
-- Fase 7: testes finais, projetos de homologação/produção e publicação.
+- Implantação em produção (ações institucionais, ver `docs/deployment.md`): criar o projeto Supabase Pro de produção (São Paulo), configurar SMTP, ambientes do GitHub e a primeira versão `v1.0.0`; restaurar um backup real em homologação.
 
 ## Decisões técnicas
 
@@ -117,6 +125,12 @@
 | 44  | Limite de 5.000 linhas por exportação (erro orientando a restringir filtros)                                                                | mantém a função dentro do tempo e da memória do plano gratuito                                                                                                     |
 | 45  | Registro da exportação pelo próprio usuário (`log_report_export`, `security definer` com `reports.export`) antes de gerar o arquivo         | a auditoria fica vinculada ao usuário real, sem service role; sem registro não há arquivo                                                                          |
 | 46  | Exportação dos Relatórios de despesas pelo relatório "lançamentos" (base competência)                                                       | combinações não representáveis (base pagamento, 2 tipos ou várias situações) desabilitam o botão com a explicação                                                  |
+| 47  | Escrita direta pela API restrita a 9 tabelas de configuração; visões somente leitura; sem DELETE/TRUNCATE para usuários                     | defesa em profundidade além da RLS (achado: escrita pela visão `user_directory`)                                                                                   |
+| 48  | Escopo de imóveis/unidades calculado uma vez por consulta (`accessible_property_ids`) nas políticas de leitura                              | a verificação por linha tornava relatórios lentos (11,5 s → 0,37 s), com as mesmas regras                                                                          |
+| 49  | `private.ensure_platform_objects()` executada em toda implantação e após restauração                                                        | gatilho de login, política do Storage e rotinas agendadas ficam fora do backup de estrutura                                                                        |
+| 50  | Filtros em forma de abas como grupo de botões (`aria-pressed`), sem `role="tab"`                                                            | não há painéis de abas; o padrão de abas apontava para elementos inexistentes (WCAG 4.1.2)                                                                         |
+| 51  | Homologação e produção no mesmo GitHub Pages (`/homologacao/` e `/`), produção por versão `vX.Y.Z` com aprovação                            | o GitHub Pages publica um site por repositório; a versão garante que site e banco de produção andam juntos                                                         |
+| 52  | `@axe-core/playwright` 4.14.0 (dependência de desenvolvimento)                                                                              | verificação automática de acessibilidade WCAG em todas as telas                                                                                                    |
 
 ## Pontos pendentes de definição institucional
 
@@ -135,10 +149,13 @@
 - `script-src` requer `'unsafe-inline'` na exportação estática do Next.js.
 - Workflow `Supabase migrations` pula com aviso enquanto os projetos remotos não existirem (Fase 7).
 - Avisos do React Compiler (não erros) em componentes que usam `useReactTable` e `watch` do React Hook Form.
+- `supabase db lint`: 4 avisos cosméticos (variável `i` declarada e redeclarada pelo laço `FOR`), sem efeito no comportamento.
+- A varredura de acessibilidade abre as fichas de imóvel, contrato, usuário e perfil; as demais fichas (fatura, aluguel, unidade, locador, demanda, aprovação) são cobertas pelos testes funcionais, sem a verificação automática do axe.
+- Os arquivos do Storage não fazem parte do backup do banco: exportação periódica do bucket a cargo da equipe (procedimento em `docs/deployment.md`).
 
 ## Próximas atividades
 
-1. Validação da Fase 6 pela SEMFAZ.
+1. Validação da Fase 7 pela SEMFAZ.
 2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
 3. Configurar SMTP próprio (ou plano Pro) para os e-mails com código de 6 números.
-4. Iniciar a Fase 7 (testes finais, homologação/produção e publicação) após a validação.
+4. Executar o passo a passo de implantação (`docs/deployment.md`): projeto de produção, ambientes do GitHub, versão `v1.0.0`, primeiro administrador e exercício de restauração em homologação.

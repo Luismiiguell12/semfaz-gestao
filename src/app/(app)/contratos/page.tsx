@@ -10,7 +10,7 @@ import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states"
 import { ValidityBadge } from "@/components/shared/status-badges";
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import { useContracts, type ContractOverview } from "@/modules/contracts/api";
 import { useAuth } from "@/providers/auth-provider";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
@@ -84,14 +84,14 @@ function ContractsContent() {
         }
       />
       <Panel bodyClassName="p-0">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
-          <TabsList className="border-b-0">
-            <TabsTrigger value="all">Todos</TabsTrigger>
-            <TabsTrigger value="current">Vigentes</TabsTrigger>
-            <TabsTrigger value="expiring">Próximos do vencimento</TabsTrigger>
-            <TabsTrigger value="expired">Vencidos</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FilterTabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
+          <FilterTabsList className="border-b-0" aria-label="Filtrar contratos por vigência">
+            <FilterTab value="all">Todos</FilterTab>
+            <FilterTab value="current">Vigentes</FilterTab>
+            <FilterTab value="expiring">Próximos do vencimento</FilterTab>
+            <FilterTab value="expired">Vencidos</FilterTab>
+          </FilterTabsList>
+        </FilterTabs>
         <div className="border-t">
           {list.isLoading && <LoadingRows />}
           {list.isError && <ErrorState message={list.error.message} onRetry={() => list.refetch()} />}

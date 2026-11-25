@@ -94,6 +94,6 @@ test("cadastro de locador valida CPF e exibe dado mascarado", async ({ page }) =
       .first(),
   ).toBeVisible();
   // Gestor não tem permissão para ver o CPF completo.
-  await expect(page.getByRole("button", { name: /Ver dados completos/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Ver completo/ })).toHaveCount(0);
   await expectNoHorizontalScroll(page);
 });

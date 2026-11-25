@@ -7,7 +7,7 @@ import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { ErrorState, FullPageLoading, LoadingRows } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import {
@@ -63,7 +63,7 @@ function Item({
       {compact ? item.title : label}
       {item.item_type === "task" && item.is_overdue && <span className="sr-only"> (atrasada)</span>}
       {item.item_type === "task" && item.task_status && !compact && (
-        <span className="opacity-80"> · {TASK_STATUS_LABEL[item.task_status]}</span>
+        <span> · {TASK_STATUS_LABEL[item.task_status]}</span>
       )}
     </>
   );
@@ -143,13 +143,13 @@ function CalendarContent() {
             {title}
           </h2>
         </div>
-        <Tabs value={view} onValueChange={(v) => go(v as View, date)}>
-          <TabsList>
-            <TabsTrigger value="mes">Mês</TabsTrigger>
-            <TabsTrigger value="semana">Semana</TabsTrigger>
-            <TabsTrigger value="dia">Dia</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FilterTabs value={view} onValueChange={(v) => go(v as View, date)}>
+          <FilterTabsList aria-label="Visualização do calendário">
+            <FilterTab value="mes">Mês</FilterTab>
+            <FilterTab value="semana">Semana</FilterTab>
+            <FilterTab value="dia">Dia</FilterTab>
+          </FilterTabsList>
+        </FilterTabs>
       </div>
       <div className="text-muted-foreground mb-3 flex flex-wrap gap-3 text-xs" aria-label="Legenda">
         <span className="bg-primary-soft text-primary-hover rounded px-1.5 py-0.5">Evento</span>

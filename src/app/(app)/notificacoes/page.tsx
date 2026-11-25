@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FilterTab, FilterTabs, FilterTabsList } from "@/components/ui/filter-tabs";
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
@@ -50,12 +50,16 @@ export default function NotificationsPage() {
         }
       />
       <Panel bodyClassName="p-0">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as "unread" | "all")} className="px-4 pt-2">
-          <TabsList className="border-b-0">
-            <TabsTrigger value="unread">Não lidas</TabsTrigger>
-            <TabsTrigger value="all">Todas</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FilterTabs
+          value={filter}
+          onValueChange={(v) => setFilter(v as "unread" | "all")}
+          className="px-4 pt-2"
+        >
+          <FilterTabsList className="border-b-0" aria-label="Filtrar notificações">
+            <FilterTab value="unread">Não lidas</FilterTab>
+            <FilterTab value="all">Todas</FilterTab>
+          </FilterTabsList>
+        </FilterTabs>
         <div className="border-t">
           {list.isLoading && <LoadingRows rows={4} />}
           {list.isError && <ErrorState message={list.error.message} onRetry={() => list.refetch()} />}

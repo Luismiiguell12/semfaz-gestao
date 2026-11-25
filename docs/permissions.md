@@ -82,6 +82,14 @@ aluguéis e pagamentos), `finance.reports.view` (despesas) e `productivity.view_
 Demandas e Aprovações seguem a visibilidade já existente desses módulos. A prévia na tela não exige
 `reports.export`; em todos os casos a RLS limita as linhas ao escopo do usuário.
 
+## Fase 7 (segurança)
+
+Duas barreiras independentes: a RLS (quem vê quais linhas) e os privilégios dos papéis da API (que
+comandos existem). Usuários não têm `DELETE` nem `TRUNCATE` em nenhuma tabela (exclusão sempre lógica,
+por função com aprovação) e só escrevem diretamente em 9 tabelas de configuração; visões são somente
+leitura. O teste de integração `api-attack` tenta ler, inserir, alterar e apagar em **todas** as tabelas
+e visões publicadas pela API, como anônimo, usuário sem perfil, Consulta e Colaborador.
+
 ## Regras de proteção
 
 | Regra                                                                                           | Onde é garantida                                                      |
