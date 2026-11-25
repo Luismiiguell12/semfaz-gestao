@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Reenvia o convite a um usuário que ainda não definiu a senha.
+// Reenvia o convite a um usuário que ainda não definiu a senha; se o convite
+// já foi utilizado, envia um link de redefinição de senha.
 // Uso local:   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... APP_URL=... ADMIN_EMAIL=... node scripts/resend-invite.mjs
 // Uso no CI:   workflow "Criar primeiro administrador" com a ação resend_invite.
 import { createClient } from "@supabase/supabase-js";
@@ -29,7 +30,13 @@ if (!profile) fail("não há usuário cadastrado com este e-mail.");
 const { data: authUser, error: userError } = await supabase.auth.admin.getUserById(profile.id);
 if (userError) fail("não foi possível consultar a conta.");
 if (authUser.user?.email_confirmed_at) {
-  fail("este usuário já aceitou o convite. Use 'Esqueci minha senha' na tela de login.");
+  // Convite já utilizado: envia um link de redefinição de senha.
+  const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${appUrl}/auth/confirmar/`,
+  });
+  if (resetError) fail(`não foi possível enviar o link de redefinição de senha: ${resetError.message}`);
+  console.log("Convite já utilizado: link de redefinição de senha enviado por e-mail.");
+  process.exit(0);
 }
 
 const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
