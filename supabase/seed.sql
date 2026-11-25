@@ -93,8 +93,8 @@ insert into public.notification_types (code, module, description, is_available) 
   ('task_review',           'tasks',      'Demanda em revisão', false),
   ('contract_expiring',     'contracts',  'Vencimento contratual', true),
   ('contract_adjustment',   'contracts',  'Reajuste contratual (data-base)', true),
-  ('invoice_overdue',       'finance',    'Fatura vencida', false),
-  ('consumption_alert',     'finance',    'Alerta de consumo', false),
+  ('invoice_overdue',       'finance',    'Fatura vencida', true),
+  ('consumption_alert',     'finance',    'Alerta de consumo', true),
   ('approval_pending',      'approvals',  'Aprovação pendente', true),
   ('approval_approved',     'approvals',  'Solicitação aprovada', true),
   ('approval_rejected',     'approvals',  'Solicitação rejeitada', true)
@@ -141,4 +141,19 @@ insert into public.alert_rules (organization_id, code, days_before, description)
   ('00000000-0000-4000-8000-000000000001', 'contract_expiring', 30, 'Contrato a 30 dias do fim da vigência'),
   ('00000000-0000-4000-8000-000000000001', 'contract_expired', 0, 'Contrato vencido'),
   ('00000000-0000-4000-8000-000000000001', 'contract_adjustment', 30, 'Data-base do contrato em até 30 dias (reajuste)')
+on conflict (organization_id, code, days_before) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- Financeiro: fornecedores e configurações padrão
+-- -----------------------------------------------------------------------------
+insert into public.suppliers (organization_id, name, kind) values
+  ('00000000-0000-4000-8000-000000000001', 'Energisa', 'energy'),
+  ('00000000-0000-4000-8000-000000000001', 'Iguá', 'water')
+on conflict do nothing;
+insert into public.system_settings (organization_id, key, value, description) values
+  ('00000000-0000-4000-8000-000000000001', 'rents.due_day', '10'::jsonb, 'Dia de vencimento dos aluguéis gerados automaticamente (no próprio mês da competência).'),
+  ('00000000-0000-4000-8000-000000000001', 'consumption.alert_percent', '30'::jsonb, 'Aumento de consumo, em %, sobre a média dos três meses anteriores que gera alerta para análise.')
+on conflict (organization_id, key) do nothing;
+insert into public.alert_rules (organization_id, code, days_before, description) values
+  ('00000000-0000-4000-8000-000000000001', 'invoice_overdue', 0, 'Fatura vencida com saldo em aberto')
 on conflict (organization_id, code, days_before) do nothing;

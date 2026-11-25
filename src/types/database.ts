@@ -299,6 +299,70 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"consumer_units": {
+                  Row: {
+                    "address": string | null,"complement": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"holder_name": string,"id": string,"identifier": string,"meter_number": string | null,"notes": string | null,"organization_id": string,"status": Database["public"]['Enums']["unit_status"],"supplier_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "address"?: string | null,"complement"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"holder_name": string,"id"?: string,"identifier": string,"meter_number"?: string | null,"notes"?: string | null,"organization_id": string,"status"?: Database["public"]['Enums']["unit_status"],"supplier_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "address"?: string | null,"complement"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"holder_name"?: string,"id"?: string,"identifier"?: string,"meter_number"?: string | null,"notes"?: string | null,"organization_id"?: string,"status"?: Database["public"]['Enums']["unit_status"],"supplier_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "consumer_units_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consumer_units_supplier_fk"
+      columns: ["supplier_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "suppliers"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"consumption_records": {
+                  Row: {
+                    "competence": string,"consumption": number,"created_at": string,"id": string,"increase_percent": number | null,"invoice_id": string,"organization_id": string,"previous_average": number | null,"status": string,"threshold_percent": number,"unit_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "competence": string,"consumption": number,"created_at"?: string,"id"?: string,"increase_percent"?: number | null,"invoice_id": string,"organization_id": string,"previous_average"?: number | null,"status": string,"threshold_percent": number,"unit_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "competence"?: string,"consumption"?: number,"created_at"?: string,"id"?: string,"increase_percent"?: number | null,"invoice_id"?: string,"organization_id"?: string,"previous_average"?: number | null,"status"?: string,"threshold_percent"?: number,"unit_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "consumption_records_invoice_id_fkey"
+      columns: ["invoice_id"]
+isOneToOne: false
+      referencedRelation: "invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consumption_records_invoice_id_fkey"
+      columns: ["invoice_id"]
+isOneToOne: false
+      referencedRelation: "invoices_overview"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consumption_records_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "consumption_records_unit_fk"
+      columns: ["unit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "consumer_units"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"contract_amendments": {
                   Row: {
                     "amendment_number": string,"approval_request_id": string | null,"contract_id": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"description": string,"id": string,"kind": Database["public"]['Enums']["amendment_kind"],"new_end_date": string | null,"new_monthly_value": number | null,"organization_id": string,"signed_on": string,"updated_at": string,"updated_by": string | null,"value_effective_from": string | null
@@ -527,6 +591,50 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"invoices": {
+                  Row: {
+                    "amount": number,"approval_request_id": string | null,"cancellation_reason": string | null,"cancelled_at": string | null,"competence": string,"consumption": number,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"due_date": string,"id": string,"invoice_number": string | null,"is_justified_duplicate": boolean,"issue_date": string | null,"measure_unit": string,"organization_id": string,"property_id": string,"supplier_id": string,"unit_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"approval_request_id"?: string | null,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"competence": string,"consumption": number,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"due_date": string,"id"?: string,"invoice_number"?: string | null,"is_justified_duplicate"?: boolean,"issue_date"?: string | null,"measure_unit": string,"organization_id": string,"property_id": string,"supplier_id": string,"unit_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "amount"?: number,"approval_request_id"?: string | null,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"competence"?: string,"consumption"?: number,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"due_date"?: string,"id"?: string,"invoice_number"?: string | null,"is_justified_duplicate"?: boolean,"issue_date"?: string | null,"measure_unit"?: string,"organization_id"?: string,"property_id"?: string,"supplier_id"?: string,"unit_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "invoices_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invoices_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invoices_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "invoices_supplier_fk"
+      columns: ["supplier_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "suppliers"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "invoices_unit_fk"
+      columns: ["unit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "consumer_units"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"landlords": {
                   Row: {
                     "address": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"document": string,"document_masked": string | null,"email": string | null,"id": string,"name": string,"notes": string | null,"organization_id": string,"person_type": Database["public"]['Enums']["person_type"],"phone": string | null,"phone_masked": string | null,"updated_at": string,"updated_by": string | null
@@ -689,6 +797,62 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"payments": {
+                  Row: {
+                    "amount": number,"approval_request_id": string | null,"created_at": string,"created_by": string | null,"id": string,"invoice_id": string | null,"kind": Database["public"]['Enums']["payment_kind"],"notes": string | null,"organization_id": string,"paid_on": string,"rent_charge_id": string | null,"reversal_of": string | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"approval_request_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"invoice_id"?: string | null,"kind": Database["public"]['Enums']["payment_kind"],"notes"?: string | null,"organization_id": string,"paid_on": string,"rent_charge_id"?: string | null,"reversal_of"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "amount"?: number,"approval_request_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"invoice_id"?: string | null,"kind"?: Database["public"]['Enums']["payment_kind"],"notes"?: string | null,"organization_id"?: string,"paid_on"?: string,"rent_charge_id"?: string | null,"reversal_of"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_invoice_fk"
+      columns: ["invoice_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "invoices"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "payments_invoice_fk"
+      columns: ["invoice_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "invoices_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "payments_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_rent_fk"
+      columns: ["rent_charge_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "rent_charges"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "payments_rent_fk"
+      columns: ["rent_charge_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "rent_charges_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "payments_reversal_of_fkey"
+      columns: ["reversal_of"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"permissions": {
                   Row: {
                     "code": string,"created_at": string,"description": string,"is_privileged": boolean,"module": string
@@ -811,6 +975,44 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"rent_charges": {
+                  Row: {
+                    "amount": number,"calc_memo": NonNullable<Json>,"calculated_amount": number,"cancellation_reason": string | null,"cancelled_at": string | null,"competence": string,"contract_id": string,"correction_note": string | null,"created_at": string,"created_by": string | null,"due_date": string,"id": string,"organization_id": string,"property_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"calc_memo": NonNullable<Json>,"calculated_amount": number,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"competence": string,"contract_id": string,"correction_note"?: string | null,"created_at"?: string,"created_by"?: string | null,"due_date": string,"id"?: string,"organization_id": string,"property_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "amount"?: number,"calc_memo"?: NonNullable<Json>,"calculated_amount"?: number,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"competence"?: string,"contract_id"?: string,"correction_note"?: string | null,"created_at"?: string,"created_by"?: string | null,"due_date"?: string,"id"?: string,"organization_id"?: string,"property_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "rent_charges_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "rent_charges_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "rent_charges_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_charges_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"role_permissions": {
                   Row: {
                     "created_at": string,"created_by": string | null,"organization_id": string,"permission_code": string,"role_id": string
@@ -863,6 +1065,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"suppliers": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"is_active": boolean,"kind": Database["public"]['Enums']["supplier_kind"],"name": string,"organization_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"kind": Database["public"]['Enums']["supplier_kind"],"name": string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"kind"?: Database["public"]['Enums']["supplier_kind"],"name"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "suppliers_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"system_settings": {
                   Row: {
                     "created_at": string,"created_by": string | null,"description": string,"id": string,"key": string,"organization_id": string,"updated_at": string,"updated_by": string | null,"value": NonNullable<Json>
@@ -881,6 +1103,38 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"unit_assignments": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"end_date": string | null,"id": string,"organization_id": string,"property_id": string,"start_date": string,"unit_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"end_date"?: string | null,"id"?: string,"organization_id": string,"property_id": string,"start_date": string,"unit_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"end_date"?: string | null,"id"?: string,"organization_id"?: string,"property_id"?: string,"start_date"?: string,"unit_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "unit_assignments_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "unit_assignments_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "unit_assignments_unit_fk"
+      columns: ["unit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "consumer_units"
+      referencedColumns: ["id","organization_id"]
     }
                   ]
                 },"user_department_access": {
@@ -1062,6 +1316,76 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"invoices_overview": {
+                  Row: {
+                    "amount": number,"approval_request_id": string | null,"balance": number | null,"cancellation_reason": string | null,"cancelled_at": string | null,"competence": string,"consumption": number,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string,"due_date": string,"id": string,"invoice_number": string | null,"is_justified_duplicate": boolean,"issue_date": string | null,"last_paid_on": string | null,"measure_unit": string,"organization_id": string,"paid_total": number | null,"property_id": string,"property_name": string,"status": string | null,"supplier_id": string,"supplier_kind": Database["public"]['Enums']["supplier_kind"],"supplier_name": string,"unit_id": string,"unit_identifier": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "invoices_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invoices_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invoices_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "invoices_supplier_fk"
+      columns: ["supplier_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "suppliers"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "invoices_unit_fk"
+      columns: ["unit_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "consumer_units"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"rent_charges_overview": {
+                  Row: {
+                    "amount": number,"balance": number | null,"calc_memo": NonNullable<Json>,"calculated_amount": number,"cancellation_reason": string | null,"cancelled_at": string | null,"competence": string,"contract_id": string,"contract_number": string,"correction_note": string | null,"created_at": string,"created_by": string | null,"department_id": string,"due_date": string,"id": string,"last_paid_on": string | null,"organization_id": string,"paid_total": number | null,"property_id": string,"property_name": string,"status": string | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "rent_charges_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "rent_charges_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "rent_charges_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rent_charges_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"user_directory": {
                   Row: {
                     "department_id": string | null,"full_name": string,"id": string,"job_title": string | null,"organization_id": string,"status": Database["public"]['Enums']["user_status"],"username": string
@@ -1216,6 +1540,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"assign_consumer_unit":
+{ Args: { "p_property_id": string,"p_reason": string,"p_start_date": string,"p_unit_id": string }; Returns: string
+                           },
 "bootstrap_first_admin":
 { Args: { "p_full_name": string,"p_organization_id": string,"p_user_id": string,"p_username": string }; Returns: {
               "created_at": string,
@@ -1279,8 +1606,14 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"create_invoice":
+{ Args: { "p_data": Json,"p_justification"?: string }; Returns: Json
+                           },
 "dashboard_contract_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"dashboard_finance_stats":
+{ Args: { "p_department_id"?: string,"p_months"?: number }; Returns: Json
                            },
 "dashboard_foundation_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -1318,6 +1651,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"end_consumer_unit_assignment":
+{ Args: { "p_end_date": string,"p_reason": string,"p_unit_id": string }; Returns: undefined
+                           },
 "get_landlord_sensitive":
 { Args: { "p_landlord_id": string }; Returns: Json
                            },
@@ -1468,6 +1804,105 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"request_invoice_cancel":
+{ Args: { "p_invoice_id": string,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_invoice_correction":
+{ Args: { "p_data": Json,"p_invoice_id": string,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_payment":
+{ Args: { "p_data": Json,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "request_property_address_change":
 { Args: { "p_data": Json,"p_justification": string,"p_property_id": string }; Returns: {
               "applied_at": string | null,
@@ -1567,6 +2002,75 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"request_rent_cancel":
+{ Args: { "p_justification": string,"p_rent_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_rent_correction":
+{ Args: { "p_amount": number,"p_justification": string,"p_rent_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"save_consumer_unit":
+{ Args: { "p_data": Json,"p_reason"?: string,"p_unit_id": string }; Returns: string
+                           },
 "save_landlord":
 { Args: { "p_data": Json,"p_landlord_id": string,"p_reason"?: string }; Returns: string
                            },
@@ -1679,7 +2183,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "amendment_kind": "term"|"value"|"term_and_value"|"other","approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","contract_admin_status": "active"|"suspended"|"terminated"|"closed","department_kind": "secretariat"|"directorate"|"unit","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","user_status": "active"|"inactive"|"blocked"
+            "amendment_kind": "term"|"value"|"term_and_value"|"other","approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","contract_admin_status": "active"|"suspended"|"terminated"|"closed","department_kind": "secretariat"|"directorate"|"unit","payment_kind": "payment"|"reversal","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","supplier_kind": "energy"|"water","unit_status": "active"|"inactive","user_status": "active"|"inactive"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1799,7 +2303,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "amendment_kind": ["term", "value", "term_and_value", "other"],"approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"contract_admin_status": ["active", "suspended", "terminated", "closed"],"department_kind": ["secretariat", "directorate", "unit"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"user_status": ["active", "inactive", "blocked"]
+            "amendment_kind": ["term", "value", "term_and_value", "other"],"approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"contract_admin_status": ["active", "suspended", "terminated", "closed"],"department_kind": ["secretariat", "directorate", "unit"],"payment_kind": ["payment", "reversal"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"supplier_kind": ["energy", "water"],"unit_status": ["active", "inactive"],"user_status": ["active", "inactive", "blocked"]
           }
         }
 } as const
