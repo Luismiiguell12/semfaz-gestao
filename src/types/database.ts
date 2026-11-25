@@ -23,7 +23,73 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "approval_decisions": {
+            "adjustment_indexes": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"is_active": boolean,"name": string,"organization_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"name": string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"name"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "adjustment_indexes_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"alert_rules": {
+                  Row: {
+                    "code": string,"created_at": string,"created_by": string | null,"days_before": number,"description": string,"id": string,"is_active": boolean,"organization_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"created_at"?: string,"created_by"?: string | null,"days_before": number,"description": string,"id"?: string,"is_active"?: boolean,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "code"?: string,"created_at"?: string,"created_by"?: string | null,"days_before"?: number,"description"?: string,"id"?: string,"is_active"?: boolean,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "alert_rules_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"alerts": {
+                  Row: {
+                    "created_at": string,"entity_id": string,"entity_type": string,"id": string,"milestone_date": string,"organization_id": string,"rule_id": string,"title": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"entity_id": string,"entity_type": string,"id"?: string,"milestone_date": string,"organization_id": string,"rule_id": string,"title": string
+                  }
+                  Update: {
+                    "created_at"?: string,"entity_id"?: string,"entity_type"?: string,"id"?: string,"milestone_date"?: string,"organization_id"?: string,"rule_id"?: string,"title"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "alerts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "alerts_rule_id_fkey"
+      columns: ["rule_id"]
+isOneToOne: false
+      referencedRelation: "alert_rules"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"approval_decisions": {
                   Row: {
                     "comment": string | null,"decided_at": string,"decided_by": string,"decision": string,"id": string,"organization_id": string,"request_id": string,"step_id": string
                   }
@@ -231,6 +297,170 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"contract_amendments": {
+                  Row: {
+                    "amendment_number": string,"approval_request_id": string | null,"contract_id": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"description": string,"id": string,"kind": Database["public"]['Enums']["amendment_kind"],"new_end_date": string | null,"new_monthly_value": number | null,"organization_id": string,"signed_on": string,"updated_at": string,"updated_by": string | null,"value_effective_from": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amendment_number": string,"approval_request_id"?: string | null,"contract_id": string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"description": string,"id"?: string,"kind": Database["public"]['Enums']["amendment_kind"],"new_end_date"?: string | null,"new_monthly_value"?: number | null,"organization_id": string,"signed_on": string,"updated_at"?: string,"updated_by"?: string | null,"value_effective_from"?: string | null
+                  }
+                  Update: {
+                    "amendment_number"?: string,"approval_request_id"?: string | null,"contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"description"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["amendment_kind"],"new_end_date"?: string | null,"new_monthly_value"?: number | null,"organization_id"?: string,"signed_on"?: string,"updated_at"?: string,"updated_by"?: string | null,"value_effective_from"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contract_amendments_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contract_amendments_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contract_amendments_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contract_amendments_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"contract_landlords": {
+                  Row: {
+                    "contract_id": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"id": string,"landlord_id": string,"organization_id": string,"share_percent": number | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "contract_id": string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"id"?: string,"landlord_id": string,"organization_id": string,"share_percent"?: number | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "contract_id"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"id"?: string,"landlord_id"?: string,"organization_id"?: string,"share_percent"?: number | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contract_landlords_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contract_landlords_contract_fk"
+      columns: ["contract_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contracts_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contract_landlords_landlord_fk"
+      columns: ["landlord_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "landlords"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contract_landlords_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"contract_modalities": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"is_active": boolean,"name": string,"organization_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"name": string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"name"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contract_modalities_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"contracts": {
+                  Row: {
+                    "adjustment_index_id": string | null,"admin_status": Database["public"]['Enums']["contract_admin_status"],"approval_request_id": string | null,"base_date": string | null,"contract_number": string,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"end_date": string,"global_value": number,"id": string,"inspector_id": string | null,"manager_id": string | null,"modality_id": string | null,"monthly_value": number,"notes": string | null,"object": string,"organization_id": string,"process_number": string | null,"property_id": string,"signed_on": string,"start_date": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "adjustment_index_id"?: string | null,"admin_status"?: Database["public"]['Enums']["contract_admin_status"],"approval_request_id"?: string | null,"base_date"?: string | null,"contract_number": string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"end_date": string,"global_value": number,"id"?: string,"inspector_id"?: string | null,"manager_id"?: string | null,"modality_id"?: string | null,"monthly_value": number,"notes"?: string | null,"object": string,"organization_id": string,"process_number"?: string | null,"property_id": string,"signed_on": string,"start_date": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "adjustment_index_id"?: string | null,"admin_status"?: Database["public"]['Enums']["contract_admin_status"],"approval_request_id"?: string | null,"base_date"?: string | null,"contract_number"?: string,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"end_date"?: string,"global_value"?: number,"id"?: string,"inspector_id"?: string | null,"manager_id"?: string | null,"modality_id"?: string | null,"monthly_value"?: number,"notes"?: string | null,"object"?: string,"organization_id"?: string,"process_number"?: string | null,"property_id"?: string,"signed_on"?: string,"start_date"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "contracts_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contracts_index_fk"
+      columns: ["adjustment_index_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "adjustment_indexes"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_inspector_fk"
+      columns: ["inspector_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_inspector_fk"
+      columns: ["inspector_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_manager_fk"
+      columns: ["manager_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_manager_fk"
+      columns: ["manager_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_modality_fk"
+      columns: ["modality_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contract_modalities"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contracts_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
     }
                   ]
                 },"departments": {
@@ -770,7 +1000,69 @@ isOneToOne: false
                 }
           }
           Views: {
-            "user_directory": {
+            "contracts_overview": {
+                  Row: {
+                    "adjustment_index_id": string | null,"admin_status": Database["public"]['Enums']["contract_admin_status"],"approval_request_id": string | null,"base_date": string | null,"contract_number": string,"created_at": string,"created_by": string | null,"days_to_end": number | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string,"effective_end_date": string | null,"effective_monthly_value": number | null,"end_date": string,"global_value": number,"id": string,"inspector_id": string | null,"manager_id": string | null,"modality_id": string | null,"monthly_value": number,"next_adjustment_date": string | null,"notes": string | null,"object": string,"organization_id": string,"process_number": string | null,"property_id": string,"property_name": string,"signed_on": string,"start_date": string,"updated_at": string,"updated_by": string | null,"validity_status": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "contracts_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contracts_index_fk"
+      columns: ["adjustment_index_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "adjustment_indexes"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_inspector_fk"
+      columns: ["inspector_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_inspector_fk"
+      columns: ["inspector_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_manager_fk"
+      columns: ["manager_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_manager_fk"
+      columns: ["manager_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_modality_fk"
+      columns: ["modality_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "contract_modalities"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "contracts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contracts_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"user_directory": {
                   Row: {
                     "department_id": string | null,"full_name": string,"id": string,"job_title": string | null,"organization_id": string,"status": Database["public"]['Enums']["user_status"],"username": string
                   }
@@ -987,6 +1279,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"dashboard_contract_stats":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "dashboard_foundation_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -1041,6 +1336,138 @@ isOneToOne: false
 "mark_notification_read":
 { Args: { "p_notification_id": string }; Returns: undefined
                            },
+"request_amendment_create":
+{ Args: { "p_data": Json,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_contract_create":
+{ Args: { "p_data": Json,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_contract_term_change":
+{ Args: { "p_contract_id": string,"p_end_date": string,"p_justification": string,"p_start_date": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_contract_value_change":
+{ Args: { "p_contract_id": string,"p_global_value": number,"p_justification": string,"p_monthly_value": number }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "request_property_address_change":
 { Args: { "p_data": Json,"p_justification": string,"p_property_id": string }; Returns: {
               "applied_at": string | null,
@@ -1181,6 +1608,41 @@ isOneToOne: false
 "soft_delete_department":
 { Args: { "p_department_id": string,"p_reason": string }; Returns: undefined
                            },
+"update_contract_details":
+{ Args: { "p_contract_id": string,"p_data": Json,"p_reason": string }; Returns: {
+              "adjustment_index_id": string | null,
+"admin_status": Database["public"]['Enums']["contract_admin_status"],
+"approval_request_id": string | null,
+"base_date": string | null,
+"contract_number": string,
+"created_at": string,
+"created_by": string | null,
+"deleted_at": string | null,
+"deleted_by": string | null,
+"deletion_reason": string | null,
+"end_date": string,
+"global_value": number,
+"id": string,
+"inspector_id": string | null,
+"manager_id": string | null,
+"modality_id": string | null,
+"monthly_value": number,
+"notes": string | null,
+"object": string,
+"organization_id": string,
+"process_number": string | null,
+"property_id": string,
+"signed_on": string,
+"start_date": string,
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "contracts"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "update_property_details":
 { Args: { "p_data": Json,"p_property_id": string,"p_reason": string }; Returns: {
               "address_number": string,
@@ -1217,7 +1679,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","department_kind": "secretariat"|"directorate"|"unit","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","user_status": "active"|"inactive"|"blocked"
+            "amendment_kind": "term"|"value"|"term_and_value"|"other","approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","contract_admin_status": "active"|"suspended"|"terminated"|"closed","department_kind": "secretariat"|"directorate"|"unit","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","user_status": "active"|"inactive"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1337,7 +1799,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"department_kind": ["secretariat", "directorate", "unit"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"user_status": ["active", "inactive", "blocked"]
+            "amendment_kind": ["term", "value", "term_and_value", "other"],"approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"contract_admin_status": ["active", "suspended", "terminated", "closed"],"department_kind": ["secretariat", "directorate", "unit"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"user_status": ["active", "inactive", "blocked"]
           }
         }
 } as const

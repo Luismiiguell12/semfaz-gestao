@@ -116,3 +116,29 @@ on conflict (organization_id, key) do nothing;
 insert into public.approval_rules (organization_id, operation_code, requires_approval)
 select '00000000-0000-4000-8000-000000000001', o.code, true from public.approval_operations o
 on conflict (organization_id, operation_code) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- Listas configuráveis de contratos: apenas EXEMPLOS genéricos, editáveis.
+-- As listas oficiais dependem de definição da SEMFAZ (pendência institucional).
+-- -----------------------------------------------------------------------------
+insert into public.adjustment_indexes (organization_id, name) values
+  ('00000000-0000-4000-8000-000000000001', 'IPCA'),
+  ('00000000-0000-4000-8000-000000000001', 'IGP-M')
+on conflict do nothing;
+insert into public.contract_modalities (organization_id, name) values
+  ('00000000-0000-4000-8000-000000000001', 'Locação de imóvel (exemplo)')
+on conflict do nothing;
+insert into public.system_settings (organization_id, key, value, description) values
+  ('00000000-0000-4000-8000-000000000001', 'contracts.expiring_days', '90'::jsonb, 'Dias antes do fim da vigência para considerar o contrato "próximo do vencimento".')
+on conflict (organization_id, key) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- Regras de alerta de contratos (prazos configuráveis)
+-- -----------------------------------------------------------------------------
+insert into public.alert_rules (organization_id, code, days_before, description) values
+  ('00000000-0000-4000-8000-000000000001', 'contract_expiring', 90, 'Contrato a 90 dias do fim da vigência'),
+  ('00000000-0000-4000-8000-000000000001', 'contract_expiring', 60, 'Contrato a 60 dias do fim da vigência'),
+  ('00000000-0000-4000-8000-000000000001', 'contract_expiring', 30, 'Contrato a 30 dias do fim da vigência'),
+  ('00000000-0000-4000-8000-000000000001', 'contract_expired', 0, 'Contrato vencido'),
+  ('00000000-0000-4000-8000-000000000001', 'contract_adjustment', 30, 'Data-base do contrato em até 30 dias (reajuste)')
+on conflict (organization_id, code, days_before) do nothing;

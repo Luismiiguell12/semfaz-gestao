@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { uuidSchema } from "./common.ts";
 
-export const documentEntityTypes = ["department"] as const;
+export const documentEntityTypes = ["department", "property", "contract", "amendment", "approval_request"] as const;
 
 export const documentUploadFieldsSchema = z.object({
   entity_type: z.enum(documentEntityTypes, { message: "Tipo de registro não suportado para anexos." }),

@@ -7,7 +7,7 @@ import { AppError, toAppError } from "@/lib/errors";
 import type { Database } from "@/types/database";
 
 export type DocumentRow = Database["public"]["Tables"]["documents"]["Row"];
-export type DocumentEntityType = "department";
+export type DocumentEntityType = "department" | "property" | "contract" | "amendment" | "approval_request";
 
 export const ACCEPTED_FILE_TYPES = ".pdf,.jpg,.jpeg,.png,.docx,.xlsx";
 export const MAX_FILE_MB = 10;
