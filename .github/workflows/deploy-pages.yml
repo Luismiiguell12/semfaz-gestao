@@ -39,6 +39,14 @@ jobs:
         run: |
           test -n "${{ vars.NEXT_PUBLIC_SUPABASE_URL }}" || { echo "Defina a variável NEXT_PUBLIC_SUPABASE_URL"; exit 1; }
           test -n "${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" || { echo "Defina a variável NEXT_PUBLIC_SUPABASE_ANON_KEY"; exit 1; }
+          case "${{ vars.NEXT_PUBLIC_SUPABASE_URL }}" in
+            https://*.supabase.co|https://*.supabase.co/) ;;
+            *) echo "::error::NEXT_PUBLIC_SUPABASE_URL deve ser a URL do projeto (https://<codigo>.supabase.co)."; exit 1 ;;
+          esac
+          case "${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" in
+            eyJ*|sb_publishable_*) ;;
+            *) echo "::error::NEXT_PUBLIC_SUPABASE_ANON_KEY não parece ser a chave pública do Supabase (anon, começa com eyJ, ou publishable, começa com sb_publishable_)."; exit 1 ;;
+          esac
       - run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
