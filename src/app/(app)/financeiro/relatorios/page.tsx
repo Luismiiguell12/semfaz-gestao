@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { BarChart3, FileSpreadsheet, FileText } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, InlineAlert, LoadingRows } from "@/components/shared/states";
 import { FormField } from "@/components/shared/form-field";
@@ -27,6 +27,8 @@ import { useProperties } from "@/modules/properties/api";
 import { useSuppliers } from "@/modules/consumer-units/api";
 import { useLandlords } from "@/modules/landlords/api";
 import { useAuth } from "@/providers/auth-provider";
+import { ExportButtons } from "@/modules/reports/export-buttons";
+import type { ReportFilters } from "@/modules/reports/api";
 import { formatCurrency } from "@/lib/format";
 
 const KINDS: ExpenseKind[] = ["rent", "water", "energy"];
@@ -179,6 +181,23 @@ function ReportContent() {
     }));
   };
   const periodLabel = `${formatCompetence(applied.start)} a ${formatCompetence(applied.end)}`;
+  // Exportação: relatório "despesas_lancamentos" do catálogo, com os filtros equivalentes.
+  const exportBlocked = isPayment
+    ? "A exportação usa a base de competência. Para pagamentos, use o relatório Pagamentos em Relatórios."
+    : applied.kinds.length === 2
+      ? "Para exportar, selecione um tipo de despesa ou todos."
+      : applied.statuses.length > 1
+        ? "Para exportar, selecione uma situação ou nenhuma."
+        : undefined;
+  const exportFilters: ReportFilters = {
+    de: applied.start.slice(0, 7),
+    ate: applied.end.slice(0, 7),
+    ...(applied.department_id ? { departamento: applied.department_id } : {}),
+    ...(applied.property_id ? { imovel: applied.property_id } : {}),
+    ...(applied.kinds.length === 1 ? { tipo: applied.kinds[0] } : {}),
+    ...(applied.statuses.length === 1 ? { status: applied.statuses[0] } : {}),
+    ...(base.supplierId ? { fornecedor: base.supplierId } : {}),
+  };
 
   return (
     <>
@@ -186,20 +205,18 @@ function ReportContent() {
         title="Relatórios de despesas"
         description="Aluguel, água e energia no seu escopo. Faturas e aluguéis cancelados ficam fora; estornos são abatidos."
         actions={
-          <>
-            <Button variant="outline" disabled title="Disponível na fase de Relatórios (exportação auditada)">
-              <FileSpreadsheet aria-hidden="true" /> Excel
-            </Button>
-            <Button variant="outline" disabled title="Disponível na fase de Relatórios (exportação auditada)">
-              <FileText aria-hidden="true" /> PDF
-            </Button>
-          </>
+          <ExportButtons
+            report="despesas_lancamentos"
+            filters={exportFilters}
+            disabled={!!exportBlocked}
+            disabledReason={exportBlocked}
+          />
         }
       />
       {can("reports.export") && (
         <p className="text-muted-foreground -mt-3 mb-4 text-xs">
-          A exportação para Excel e PDF será liberada na fase de Relatórios, pelo mecanismo auditado de
-          exportações.
+          {exportBlocked ??
+            "A exportação traz os lançamentos (por competência) dos filtros aplicados e é registrada na auditoria."}
         </p>
       )}
 

@@ -55,7 +55,7 @@ têm efeito quando o módulo correspondente for implementado.
   (unidades consumidoras passaram ao grupo Gestão). A migration concedeu as novas aos **mesmos** perfis
   que tinham as antigas, inclusive perfis criados pelos administradores; nenhum acesso foi ampliado ou reduzido.
 - `finance.reports.view` (Relatórios de despesas) foi concedida aos perfis que já viam os indicadores
-  financeiros (`invoices.view`). A exportação exigirá também `reports.export` (Fase 6).
+  financeiros (`invoices.view`). A exportação exige também `reports.export` (Fase 6).
 - O cadastro guiado exige `contracts.manage`; conforme o pacote, também `properties.create` (imóvel novo)
   e `consumer_units.manage` (unidades), sempre no escopo da secretaria do imóvel.
 
@@ -72,6 +72,15 @@ Quem participa de uma demanda sempre a vê, mesmo sem permissões de demandas.
 `productivity.view_own` (todos os perfis iniciais) dá acesso aos próprios indicadores;
 `productivity.view_team` (Gestor e Administrador) aos indicadores das pessoas do escopo de departamentos de
 quem consulta (perfil ou acesso a departamento). Indicadores de produtividade são dados pessoais.
+
+## Fase 6 (relatórios)
+
+`reports.export` (Gestor e Administrador) libera os botões Excel/PDF e a Edge Function `reports-export`.
+Cada relatório exige também a permissão de consulta do seu módulo: `properties.view` (Imóveis),
+`contracts.view` (Contratos, vencimentos e Aditivos), `invoices.view` (água, energia, faturas pendentes,
+aluguéis e pagamentos), `finance.reports.view` (despesas) e `productivity.view_own` (Produtividade).
+Demandas e Aprovações seguem a visibilidade já existente desses módulos. A prévia na tela não exige
+`reports.export`; em todos os casos a RLS limita as linhas ao escopo do usuário.
 
 ## Regras de proteção
 

@@ -10,10 +10,10 @@ export function Breadcrumbs() {
   const segments = pathname.split("/").filter(Boolean);
   const crumbs = [
     { href: "/", label: "Painel" },
-    ...segments.map((seg, i) => ({
-      href: `/${segments.slice(0, i + 1).join("/")}/`,
-      label: ROUTE_LABELS[seg] ?? seg,
-    })),
+    ...segments.map((seg, i) => {
+      const href = `/${segments.slice(0, i + 1).join("/")}/`;
+      return { href, label: ROUTE_LABELS[href] ?? ROUTE_LABELS[seg] ?? seg };
+    }),
   ];
   return (
     <nav aria-label="Trilha de navegação" className="min-w-0">

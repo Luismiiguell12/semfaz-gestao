@@ -36,6 +36,15 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | `20261125000800_structural_defaults.sql`         | aplica de forma idempotente os dados estruturais das Fases 2 e 3 nos ambientes remotos                                                                                                                            |
 | `20261125000700_unit_create_with_assignment.sql` | cadastro de unidade exige imóvel e data de vinculação (mesma transação)                                                                                                                                           |
 
+## Migrations da Fase 6
+
+| Arquivo                             | Conteúdo                                                                                                                                      |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20261125001500_report_exports.sql` | `log_report_export(report, format, filters, rows)`: exige `reports.export`, valida os dados e grava `EXPORT` em `audit_logs` com os metadados |
+
+Os relatórios não criaram tabelas nem visões novas: consultam as visões e RPCs existentes com o cliente do
+usuário (RLS), pelo catálogo `supabase/functions/_shared/reports/catalog.ts`.
+
 ## Migrations da Fase 5
 
 | Arquivo                           | Conteúdo                                                                                                                                                                                                                                                                                                                                      |
@@ -114,23 +123,24 @@ aprovações, alertas, financeiro, demandas e produtividade.
 
 ## Funções RPC expostas (`public`)
 
-| Função                                                                                                                                        | Quem pode                   | Descrição                                                      |
-| --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | -------------------------------------------------------------- |
-| `get_my_access()`                                                                                                                             | usuário autenticado         | perfil, papéis, permissões efetivas e situação do MFA          |
-| `has_permission(permission, department_id)`                                                                                                   | usuário autenticado         | consulta para a interface                                      |
-| `dashboard_foundation_stats()`                                                                                                                | usuário ativo               | indicadores da fundação (os de usuários só com `users.manage`) |
-| `mark_notification_read(id)` / `mark_all_notifications_read()`                                                                                | usuário ativo               | somente as próprias                                            |
-| `can_attach_document(type, id)`                                                                                                               | usuário ativo               | pré-verificação do envio                                       |
-| `log_client_event(op, module, metadata)`                                                                                                      | usuário ativo               | somente `DOCUMENT_VIEW` e `PAGE_ERROR`                         |
-| `admin_precheck_invite`, `admin_create_profile`, `admin_update_profile`, `admin_set_user_status`, `admin_set_user_access`, `admin_list_users` | `users.manage` + AAL2       | administração de usuários                                      |
-| `admin_save_role`, `admin_delete_role`                                                                                                        | `roles.manage` + AAL2       | perfis de acesso                                               |
-| `soft_delete_department`                                                                                                                      | `departments.manage` + AAL2 | exclusão lógica com justificativa                              |
-| `service_register_document`                                                                                                                   | **somente service_role**    | registro transacional de documento (Edge Function)             |
-| `save_consumer_unit`, `assign_consumer_unit`, `end_consumer_unit_assignment`                                                                  | `consumer_units.manage`     | unidades e vínculos (no escopo do imóvel)                      |
-| `create_invoice`, `request_invoice_correction`, `request_invoice_cancel`                                                                      | `invoices.manage`           | faturas (duplicidade, correção e cancelamento via aprovação)   |
-| `request_rent_correction`, `request_rent_cancel`, `request_payment`                                                                           | `invoices.manage`           | solicitações financeiras (aprovadas por administrador)         |
-| `dashboard_finance_stats(months, department_id)`                                                                                              | `invoices.view`             | indicadores e séries mensais do painel                         |
-| `bootstrap_first_admin`                                                                                                                       | **somente service_role**    | primeiro administrador (script local)                          |
+| Função                                                                                                                                        | Quem pode                   | Descrição                                                                        |
+| --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `get_my_access()`                                                                                                                             | usuário autenticado         | perfil, papéis, permissões efetivas e situação do MFA                            |
+| `has_permission(permission, department_id)`                                                                                                   | usuário autenticado         | consulta para a interface                                                        |
+| `dashboard_foundation_stats()`                                                                                                                | usuário ativo               | indicadores da fundação (os de usuários só com `users.manage`)                   |
+| `mark_notification_read(id)` / `mark_all_notifications_read()`                                                                                | usuário ativo               | somente as próprias                                                              |
+| `can_attach_document(type, id)`                                                                                                               | usuário ativo               | pré-verificação do envio                                                         |
+| `log_client_event(op, module, metadata)`                                                                                                      | usuário ativo               | somente `DOCUMENT_VIEW` e `PAGE_ERROR`                                           |
+| `admin_precheck_invite`, `admin_create_profile`, `admin_update_profile`, `admin_set_user_status`, `admin_set_user_access`, `admin_list_users` | `users.manage` + AAL2       | administração de usuários                                                        |
+| `admin_save_role`, `admin_delete_role`                                                                                                        | `roles.manage` + AAL2       | perfis de acesso                                                                 |
+| `soft_delete_department`                                                                                                                      | `departments.manage` + AAL2 | exclusão lógica com justificativa                                                |
+| `service_register_document`                                                                                                                   | **somente service_role**    | registro transacional de documento (Edge Function)                               |
+| `save_consumer_unit`, `assign_consumer_unit`, `end_consumer_unit_assignment`                                                                  | `consumer_units.manage`     | unidades e vínculos (no escopo do imóvel)                                        |
+| `create_invoice`, `request_invoice_correction`, `request_invoice_cancel`                                                                      | `invoices.manage`           | faturas (duplicidade, correção e cancelamento via aprovação)                     |
+| `request_rent_correction`, `request_rent_cancel`, `request_payment`                                                                           | `invoices.manage`           | solicitações financeiras (aprovadas por administrador)                           |
+| `dashboard_finance_stats(months, department_id)`                                                                                              | `invoices.view`             | indicadores e séries mensais do painel                                           |
+| `log_report_export(report, format, filters, rows)`                                                                                            | `reports.export`            | auditoria da exportação (chamada pela Edge Function antes de entregar o arquivo) |
+| `bootstrap_first_admin`                                                                                                                       | **somente service_role**    | primeiro administrador (script local)                                            |
 
 ## Seed
 

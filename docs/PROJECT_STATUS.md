@@ -4,7 +4,14 @@
 
 ## Fase atual
 
-**Fase 5 — Produtividade (sem pontuação): concluída, aguardando validação.** A Fase 4 foi validada pelo responsável ("vamos para a parte 5"). Próxima atividade, após a validação: **Fase 6 (relatórios e exportações)**.
+**Fase 6 — Relatórios e exportações: concluída, aguardando validação.** A Fase 5 foi validada pelo responsável ("vamos para a fase 6"). Próxima atividade, após a validação: **Fase 7 (testes finais, homologação/produção e publicação)**.
+
+## Funcionalidades concluídas (Fase 6)
+
+- **6A Catálogo de relatórios:** 13 relatórios com filtros (Gestão: Imóveis, Contratos, Contratos próximos do vencimento, Aditivos; Financeiro: Despesas de água, Despesas de energia, Faturas pendentes, Aluguéis, Pagamentos, Relatório de despesas (lançamentos); Acompanhamento: Demandas, Produtividade, Aprovações). Catálogo único (`supabase/functions/_shared/reports/catalog.ts`) usado pela prévia na tela e pela geração do arquivo.
+- **6B Exportação Excel e PDF:** Edge Function `reports-export` com o **token do próprio usuário** (RLS e verificações das RPCs valem como na tela, nunca service role); exige `reports.export` e a permissão do relatório; limite de 5.000 linhas por arquivo; cabeçalho com órgão, título, filtros, autor e data/hora de Maceió; produtividade leva o aviso de uso.
+- **6C Auditoria antes da entrega:** `log_report_export` grava em `audit_logs` (operação `EXPORT`): quem, relatório, filtros, formato, quantidade de linhas e quando. Se o registro falhar, o arquivo não é devolvido.
+- **6D Telas:** página Relatórios (menu Acompanhamento) com catálogo por grupo, filtros, prévia das 100 primeiras linhas e botões Excel/PDF para quem tem `reports.export`; exportação habilitada também em **Relatórios de despesas** (pendência da Alteração 01) e em **Produtividade**.
 
 ## Funcionalidades concluídas (Fase 5)
 
@@ -54,11 +61,10 @@
 
 ## Em andamento
 
-- Nada. Aguardando a validação da Fase 5.
+- Nada. Aguardando a validação da Fase 6.
 
 ## Pendentes (próximas fases)
 
-- Fase 6: relatórios e exportações, incluindo a **exportação Excel/PDF dos Relatórios de despesas** (Alteração 01, item B). Os "Relatórios financeiros" do Módulo 4 foram substituídos pela tela Relatórios de despesas, já entregue.
 - Fase 7: testes finais, projetos de homologação/produção e publicação.
 
 ## Decisões técnicas
@@ -106,6 +112,11 @@
 | 39  | Períodos fechados lidos de `productivity_snapshots` (imutável)                                                                              | números estáveis mesmo se demandas forem corrigidas ou excluídas depois                                                                                            |
 | 40  | Equipe em ordem alfabética, sem ordenar por desempenho                                                                                      | a especificação proíbe rankings nesta versão                                                                                                                       |
 | 41  | Coletivo = soma das pessoas (participação conta uma vez por pessoa)                                                                         | evita dividir demandas entre participantes, o que dependeria dos pesos adiados                                                                                     |
+| 42  | Catálogo de relatórios compartilhado entre navegador e Edge Function (`_shared/reports/catalog.ts`)                                         | a prévia e o arquivo usam exatamente a mesma consulta e os mesmos filtros, sempre com o cliente do usuário                                                         |
+| 43  | PDF com `pdf-lib` 1.17.1 (JavaScript puro, fontes padrão WinAnsi) e Excel com ExcelJS 4.4.0                                                 | ambos rodam no Deno do Supabase sem binários nativos nem navegador; caracteres fora do WinAnsi (raros em pt-BR) são substituídos no PDF                            |
+| 44  | Limite de 5.000 linhas por exportação (erro orientando a restringir filtros)                                                                | mantém a função dentro do tempo e da memória do plano gratuito                                                                                                     |
+| 45  | Registro da exportação pelo próprio usuário (`log_report_export`, `security definer` com `reports.export`) antes de gerar o arquivo         | a auditoria fica vinculada ao usuário real, sem service role; sem registro não há arquivo                                                                          |
+| 46  | Exportação dos Relatórios de despesas pelo relatório "lançamentos" (base competência)                                                       | combinações não representáveis (base pagamento, 2 tipos ou várias situações) desabilitam o botão com a explicação                                                  |
 
 ## Pontos pendentes de definição institucional
 
@@ -127,7 +138,7 @@
 
 ## Próximas atividades
 
-1. Validação da Fase 5 pela SEMFAZ.
+1. Validação da Fase 6 pela SEMFAZ.
 2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
 3. Configurar SMTP próprio (ou plano Pro) para os e-mails com código de 6 números.
-4. Iniciar a Fase 6 (relatórios e exportações) após a validação.
+4. Iniciar a Fase 7 (testes finais, homologação/produção e publicação) após a validação.

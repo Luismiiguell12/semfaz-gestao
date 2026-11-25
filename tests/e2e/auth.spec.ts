@@ -29,13 +29,13 @@ test.describe("Autenticação e proteção de páginas", () => {
     await expect(page.getByRole("heading", { name: /^Olá/ })).toBeVisible();
     await expectNoHorizontalScroll(page);
 
-    // Módulos futuros aparecem como "Em breve" e desabilitados.
+    // Menu conforme as permissões (Relatórios disponível para consulta).
     const isMobile = (page.viewportSize()?.width ?? 1000) < 1024;
     if (isMobile) await page.getByRole("button", { name: "Abrir menu" }).click();
     const nav = page.getByRole("navigation", { name: "Menu principal" }).last();
     await expect(nav.getByText("Usuários")).toHaveCount(0);
     await expect(nav.getByText("Contratos")).toBeVisible();
-    await expect(nav.locator('[aria-disabled="true"]').first()).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Relatórios", exact: true })).toBeVisible();
     if (isMobile) await page.keyboard.press("Escape");
 
     // Acesso direto pela URL: a interface bloqueia (e a RLS não devolveria dados).

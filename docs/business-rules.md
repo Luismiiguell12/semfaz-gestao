@@ -127,6 +127,19 @@ Fluxo real da SEMFAZ: o contrato chega → cadastra-se o locador → o imóvel �
 | Períodos fechados usam o registro consolidado (imutável)                                                                            | `productivity_snapshots`             |
 | Os relatórios exibem o aviso de que não são avaliação automática e definitiva                                                       | `productivity_report.notice` + telas |
 
+## Relatórios e exportações (Fase 6)
+
+| Regra                                                                                             | Implementação                                 |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Relatórios mostram apenas dados do escopo de quem consulta                                        | consultas com o token do usuário (RLS)        |
+| Consultar um relatório exige a permissão do módulo; exportar exige também `reports.export`        | tela + Edge Function `reports-export`         |
+| Arquivos gerados no servidor, nunca com a service role key                                        | `reports-export` (cliente do usuário)         |
+| Toda exportação é registrada antes da entrega: quem, relatório, filtros, formato, linhas e quando | `log_report_export` → `audit_logs` (`EXPORT`) |
+| Sem registro na auditoria, nenhum arquivo é devolvido                                             | `reports-export`                              |
+| Até 5.000 linhas por arquivo; acima disso, o usuário restringe os filtros                         | `reports-export`                              |
+| Datas e horários em America/Maceio; valores em R$ com duas casas                                  | `formatCell` / formatos do Excel              |
+| O relatório de produtividade leva o aviso de que não é avaliação automática e definitiva          | catálogo (`notice`)                           |
+
 ## Documentos
 
 | Regra                                                                  | Implementação                                                                             |

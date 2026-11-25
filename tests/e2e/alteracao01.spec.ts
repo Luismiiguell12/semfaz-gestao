@@ -70,7 +70,7 @@ async function sendPackage(page: Page): Promise<string> {
   return (await link.getAttribute("href"))!.replace(/^\/semfaz-gestao\//, "");
 }
 
-test("menu reorganizado: Gestão, Financeiro e itens em breve", async ({ page }) => {
+test("menu reorganizado: Gestão, Financeiro e Relatórios", async ({ page }) => {
   await login(page, e2eState().manager.email);
   await expect(page.getByRole("heading", { name: /^Olá/ })).toBeVisible();
   const { nav } = await openMenu(page);
@@ -90,9 +90,9 @@ test("menu reorganizado: Gestão, Financeiro e itens em breve", async ({ page })
   const positions = order.map((l) => labels.indexOf(l));
   expect(positions.every((p) => p >= 0)).toBe(true);
   expect([...positions].sort((a, b) => a - b)).toEqual(positions);
-  for (const soon of ["Relatórios"]) {
-    await expect(nav.locator('[aria-disabled="true"]', { hasText: soon }).first()).toBeVisible();
-  }
+  // Fase 6: Relatórios deixou de ser "em breve"; não há mais itens desabilitados.
+  await expect(nav.getByRole("link", { name: "Relatórios", exact: true })).toBeVisible();
+  await expect(nav.locator('[aria-disabled="true"]')).toHaveCount(0);
   await nav.getByRole("link", { name: "Unidades consumidoras" }).click();
   await expect(page.getByRole("heading", { name: /Unidades consumidoras/ }).first()).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Trilha de navegação" })).toContainText(

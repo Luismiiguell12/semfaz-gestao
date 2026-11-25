@@ -93,7 +93,7 @@ export const NAVIGATION: NavSection[] = [
         icon: TrendingUp,
         permission: "productivity.view_own",
       },
-      { label: "Relatórios", href: "/relatorios/", icon: FileBarChart, comingSoon: true },
+      { label: "Relatórios", href: "/relatorios/", icon: FileBarChart },
     ],
   },
   {
@@ -123,7 +123,7 @@ export const NAVIGATION: NavSection[] = [
   },
 ];
 
-/** Rótulos para breadcrumbs, por segmento de rota. */
+/** Rótulos para breadcrumbs: pelo caminho completo (prioridade) ou pelo segmento. */
 export const ROUTE_LABELS: Record<string, string> = {
   notificacoes: "Notificações",
   "minha-conta": "Minha conta",
@@ -146,6 +146,7 @@ export const ROUTE_LABELS: Record<string, string> = {
   nova: "Novo lançamento",
   pagamentos: "Pagamentos",
   relatorios: "Relatórios de despesas",
+  "/relatorios/": "Relatórios",
   "cadastro-guiado": "Novo cadastro a partir de contrato",
   editar: "Cadastro em andamento",
   demandas: "Demandas",

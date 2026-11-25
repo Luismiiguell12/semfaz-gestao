@@ -110,7 +110,7 @@ tests/
 | Geral          | `/`, `/notificacoes/`                                                                                 | `dashboard`, `notifications`                                             |
 | Gestão         | `/cadastro-guiado/`, `/contratos/`, `/locadores/`, `/imoveis/`, `/unidades/`                          | `registration`, `contracts`, `landlords`, `properties`, `consumer-units` |
 | Financeiro     | `/financeiro/faturas/`, `/financeiro/alugueis/`, `/financeiro/pagamentos/`, `/financeiro/relatorios/` | `finance` (API, gráficos, detalhamento por URL)                          |
-| Acompanhamento | `/demandas/`, `/calendario/`, `/aprovacoes/`, `/produtividade/` (+ Relatórios "Em breve")             | `tasks`, `approvals`, `productivity`                                     |
+| Acompanhamento | `/demandas/`, `/calendario/`, `/aprovacoes/`, `/produtividade/`, `/relatorios/`                       | `tasks`, `approvals`, `productivity`, `reports`                          |
 | Administração  | `/administracao/*`                                                                                    | `users`, `roles`, `departments`, `settings`                              |
 
 O menu é declarado em `src/components/layout/navigation.ts` (rótulos de breadcrumb no mesmo arquivo).
@@ -224,12 +224,9 @@ Versões fixadas no `package-lock.json` (Node.js 22).
 | otpauth                                                        | 9.6.0                         | geração de códigos TOTP nos testes              |
 | eslint / prettier                                              | 9.39.5 / 3.10.1               | qualidade de código                             |
 
-Previstas para as próximas fases (instaladas quando usadas): Recharts
-(gráficos, Fases 2–5), FullCalendar e date-fns + @date-fns/tz (Fase 4),
-ExcelJS e biblioteca de PDF compatível com Deno (Fase 6).
-
 Edge Functions (Deno 2, runtime do Supabase): `npm:@supabase/supabase-js@2.119.2`,
-`npm:zod@4.6.7`, fixadas por `deno.lock`.
+`npm:zod@4.6.7` e, na `reports-export`, `npm:exceljs@4.4.0` (Excel) e `npm:pdf-lib@1.17.1` (PDF,
+JavaScript puro com fontes padrão), fixadas por `deno.lock`.
 
 ## 5. Segurança
 
@@ -275,6 +272,7 @@ Funções no schema `private` (não exposto pela API), todas `STABLE`,
 - Login, logout e verificação de MFA auditados por trigger em `auth.sessions`.
 - `audit_logs` é **somente inserção**: sem privilégios de escrita para nenhum papel e trigger que rejeita UPDATE/DELETE/TRUNCATE, inclusive para o dono da tabela.
 - Consulta restrita a `audit.view` (privilegiada, exige MFA).
+- Exportações de relatórios: a Edge Function `reports-export` chama `log_report_export` com o token do usuário **antes** de gerar o arquivo (operação `EXPORT`, com relatório, filtros, formato e linhas).
 
 ### Frontend
 

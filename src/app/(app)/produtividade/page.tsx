@@ -21,7 +21,7 @@ import {
   type PeriodType,
 } from "@/modules/productivity/api";
 import { formatInteger } from "@/lib/format";
-import { useAuth } from "@/providers/auth-provider";
+import { ExportButtons } from "@/modules/reports/export-buttons";
 
 const pct = (v: number | null) =>
   v === null ? "—" : `${v.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
@@ -90,7 +90,6 @@ function ComplexityBars({ m, title }: { m: Metrics; title: string }) {
 }
 
 function ProductivityContent() {
-  const { can } = useAuth();
   const [type, setType] = React.useState<PeriodType>("month");
   const [ref, setRef] = React.useState(thisMonth());
   const [dept, setDept] = React.useState("");
@@ -106,6 +105,14 @@ function ProductivityContent() {
       <PageHeader
         title="Produtividade"
         description="Métricas de quantidade e prazo das demandas, por período. Não há pontuação nesta versão."
+        actions={
+          <ExportButtons
+            report="produtividade"
+            filters={{ periodo: type, referencia: ref, ...(dept ? { departamento: dept } : {}) }}
+            disabled={!ref}
+            disabledReason="Informe o mês de referência."
+          />
+        }
       />
       <InlineAlert tone="warning" className="mb-6" title="Uso dos indicadores">
         Os indicadores apoiam a gestão e não devem ser usados como avaliação automática e definitiva dos
@@ -275,9 +282,6 @@ function ProductivityContent() {
               </Panel>
               <p className="text-muted-foreground mt-2 text-xs">
                 No coletivo, uma demanda com várias pessoas conta uma vez para cada participante.
-                {can("reports.export")
-                  ? " A exportação para Excel e PDF será liberada na fase de Relatórios."
-                  : ""}
               </p>
             </section>
           )}

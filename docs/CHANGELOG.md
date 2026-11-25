@@ -2,6 +2,19 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado] — Fase 6: Relatórios e exportações
+
+### Adicionado
+
+- Página Relatórios com 13 relatórios (Gestão, Financeiro e Acompanhamento), filtros e prévia.
+- Exportação para Excel e PDF pela Edge Function `reports-export`, com o token do usuário e registro na auditoria (`EXPORT`) antes da entrega.
+- Exportação nas telas Relatórios de despesas e Produtividade.
+- 9 testes pgTAP (310 no total), 6 testes de integração da exportação e 3 E2E (9 execuções nos três tamanhos de tela).
+
+### Alterado
+
+- Menu: Relatórios habilitado. Breadcrumbs aceitam rótulo pelo caminho completo.
+
 ## [Não publicado] — Fase 5: Produtividade (sem pontuação)
 
 ### Adicionado
