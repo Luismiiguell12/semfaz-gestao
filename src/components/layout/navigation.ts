@@ -87,7 +87,12 @@ export const NAVIGATION: NavSection[] = [
       { label: "Demandas", href: "/demandas/", icon: ClipboardList },
       { label: "Calendário", href: "/calendario/", icon: CalendarDays },
       { label: "Aprovações", href: "/aprovacoes/", icon: Stamp },
-      { label: "Produtividade", href: "/produtividade/", icon: TrendingUp, comingSoon: true },
+      {
+        label: "Produtividade",
+        href: "/produtividade/",
+        icon: TrendingUp,
+        permission: "productivity.view_own",
+      },
       { label: "Relatórios", href: "/relatorios/", icon: FileBarChart, comingSoon: true },
     ],
   },
@@ -146,6 +151,7 @@ export const ROUTE_LABELS: Record<string, string> = {
   demandas: "Demandas",
   calendario: "Calendário",
   categorias: "Categorias",
+  produtividade: "Produtividade",
   lancamentos: "Lançamentos",
 };
 

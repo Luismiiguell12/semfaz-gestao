@@ -36,6 +36,14 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | `20261125000800_structural_defaults.sql`         | aplica de forma idempotente os dados estruturais das Fases 2 e 3 nos ambientes remotos                                                                                                                            |
 | `20261125000700_unit_create_with_assignment.sql` | cadastro de unidade exige imóvel e data de vinculação (mesma transação)                                                                                                                                           |
 
+## Migrations da Fase 5
+
+| Arquivo                           | Conteúdo                                                                                                                                                                                                                                                                                                                                      |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20261125001400_productivity.sql` | `task_complexity_levels` (sem pesos); `productivity_snapshots` (imutável, RLS por pessoa/equipe); `period_bounds`, `productivity_metrics`, `productivity_rates`, `can_view_productivity`; RPCs `productivity_report`, `productivity_series`; `consolidate_productivity` + `pg_cron` `semfaz-productivity-snapshots` (dia 1º, 06h20 de Maceió) |
+
+Não criadas (adiadas para a fase de pontuação): `productivity_rules`, `productivity_entries`, `performance_reviews`.
+
 ## Migrations da Fase 4
 
 | Arquivo                            | Conteúdo                                                                                                                                                                                                                                                                                                                                                                                                                                     |

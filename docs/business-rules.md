@@ -114,6 +114,19 @@ Fluxo real da SEMFAZ: o contrato chega → cadastra-se o locador → o imóvel �
 | Avisos de prazo próximo (padrão 2 dias, configurável em `tasks.due_soon_days`) e atraso, uma vez por pessoa                             | `generate_task_reminders`                                      |
 | Eventos: vistos pelo criador, participantes do evento e por quem vê a demanda vinculada; cancelamento com motivo, sem exclusão física   | `can_view_task_event`, `cancel_task_event`                     |
 
+## Produtividade (Fase 5)
+
+| Regra                                                                                                                               | Implementação                        |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Sem pontos, pesos nem rankings nesta versão; complexidade só como contagem                                                          | `productivity_metrics`               |
+| Recebidas = vínculos (responsável ou participante) criados no período; concluídas = concluídas no período                           | `productivity_metrics`               |
+| Pendentes = abertas ao fim do período; atrasadas = pendentes com prazo vencido na data de referência                                | `productivity_metrics`               |
+| Percentual de conclusão = concluídas ÷ (concluídas + pendentes); cumprimento de prazos = concluídas no prazo ÷ concluídas com prazo | `productivity_rates`                 |
+| Tempo de execução = média da criação à conclusão                                                                                    | `productivity_metrics`               |
+| Cada pessoa vê os próprios dados; a equipe só com `productivity.view_team`, no escopo de quem consulta                              | `can_view_productivity`              |
+| Períodos fechados usam o registro consolidado (imutável)                                                                            | `productivity_snapshots`             |
+| Os relatórios exibem o aviso de que não são avaliação automática e definitiva                                                       | `productivity_report.notice` + telas |
+
 ## Documentos
 
 | Regra                                                                  | Implementação                                                                             |

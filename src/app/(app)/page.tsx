@@ -26,6 +26,7 @@ import { formatCurrency, formatInteger } from "@/lib/format";
 import { HorizontalBars } from "@/modules/finance/charts";
 import { TASK_STATUSES, TASK_STATUS_LABEL, EVENT_KIND_LABEL, useTaskStats } from "@/modules/tasks/api";
 import { maceioParts } from "@/modules/tasks/dates";
+import { useProductivityReport } from "@/modules/productivity/api";
 import { ClipboardList, CalendarClock, ListChecks, Timer } from "lucide-react";
 
 function Indicator({
@@ -70,9 +71,14 @@ function Indicator({
 
 const UPCOMING = [
   {
-    phase: "Fase 5",
-    title: "Produtividade",
-    text: "Indicadores individuais e da equipe (sem pontuação nesta versão).",
+    phase: "Fase 6",
+    title: "Relatórios e exportações",
+    text: "Relatórios consolidados e exportação auditada para Excel e PDF.",
+  },
+  {
+    phase: "Fase 7",
+    title: "Testes finais e implantação",
+    text: "Homologação, produção e publicação definitiva.",
   },
 ];
 
@@ -82,6 +88,14 @@ export default function DashboardPage() {
   const cs = useContractStats();
   const fs = useFinanceStats(12);
   const ts = useTaskStats();
+  const canProd = can("productivity.view_own") || can("productivity.view_team");
+  const pr = useProductivityReport({
+    type: "month",
+    ref: new Date().toLocaleDateString("en-CA", { timeZone: "America/Maceio" }).slice(0, 7) + "-01",
+    enabled: canProd,
+  });
+  const prod = canProd ? pr.data : undefined;
+  const myProd = prod?.people.find((p) => p.is_me)?.metrics;
   const tk = ts.data;
   const f = fs.data;
   const c = cs.data;
@@ -344,6 +358,64 @@ export default function DashboardPage() {
         </section>
       )}
 
+      {prod && myProd && (
+        <section aria-label="Produtividade" className="mt-6">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-brand text-base font-semibold">Minha produtividade no mês</h2>
+            <Link href="/produtividade/" className="text-primary text-sm font-semibold hover:underline">
+              Ver produtividade
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Indicator
+              label="Concluídas no mês"
+              value={myProd.concluidas}
+              icon={ListChecks}
+              href="/produtividade/"
+            />
+            <Indicator
+              label="Pendentes"
+              value={myProd.pendentes}
+              icon={ClipboardList}
+              href="/produtividade/"
+            />
+            <Indicator
+              label="Cumprimento de prazos"
+              value={
+                myProd.cumprimento_prazos === null
+                  ? "—"
+                  : `${myProd.cumprimento_prazos.toLocaleString("pt-BR")}%`
+              }
+              icon={Timer}
+              href="/produtividade/"
+            />
+            <Indicator
+              label="Atrasadas"
+              value={myProd.atrasadas}
+              icon={AlertTriangle}
+              href="/produtividade/"
+            />
+          </div>
+          {prod.can_view_team && prod.people.length > 0 && (
+            <div className="mt-4">
+              <HorizontalBars
+                title="Produtividade por colaborador: concluídas no mês (ordem alfabética)"
+                format={(v) => formatInteger(v)}
+                rows={prod.people.map((p) => ({
+                  key: p.user_id,
+                  name: p.name,
+                  value: p.metrics.concluidas,
+                  href: "/produtividade/",
+                }))}
+              />
+            </div>
+          )}
+          <p className="text-muted-foreground mt-2 text-xs">
+            Os indicadores apoiam a gestão e não são avaliação automática e definitiva dos servidores.
+          </p>
+        </section>
+      )}
+
       <Panel
         className="mt-6"
         title="Próximos módulos"
@@ -351,7 +423,7 @@ export default function DashboardPage() {
       >
         <EmptyState
           icon={Building2}
-          title="Ainda não há indicadores de produtividade"
+          title="Relatórios consolidados chegam na próxima fase"
           description="Nenhum número é exibido antes de existirem registros reais no sistema."
           className="py-6"
         />

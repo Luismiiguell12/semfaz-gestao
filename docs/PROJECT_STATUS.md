@@ -4,7 +4,14 @@
 
 ## Fase atual
 
-**Fase 4 — Demandas e calendário: concluída, aguardando validação.** As Fases 2 e 3 e a Alteração 01 foram validadas pelo responsável ("vamos para a fase 4"). Próxima atividade, após a validação: **Fase 5 (produtividade, sem pontuação)**.
+**Fase 5 — Produtividade (sem pontuação): concluída, aguardando validação.** A Fase 4 foi validada pelo responsável ("vamos para a parte 5"). Próxima atividade, após a validação: **Fase 6 (relatórios e exportações)**.
+
+## Funcionalidades concluídas (Fase 5)
+
+- **5A Métricas:** recebidas, concluídas, concluídas no prazo, pendentes e atrasadas ao fim do período, percentual de conclusão, cumprimento de prazos, tempo médio de execução, distribuição por complexidade (contagem) e participação (responsável/participante), por mês, trimestre, semestre e ano (datas de Maceió). Sem pontos, pesos nem rankings.
+- **5B Visibilidade:** cada pessoa vê os próprios indicadores (`productivity.view_own`); a equipe apenas com `productivity.view_team`, restrita ao escopo de departamentos de quem consulta.
+- **5C Consolidação:** `productivity_snapshots` gravados todo dia 1º (06h20 de Maceió) para os períodos que fecharam; registros imutáveis; períodos fechados usam o registro consolidado.
+- **5D Telas e painel:** página Produtividade (período, pessoa, secretaria, cartões, evolução, complexidade, coletivo e tabela por pessoa em ordem alfabética) com o aviso de que os indicadores não são avaliação automática; painel com "Minha produtividade no mês" e "Produtividade por colaborador" para quem vê a equipe.
 
 ## Funcionalidades concluídas (Fase 4)
 
@@ -47,11 +54,10 @@
 
 ## Em andamento
 
-- Nada. Aguardando a validação da Fase 4.
+- Nada. Aguardando a validação da Fase 5.
 
 ## Pendentes (próximas fases)
 
-- Fase 5: produtividade (sem pontuação).
 - Fase 6: relatórios e exportações, incluindo a **exportação Excel/PDF dos Relatórios de despesas** (Alteração 01, item B). Os "Relatórios financeiros" do Módulo 4 foram substituídos pela tela Relatórios de despesas, já entregue.
 - Fase 7: testes finais, projetos de homologação/produção e publicação.
 
@@ -96,6 +102,10 @@
 | 35  | Kanban com `@dnd-kit/core`                                                                                                                  | arrastar com mouse, toque e teclado (com anúncios para leitor de tela); arrastar nativo do HTML não funciona no celular                                            |
 | 36  | Calendário próprio (sem biblioteca), datas como texto AAAA-MM-DD e fuso fixo -03:00                                                         | America/Maceio não tem horário de verão; evita dependência e erros de fuso do navegador                                                                            |
 | 37  | Contêineres com rolagem horizontal recebem `position: relative`                                                                             | textos ocultos para leitores de tela (`sr-only`) escapavam do recorte e geravam rolagem da página no celular                                                       |
+| 38  | Métricas calculadas no banco (`productivity_metrics`, só acessível pelas RPCs)                                                              | uma única definição para tela, painel e consolidação; ninguém consulta métricas de outra pessoa sem a verificação de escopo                                        |
+| 39  | Períodos fechados lidos de `productivity_snapshots` (imutável)                                                                              | números estáveis mesmo se demandas forem corrigidas ou excluídas depois                                                                                            |
+| 40  | Equipe em ordem alfabética, sem ordenar por desempenho                                                                                      | a especificação proíbe rankings nesta versão                                                                                                                       |
+| 41  | Coletivo = soma das pessoas (participação conta uma vez por pessoa)                                                                         | evita dividir demandas entre participantes, o que dependeria dos pesos adiados                                                                                     |
 
 ## Pontos pendentes de definição institucional
 
@@ -117,7 +127,7 @@
 
 ## Próximas atividades
 
-1. Validação da Fase 4 pela SEMFAZ.
+1. Validação da Fase 5 pela SEMFAZ.
 2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
 3. Configurar SMTP próprio (ou plano Pro) para os e-mails com código de 6 números.
-4. Iniciar a Fase 5 (produtividade, sem pontuação) após a validação.
+4. Iniciar a Fase 6 (relatórios e exportações) após a validação.

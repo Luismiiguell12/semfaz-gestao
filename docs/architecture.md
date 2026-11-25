@@ -110,7 +110,7 @@ tests/
 | Geral          | `/`, `/notificacoes/`                                                                                 | `dashboard`, `notifications`                                             |
 | Gestão         | `/cadastro-guiado/`, `/contratos/`, `/locadores/`, `/imoveis/`, `/unidades/`                          | `registration`, `contracts`, `landlords`, `properties`, `consumer-units` |
 | Financeiro     | `/financeiro/faturas/`, `/financeiro/alugueis/`, `/financeiro/pagamentos/`, `/financeiro/relatorios/` | `finance` (API, gráficos, detalhamento por URL)                          |
-| Acompanhamento | `/demandas/`, `/calendario/`, `/aprovacoes/` (+ Produtividade e Relatórios "Em breve")                | `tasks`, `approvals`                                                     |
+| Acompanhamento | `/demandas/`, `/calendario/`, `/aprovacoes/`, `/produtividade/` (+ Relatórios "Em breve")             | `tasks`, `approvals`, `productivity`                                     |
 | Administração  | `/administracao/*`                                                                                    | `users`, `roles`, `departments`, `settings`                              |
 
 O menu é declarado em `src/components/layout/navigation.ts` (rótulos de breadcrumb no mesmo arquivo).

@@ -2,6 +2,16 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado] — Fase 5: Produtividade (sem pontuação)
+
+### Adicionado
+
+- Indicadores individuais e coletivos (recebidas, concluídas, pendentes, atrasadas, percentual de conclusão, cumprimento de prazos, tempo médio, complexidade e participação) por mês, trimestre, semestre e ano.
+- Página Produtividade com gráficos e tabela da equipe (ordem alfabética, sem ranking) e aviso de uso.
+- Consolidação mensal automática (`productivity_snapshots`) e catálogo `task_complexity_levels`.
+- Painel: "Minha produtividade no mês" e "Produtividade por colaborador" (com `productivity.view_team`).
+- 26 testes pgTAP (301 no total) e 2 E2E (6 execuções nos três tamanhos de tela).
+
 ## [Não publicado] — Fase 4: Demandas e calendário
 
 ### Adicionado

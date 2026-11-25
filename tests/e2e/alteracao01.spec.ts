@@ -90,7 +90,7 @@ test("menu reorganizado: Gestão, Financeiro e itens em breve", async ({ page })
   const positions = order.map((l) => labels.indexOf(l));
   expect(positions.every((p) => p >= 0)).toBe(true);
   expect([...positions].sort((a, b) => a - b)).toEqual(positions);
-  for (const soon of ["Produtividade", "Relatórios"]) {
+  for (const soon of ["Relatórios"]) {
     await expect(nav.locator('[aria-disabled="true"]', { hasText: soon }).first()).toBeVisible();
   }
   await nav.getByRole("link", { name: "Unidades consumidoras" }).click();

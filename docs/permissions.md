@@ -67,6 +67,12 @@ editar as demandas da secretaria no escopo), `tasks.delete_own` (criador solicit
 `tasks.delete_any` (exclusão excepcional, privilegiada) e `tasks.categories.manage` (categorias).
 Quem participa de uma demanda sempre a vê, mesmo sem permissões de demandas.
 
+## Fase 5 (produtividade)
+
+`productivity.view_own` (todos os perfis iniciais) dá acesso aos próprios indicadores;
+`productivity.view_team` (Gestor e Administrador) aos indicadores das pessoas do escopo de departamentos de
+quem consulta (perfil ou acesso a departamento). Indicadores de produtividade são dados pessoais.
+
 ## Regras de proteção
 
 | Regra                                                                                           | Onde é garantida                                                      |
