@@ -106,7 +106,7 @@ function Table({
   foot?: React.ReactNode;
 }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[520px] text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead>

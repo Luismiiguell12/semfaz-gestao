@@ -189,11 +189,14 @@ export function HorizontalBars({
   rows,
   emptyText = "Nenhum valor no período.",
   limit,
+  format = formatCurrency,
 }: {
   title: string;
   rows: BarRow[];
   emptyText?: string;
   limit?: number;
+  /** Formato dos valores (padrão: R$). */
+  format?: (v: number) => string;
 }) {
   const titleId = React.useId();
   const shown = limit ? rows.slice(0, limit) : rows;
@@ -211,7 +214,7 @@ export function HorizontalBars({
             <li
               key={r.key}
               className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 text-sm"
-              title={`${r.name}: ${formatCurrency(r.value)}`}
+              title={`${r.name}: ${format(r.value)}`}
             >
               {r.href ? (
                 <Link href={r.href} className="text-foreground hover:text-primary truncate hover:underline">
@@ -220,7 +223,7 @@ export function HorizontalBars({
               ) : (
                 <span className="text-foreground truncate">{r.name}</span>
               )}
-              <span className="tabular text-muted-foreground text-right">{formatCurrency(r.value)}</span>
+              <span className="tabular text-muted-foreground text-right">{format(r.value)}</span>
               <span className="bg-muted col-span-2 h-2 rounded-r-[4px]" aria-hidden="true">
                 <span
                   className={`block h-2 rounded-r-[4px] ${r.barClassName ?? "bg-primary"}`}

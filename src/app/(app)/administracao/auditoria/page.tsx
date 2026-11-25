@@ -46,7 +46,7 @@ function Diff({ log }: { log: AuditLog }) {
         </p>
       )}
       {fields.length > 0 && (
-        <div className="bg-background overflow-x-auto rounded-md border">
+        <div className="bg-background relative overflow-x-auto rounded-md border">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-muted-foreground border-b text-left">

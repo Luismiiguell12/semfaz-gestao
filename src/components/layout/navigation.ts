@@ -84,8 +84,8 @@ export const NAVIGATION: NavSection[] = [
   {
     label: "Acompanhamento",
     items: [
-      { label: "Demandas", href: "/demandas/", icon: ClipboardList, comingSoon: true },
-      { label: "Calendário", href: "/calendario/", icon: CalendarDays, comingSoon: true },
+      { label: "Demandas", href: "/demandas/", icon: ClipboardList },
+      { label: "Calendário", href: "/calendario/", icon: CalendarDays },
       { label: "Aprovações", href: "/aprovacoes/", icon: Stamp },
       { label: "Produtividade", href: "/produtividade/", icon: TrendingUp, comingSoon: true },
       { label: "Relatórios", href: "/relatorios/", icon: FileBarChart, comingSoon: true },
@@ -143,6 +143,9 @@ export const ROUTE_LABELS: Record<string, string> = {
   relatorios: "Relatórios de despesas",
   "cadastro-guiado": "Novo cadastro a partir de contrato",
   editar: "Cadastro em andamento",
+  demandas: "Demandas",
+  calendario: "Calendário",
+  categorias: "Categorias",
   lancamentos: "Lançamentos",
 };
 

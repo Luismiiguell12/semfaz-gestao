@@ -6,9 +6,12 @@ import { getSupabase } from "@/lib/supabase/client";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
 import { PROPERTY_STATUS_LABEL } from "@/modules/properties/api";
 import { ADMIN_STATUS_LABEL, AMENDMENT_KIND_LABEL } from "@/modules/contracts/api";
+import { TASK_STATUS_LABEL } from "@/modules/tasks/api";
 
 /** Rótulos dos campos exibidos na comparação "atual × proposto". */
 export const FIELD_LABEL: Record<string, string> = {
+  title: "Demanda",
+  deleted: "Exclusão (lógica)",
   name: "Identificação",
   street: "Logradouro",
   address_number: "Número",
@@ -117,8 +120,13 @@ export function displayValue(
   }
   if (MONEY.has(field)) return formatCurrency(String(value));
   if (DATES.has(field)) return formatCalendarDate(String(value));
+  if (field === "deleted") return value === true ? "Sim" : "Não";
   if (field === "status")
-    return PROPERTY_STATUS_LABEL[value as keyof typeof PROPERTY_STATUS_LABEL] ?? String(value);
+    return (
+      PROPERTY_STATUS_LABEL[value as keyof typeof PROPERTY_STATUS_LABEL] ??
+      TASK_STATUS_LABEL[value as keyof typeof TASK_STATUS_LABEL] ??
+      String(value)
+    );
   if (field === "admin_status")
     return ADMIN_STATUS_LABEL[value as keyof typeof ADMIN_STATUS_LABEL] ?? String(value);
   if (field === "kind")

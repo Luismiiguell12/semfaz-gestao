@@ -24,7 +24,7 @@ export default async function globalSetup() {
     const prof = await svc.from("profiles").insert({
       id,
       organization_id: ORG,
-      full_name: fullName,
+      full_name: `${fullName} ${suffix.toUpperCase()}`,
       email: "",
       username,
       organization_wide_access: roleId === ADMIN_ROLE,
@@ -32,7 +32,7 @@ export default async function globalSetup() {
     if (prof.error) throw prof.error;
     const role = await svc.from("user_roles").insert({ organization_id: ORG, user_id: id, role_id: roleId });
     if (role.error) throw role.error;
-    return { id, email };
+    return { id, email, name: `${fullName} ${suffix.toUpperCase()}` };
   }
 
   const admin = await makeUser(`e2e.admin.${suffix}`, "Administradora Teste E2E", ADMIN_ROLE);

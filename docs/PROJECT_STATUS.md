@@ -4,7 +4,15 @@
 
 ## Fase atual
 
-**Alteração 01 aplicada, aguardando validação** (ver `docs/change-requests.md`). Fases 2 e 3 concluídas e aguardando a validação conjunta (a Fase 3 foi iniciada antes da validação da Fase 2, a pedido do responsável). A Alteração 01 chegou durante essa validação e foi aplicada como etapa própria. Próxima atividade do planejamento original, após a validação: **Fase 4 (demandas e calendário)**.
+**Fase 4 — Demandas e calendário: concluída, aguardando validação.** As Fases 2 e 3 e a Alteração 01 foram validadas pelo responsável ("vamos para a fase 4"). Próxima atividade, após a validação: **Fase 5 (produtividade, sem pontuação)**.
+
+## Funcionalidades concluídas (Fase 4)
+
+- **4A Demandas:** título, descrição, solicitante (usuário ou nome externo), criador gravado pelo banco, responsável principal, participantes, categoria, secretaria, início, prazo e horário, urgência e prioridade independentes, complexidade e status; escrita somente por RPC com verificação de acesso; histórico de status em `task_status_history`; registro de quem concluiu e quando; atraso calculado pelo prazo (Maceió) sem mudar o status.
+- **4B Colaboração:** comentários imutáveis, anexos (documentos com `entity_type = 'task'`), histórico; notificações de nova demanda, troca de responsável, comentário, conclusão, revisão, prazo próximo e atraso (rotina diária, sem repetição).
+- **4C Exclusão:** somente lógica e sempre por aprovação (`task.delete` pelo criador; `task.delete_exceptional` por administrador), decidida por outro administrador; a obrigatoriedade não pode ser desativada nas regras.
+- **4D Calendário:** eventos (reunião, compromisso, prazo, lembrete) com participantes, vinculados ou não a uma demanda; visões mensal, semanal e diária com prazos de demandas e eventos.
+- **4E Telas e painel:** lista com filtros, kanban com arrastar (mouse, toque e teclado, com alternativa "Mover para"), detalhe com abas, categorias; painel com demandas abertas, em andamento, concluídas, atrasadas, por status e próximos compromissos.
 
 ## Alteração 01 (aplicada)
 
@@ -39,11 +47,10 @@
 
 ## Em andamento
 
-- Nada. Aguardando a validação das Fases 2 e 3 e da Alteração 01.
+- Nada. Aguardando a validação da Fase 4.
 
 ## Pendentes (próximas fases)
 
-- Fase 4: demandas e calendário.
 - Fase 5: produtividade (sem pontuação).
 - Fase 6: relatórios e exportações, incluindo a **exportação Excel/PDF dos Relatórios de despesas** (Alteração 01, item B). Os "Relatórios financeiros" do Módulo 4 foram substituídos pela tela Relatórios de despesas, já entregue.
 - Fase 7: testes finais, projetos de homologação/produção e publicação.
@@ -81,6 +88,14 @@
 | 27  | Base única `expense_items` + `private.expense_rows` para relatórios e Painel                                                                | um só cálculo para todas as telas, com RLS do usuário                                                                                                              |
 | 28  | Custo declarado nas funções de autorização (`cost 1000/200`)                                                                                | o planejador deixava de reavaliá-las a cada volta de nested loop; visões financeiras 10 a 16 vezes mais rápidas                                                    |
 | 29  | Detalhamento dos relatórios em página própria (`/financeiro/relatorios/lancamentos/`)                                                       | um mesmo total pode misturar faturas e aluguéis; a página lista ambos com os mesmos filtros                                                                        |
+| 30  | Anexos de demandas pela infraestrutura de documentos (`entity_type = 'task'`) em vez de tabela `task_attachments` própria                   | mesma validação de tipo/tamanho, versionamento e URL assinada já auditados                                                                                         |
+| 31  | `task_deletion_requests` como visão sobre a Central de Aprovações                                                                           | um único motor de aprovação; a visão mantém o nome previsto na modelagem                                                                                           |
+| 32  | Coluna `approval_operations.approval_mandatory` + trigger em `approval_rules`                                                               | "não existe exclusão imediata": a regra da organização não pode dispensar a aprovação                                                                              |
+| 33  | Visibilidade: criador, responsável e participantes sempre; `tasks.view_all` no escopo da secretaria da demanda                              | segue "demandas das quais participa" e permite acompanhamento por gestores                                                                                         |
+| 34  | `task_assignees.participation_weight` reservado (nulo)                                                                                      | pontuação adiada; a modelagem já recebe pesos sem migração destrutiva                                                                                              |
+| 35  | Kanban com `@dnd-kit/core`                                                                                                                  | arrastar com mouse, toque e teclado (com anúncios para leitor de tela); arrastar nativo do HTML não funciona no celular                                            |
+| 36  | Calendário próprio (sem biblioteca), datas como texto AAAA-MM-DD e fuso fixo -03:00                                                         | America/Maceio não tem horário de verão; evita dependência e erros de fuso do navegador                                                                            |
+| 37  | Contêineres com rolagem horizontal recebem `position: relative`                                                                             | textos ocultos para leitores de tela (`sr-only`) escapavam do recorte e geravam rolagem da página no celular                                                       |
 
 ## Pontos pendentes de definição institucional
 
@@ -102,7 +117,7 @@
 
 ## Próximas atividades
 
-1. Validação conjunta das Fases 2 e 3 e da Alteração 01 pela SEMFAZ.
+1. Validação da Fase 4 pela SEMFAZ.
 2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
 3. Configurar SMTP próprio (ou plano Pro) para os e-mails com código de 6 números.
-4. Iniciar a Fase 4 (demandas e calendário) após a validação.
+4. Iniciar a Fase 5 (produtividade, sem pontuação) após a validação.

@@ -2,6 +2,24 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado] — Fase 4: Demandas e calendário
+
+### Adicionado
+
+- Demandas com participantes, categorias (7 iniciais e criação por quem tem permissão), urgência, prioridade, complexidade, status com histórico, registro de conclusão, atraso calculado, comentários, anexos e histórico.
+- Visões lista e kanban (arrastar com mouse, toque e teclado) e detalhe da demanda.
+- Calendário mensal, semanal e diário com prazos de demandas, reuniões, compromissos, prazos e lembretes.
+- Exclusão de demanda somente por aprovação (criador ou exclusão excepcional por administrador), sempre lógica.
+- Notificações de demandas e rotina diária de prazo próximo e atraso.
+- Painel: demandas abertas, em andamento, concluídas, atrasadas, por status e próximos compromissos.
+- 48 testes pgTAP (275 no total) e 3 E2E (9 execuções nos três tamanhos de tela).
+
+### Alterado
+
+- Aprovações: operações com aprovação obrigatória não podem ser dispensadas nas Regras.
+- Menu: Demandas e Calendário habilitados.
+- Correção de rolagem horizontal no celular em contêineres com rolagem interna.
+
 ## [Não publicado] — Alteração 01: cadastro integrado, menus e Relatórios de despesas
 
 ### Adicionado

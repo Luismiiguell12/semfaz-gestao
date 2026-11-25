@@ -98,6 +98,22 @@ Fluxo real da SEMFAZ: o contrato chega → cadastra-se o locador → o imóvel �
 | Alerta de consumo acima de 30% (configurável) da média dos 3 meses anteriores; sem 3 meses, "histórico insuficiente"                       | `consumption_records`, `consumption.alert_percent`  |
 | Rotina diária às 6h05 de Maceió: aluguéis do mês e alertas de fatura vencida                                                               | `pg_cron` `semfaz-finance-daily`                    |
 
+## Demandas e calendário (Fase 4)
+
+| Regra                                                                                                                                   | Implementação                                                  |
+| --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Criador gravado pelo banco (`auth.uid()`), nunca aceito do cliente                                                                      | `tg_set_actor_columns`                                         |
+| Vê a demanda: criador, responsável, participantes; e quem tem `tasks.view_all` no escopo da secretaria da demanda                       | `can_view_task` + RLS                                          |
+| Edita dados: criador, responsável ou gestor do escopo; participantes mudam status, comentam e anexam                                    | `can_edit_task`, `can_work_task`                               |
+| Concluir exige `tasks.complete`; cancelar e reabrir só quem edita; cancelamento exige motivo                                            | `set_task_status`                                              |
+| Toda mudança de status vai para `task_status_history`; conclusão registra quem e quando                                                 | triggers                                                       |
+| Atrasada = prazo (data e, se houver, horário de Maceió) passado e status diferente de concluída/cancelada; o status não muda sozinho    | `tasks_overview.is_overdue`                                    |
+| Urgência (Baixa, Média, Alta, Crítica) e prioridade (Baixa, Normal, Alta, Urgente) independentes; complexidade sem pontuação            | enums                                                          |
+| Comentários não são editados nem apagados                                                                                               | trigger de imutabilidade                                       |
+| Exclusão: só o criador solicita; administrador pode pedir exclusão excepcional; sempre aprovação por outro administrador; sempre lógica | `task.delete`, `task.delete_exceptional`, `approval_mandatory` |
+| Avisos de prazo próximo (padrão 2 dias, configurável em `tasks.due_soon_days`) e atraso, uma vez por pessoa                             | `generate_task_reminders`                                      |
+| Eventos: vistos pelo criador, participantes do evento e por quem vê a demanda vinculada; cancelamento com motivo, sem exclusão física   | `can_view_task_event`, `cancel_task_event`                     |
+
 ## Documentos
 
 | Regra                                                                  | Implementação                                                                             |

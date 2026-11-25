@@ -23,6 +23,10 @@ import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, InlineAlert } from "@/components/shared/states";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, formatInteger } from "@/lib/format";
+import { HorizontalBars } from "@/modules/finance/charts";
+import { TASK_STATUSES, TASK_STATUS_LABEL, EVENT_KIND_LABEL, useTaskStats } from "@/modules/tasks/api";
+import { maceioParts } from "@/modules/tasks/dates";
+import { ClipboardList, CalendarClock, ListChecks, Timer } from "lucide-react";
 
 function Indicator({
   label,
@@ -66,11 +70,6 @@ function Indicator({
 
 const UPCOMING = [
   {
-    phase: "Fase 4",
-    title: "Demandas e calendário",
-    text: "Demandas abertas, em andamento, concluídas, atrasadas e próximos compromissos.",
-  },
-  {
     phase: "Fase 5",
     title: "Produtividade",
     text: "Indicadores individuais e da equipe (sem pontuação nesta versão).",
@@ -82,6 +81,8 @@ export default function DashboardPage() {
   const stats = useFoundationStats();
   const cs = useContractStats();
   const fs = useFinanceStats(12);
+  const ts = useTaskStats();
+  const tk = ts.data;
   const f = fs.data;
   const c = cs.data;
   const firstName = access?.profile?.full_name.split(" ")[0] ?? "";
@@ -254,6 +255,95 @@ export default function DashboardPage() {
         </section>
       )}
 
+      {tk && (
+        <section aria-label="Demandas e agenda" className="mt-6">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-brand text-base font-semibold">Demandas e agenda</h2>
+            <Link href="/demandas/" className="text-primary text-sm font-semibold hover:underline">
+              Ver demandas
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Indicator
+              label="Demandas abertas"
+              value={tk.open}
+              detail={`${tk.mine_open} sob minha responsabilidade ou participação`}
+              href="/demandas/"
+              icon={ClipboardList}
+            />
+            <Indicator
+              label="Em andamento"
+              value={tk.in_progress}
+              href="/demandas/?visao=kanban"
+              icon={Timer}
+            />
+            <Indicator label="Concluídas" value={tk.done} href="/demandas/" icon={ListChecks} />
+            <Indicator
+              label="Atrasadas"
+              value={tk.overdue}
+              href="/demandas/?atrasadas=1"
+              icon={AlertTriangle}
+            />
+          </div>
+          <div className="mt-4 grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+            <HorizontalBars
+              title="Demandas por status"
+              format={(v) => formatInteger(v)}
+              emptyText="Nenhuma demanda visível para você."
+              rows={TASK_STATUSES.map((st) => ({
+                key: st,
+                name: TASK_STATUS_LABEL[st],
+                value: tk.by_status[st] ?? 0,
+                href: "/demandas/?visao=kanban",
+              })).filter((r) => r.value > 0)}
+            />
+            <Panel title="Próximos compromissos" description="Próximos 7 dias.">
+              {tk.upcoming.length === 0 ? (
+                <p className="text-muted-foreground text-sm">
+                  Nenhum compromisso ou prazo nos próximos 7 dias.
+                </p>
+              ) : (
+                <ul className="divide-y">
+                  {tk.upcoming.map((i) => {
+                    const p = maceioParts(i.starts_at);
+                    const [, m, d] = p.date.split("-");
+                    return (
+                      <li key={`${i.item_type}-${i.id}`} className="flex items-start gap-3 py-2 text-sm">
+                        <CalendarClock className="text-brand/70 mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                        <span className="min-w-0 flex-1">
+                          <Link
+                            href={
+                              i.item_type === "task"
+                                ? `/demandas/detalhe/?id=${i.task_id}`
+                                : `/calendario/?visao=dia&data=${p.date}`
+                            }
+                            className="font-medium hover:underline"
+                          >
+                            {i.item_type === "task"
+                              ? `Prazo: ${i.title}`
+                              : `${i.event_kind ? EVENT_KIND_LABEL[i.event_kind] : "Evento"}: ${i.title}`}
+                          </Link>
+                          <span className="tabular text-muted-foreground block text-xs">
+                            {d}/{m}
+                            {i.all_day ? "" : ` às ${p.time}`}
+                          </span>
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <Link
+                href="/calendario/"
+                className="text-primary mt-3 inline-block text-sm font-semibold hover:underline"
+              >
+                Abrir o calendário
+              </Link>
+            </Panel>
+          </div>
+        </section>
+      )}
+
       <Panel
         className="mt-6"
         title="Próximos módulos"
@@ -261,11 +351,11 @@ export default function DashboardPage() {
       >
         <EmptyState
           icon={Building2}
-          title="Ainda não há indicadores de demandas ou produtividade"
+          title="Ainda não há indicadores de produtividade"
           description="Nenhum número é exibido antes de existirem registros reais no sistema."
           className="py-6"
         />
-        <ol className="mt-2 grid gap-3 md:grid-cols-2">
+        <ol className="mt-2 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {UPCOMING.map((u) => (
             <li key={u.phase} className="bg-surface rounded-md border border-dashed px-4 py-3">
               <p className="text-primary-hover text-xs font-semibold">{u.phase}</p>

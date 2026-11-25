@@ -16,7 +16,8 @@ export type DocumentEntityType =
   | "invoice"
   | "rent_charge"
   | "payment"
-  | "consumer_unit";
+  | "consumer_unit"
+  | "task";
 
 export const ACCEPTED_FILE_TYPES = ".pdf,.jpg,.jpeg,.png,.docx,.xlsx";
 export const MAX_FILE_MB = 10;

@@ -170,7 +170,7 @@ export function RentDetail() {
               Com aditivo de valor no meio do mês, cada período usa o seu valor. O total é arredondado para
               centavos (meio para cima).
             </p>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="relative overflow-x-auto rounded-md border">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-surface text-muted-foreground border-b text-left text-xs">

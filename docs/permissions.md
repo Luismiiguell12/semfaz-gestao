@@ -59,6 +59,14 @@ têm efeito quando o módulo correspondente for implementado.
 - O cadastro guiado exige `contracts.manage`; conforme o pacote, também `properties.create` (imóvel novo)
   e `consumer_units.manage` (unidades), sempre no escopo da secretaria do imóvel.
 
+## Fase 4 (demandas)
+
+As permissões de demandas, já presentes no catálogo, passaram a ter efeito:
+`tasks.create` (criar demandas e eventos), `tasks.complete` (concluir), `tasks.view_all` (acompanhar e
+editar as demandas da secretaria no escopo), `tasks.delete_own` (criador solicita exclusão),
+`tasks.delete_any` (exclusão excepcional, privilegiada) e `tasks.categories.manage` (categorias).
+Quem participa de uma demanda sempre a vê, mesmo sem permissões de demandas.
+
 ## Regras de proteção
 
 | Regra                                                                                           | Onde é garantida                                                      |
