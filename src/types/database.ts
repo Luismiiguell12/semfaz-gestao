@@ -23,7 +23,197 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "audit_logs": {
+            "approval_decisions": {
+                  Row: {
+                    "comment": string | null,"decided_at": string,"decided_by": string,"decision": string,"id": string,"organization_id": string,"request_id": string,"step_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "comment"?: string | null,"decided_at"?: string,"decided_by": string,"decision": string,"id"?: string,"organization_id": string,"request_id": string,"step_id": string
+                  }
+                  Update: {
+                    "comment"?: string | null,"decided_at"?: string,"decided_by"?: string,"decision"?: string,"id"?: string,"organization_id"?: string,"request_id"?: string,"step_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "approval_decisions_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_decisions_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_decisions_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_decisions_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_decisions_step_id_fkey"
+      columns: ["step_id"]
+isOneToOne: false
+      referencedRelation: "approval_steps"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"approval_operations": {
+                  Row: {
+                    "code": string,"created_at": string,"description": string,"entity_type": string,"handler": string,"module": string,"request_permission": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"created_at"?: string,"description": string,"entity_type": string,"handler": string,"module": string,"request_permission": string
+                  }
+                  Update: {
+                    "code"?: string,"created_at"?: string,"description"?: string,"entity_type"?: string,"handler"?: string,"module"?: string,"request_permission"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "approval_operations_request_permission_fkey"
+      columns: ["request_permission"]
+isOneToOne: false
+      referencedRelation: "permissions"
+      referencedColumns: ["code"]
+    }
+                  ]
+                },"approval_requests": {
+                  Row: {
+                    "applied_at": string | null,"base_hash": string | null,"cancelled_at": string | null,"created_at": string,"created_by": string | null,"current_snapshot": Json | null,"decided_at": string | null,"decided_by": string | null,"decision_comment": string | null,"department_id": string | null,"entity_id": string | null,"entity_type": string,"failure_reason": string | null,"id": string,"justification": string,"operation_code": string,"organization_id": string,"proposed_data": NonNullable<Json>,"requested_at": string,"requested_by": string,"result_entity_id": string | null,"status": Database["public"]['Enums']["approval_status"],"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "applied_at"?: string | null,"base_hash"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"current_snapshot"?: Json | null,"decided_at"?: string | null,"decided_by"?: string | null,"decision_comment"?: string | null,"department_id"?: string | null,"entity_id"?: string | null,"entity_type": string,"failure_reason"?: string | null,"id"?: string,"justification": string,"operation_code": string,"organization_id": string,"proposed_data": NonNullable<Json>,"requested_at"?: string,"requested_by": string,"result_entity_id"?: string | null,"status"?: Database["public"]['Enums']["approval_status"],"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "applied_at"?: string | null,"base_hash"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"current_snapshot"?: Json | null,"decided_at"?: string | null,"decided_by"?: string | null,"decision_comment"?: string | null,"department_id"?: string | null,"entity_id"?: string | null,"entity_type"?: string,"failure_reason"?: string | null,"id"?: string,"justification"?: string,"operation_code"?: string,"organization_id"?: string,"proposed_data"?: NonNullable<Json>,"requested_at"?: string,"requested_by"?: string,"result_entity_id"?: string | null,"status"?: Database["public"]['Enums']["approval_status"],"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "approval_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_department_id_fkey"
+      columns: ["department_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_operation_code_fkey"
+      columns: ["operation_code"]
+isOneToOne: false
+      referencedRelation: "approval_operations"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "approval_requests_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"approval_rules": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"operation_code": string,"organization_id": string,"requires_approval": boolean,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"operation_code": string,"organization_id": string,"requires_approval"?: boolean,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"operation_code"?: string,"organization_id"?: string,"requires_approval"?: boolean,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "approval_rules_operation_code_fkey"
+      columns: ["operation_code"]
+isOneToOne: false
+      referencedRelation: "approval_operations"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "approval_rules_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"approval_steps": {
+                  Row: {
+                    "created_at": string,"decided_at": string | null,"decided_by": string | null,"id": string,"organization_id": string,"request_id": string,"required_permission": string,"status": Database["public"]['Enums']["approval_status"],"step_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"id"?: string,"organization_id": string,"request_id": string,"required_permission"?: string,"status"?: Database["public"]['Enums']["approval_status"],"step_order"?: number
+                  }
+                  Update: {
+                    "created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"id"?: string,"organization_id"?: string,"request_id"?: string,"required_permission"?: string,"status"?: Database["public"]['Enums']["approval_status"],"step_order"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "approval_steps_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_steps_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_steps_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_steps_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_steps_required_permission_fkey"
+      columns: ["required_permission"]
+isOneToOne: false
+      referencedRelation: "permissions"
+      referencedColumns: ["code"]
+    }
+                  ]
+                },"audit_logs": {
                   Row: {
                     "actor_id": string | null,"actor_type": string,"changed_fields": (string)[] | null,"id": string,"ip_address": unknown,"justification": string | null,"metadata": NonNullable<Json>,"module": string,"new_data": Json | null,"occurred_at": string,"old_data": Json | null,"operation": string,"organization_id": string | null,"record_id": string | null,"table_name": string | null,"user_agent": string | null
                   }
@@ -104,6 +294,26 @@ isOneToOne: false
       columns: ["uploaded_by"]
 isOneToOne: false
       referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"landlords": {
+                  Row: {
+                    "address": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"document": string,"document_masked": string | null,"email": string | null,"id": string,"name": string,"notes": string | null,"organization_id": string,"person_type": Database["public"]['Enums']["person_type"],"phone": string | null,"phone_masked": string | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"document": string,"document_masked"?: never,"email"?: string | null,"id"?: string,"name": string,"notes"?: string | null,"organization_id": string,"person_type": Database["public"]['Enums']["person_type"],"phone"?: string | null,"phone_masked"?: never,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"document"?: string,"document_masked"?: never,"email"?: string | null,"id"?: string,"name"?: string,"notes"?: string | null,"organization_id"?: string,"person_type"?: Database["public"]['Enums']["person_type"],"phone"?: string | null,"phone_masked"?: never,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "landlords_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
       referencedColumns: ["id"]
     }
                   ]
@@ -289,6 +499,88 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"properties": {
+                  Row: {
+                    "address_number": string,"approval_request_id": string | null,"city": string,"complement": string | null,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string,"district": string,"id": string,"internal_responsible_id": string | null,"name": string,"notes": string | null,"occupation_date": string | null,"organization_id": string,"postal_code": string,"purpose": string,"state": string,"status": Database["public"]['Enums']["property_status"],"street": string,"unit_department_id": string | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "address_number": string,"approval_request_id"?: string | null,"city": string,"complement"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"department_id": string,"district": string,"id"?: string,"internal_responsible_id"?: string | null,"name": string,"notes"?: string | null,"occupation_date"?: string | null,"organization_id": string,"postal_code": string,"purpose": string,"state": string,"status"?: Database["public"]['Enums']["property_status"],"street": string,"unit_department_id"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "address_number"?: string,"approval_request_id"?: string | null,"city"?: string,"complement"?: string | null,"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"department_id"?: string,"district"?: string,"id"?: string,"internal_responsible_id"?: string | null,"name"?: string,"notes"?: string | null,"occupation_date"?: string | null,"organization_id"?: string,"postal_code"?: string,"purpose"?: string,"state"?: string,"status"?: Database["public"]['Enums']["property_status"],"street"?: string,"unit_department_id"?: string | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "properties_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "properties_department_fk"
+      columns: ["department_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "properties_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "properties_responsible_fk"
+      columns: ["internal_responsible_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "properties_responsible_fk"
+      columns: ["internal_responsible_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "properties_unit_fk"
+      columns: ["unit_department_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"property_landlords": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"id": string,"landlord_id": string,"organization_id": string,"property_id": string,"share_percent": number | null,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"id"?: string,"landlord_id": string,"organization_id": string,"property_id": string,"share_percent"?: number | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"id"?: string,"landlord_id"?: string,"organization_id"?: string,"property_id"?: string,"share_percent"?: number | null,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "property_landlords_landlord_fk"
+      columns: ["landlord_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "landlords"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "property_landlords_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "property_landlords_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"role_permissions": {
                   Row: {
                     "created_at": string,"created_by": string | null,"organization_id": string,"permission_code": string,"role_id": string
@@ -399,6 +691,44 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"user_property_access": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"organization_id": string,"property_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"organization_id": string,"property_id": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"organization_id"?: string,"property_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "user_property_access_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "user_property_access_property_fk"
+      columns: ["property_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "properties"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "user_property_access_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "user_property_access_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"user_roles": {
                   Row: {
                     "created_at": string,"created_by": string | null,"id": string,"organization_id": string,"role_id": string,"user_id": string
@@ -499,6 +829,11 @@ isOneToOne: false
 "admin_delete_role":
 { Args: { "p_reason": string,"p_role_id": string }; Returns: undefined
                            },
+"admin_list_properties_for_scope":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "department_id": string,"id": string,"name": string
+            }[]
+                           },
 "admin_list_users":
 { Args: Record<PropertyKey, never>; Returns: {
               "confirmed_at": string,"created_at": string,"department_access": Json,"department_id": string,"department_name": string,"email": string,"employee_number": string,"full_name": string,"id": string,"invited_at": string,"job_title": string,"last_sign_in_at": string,"mfa_enrolled": boolean,"organization_wide_access": boolean,"roles": Json,"status": Database["public"]['Enums']["user_status"],"status_reason": string,"username": string
@@ -531,6 +866,9 @@ isOneToOne: false
       } },
 "admin_set_user_access":
 { Args: { "p_department_ids": (string)[],"p_organization_wide_access": boolean,"p_reason": string,"p_role_ids": (string)[],"p_user_id": string }; Returns: undefined
+                           },
+"admin_set_user_property_access":
+{ Args: { "p_property_ids": (string)[],"p_reason": string,"p_user_id": string }; Returns: undefined
                            },
 "admin_set_user_status":
 { Args: { "p_reason": string,"p_status": Database["public"]['Enums']["user_status"],"p_user_id": string }; Returns: {
@@ -616,8 +954,77 @@ isOneToOne: false
 "can_attach_document":
 { Args: { "p_entity_id": string,"p_entity_type": string }; Returns: boolean
                            },
+"cancel_approval_request":
+{ Args: { "p_reason": string,"p_request_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "dashboard_foundation_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"decide_approval":
+{ Args: { "p_comment"?: string,"p_decision": string,"p_request_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"get_landlord_sensitive":
+{ Args: { "p_landlord_id": string }; Returns: Json
                            },
 "get_my_access":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -633,6 +1040,108 @@ isOneToOne: false
                            },
 "mark_notification_read":
 { Args: { "p_notification_id": string }; Returns: undefined
+                           },
+"request_property_address_change":
+{ Args: { "p_data": Json,"p_justification": string,"p_property_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_property_create":
+{ Args: { "p_data": Json,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_property_department_change":
+{ Args: { "p_department_id": string,"p_justification": string,"p_property_id": string,"p_unit_department_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"save_landlord":
+{ Args: { "p_data": Json,"p_landlord_id": string,"p_reason"?: string }; Returns: string
                            },
 "service_register_document":
 { Args: { "p_description"?: string,"p_entity_id": string,"p_entity_type": string,"p_mime_type": string,"p_original_name": string,"p_replaces_document_id"?: string,"p_sha256": string,"p_size_bytes": number,"p_storage_path": string,"p_user_id": string }; Returns: {
@@ -666,12 +1175,49 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_property_landlords":
+{ Args: { "p_items": Json,"p_property_id": string,"p_reason": string }; Returns: undefined
+                           },
 "soft_delete_department":
 { Args: { "p_department_id": string,"p_reason": string }; Returns: undefined
-                           }
+                           },
+"update_property_details":
+{ Args: { "p_data": Json,"p_property_id": string,"p_reason": string }; Returns: {
+              "address_number": string,
+"approval_request_id": string | null,
+"city": string,
+"complement": string | null,
+"created_at": string,
+"created_by": string | null,
+"deleted_at": string | null,
+"deleted_by": string | null,
+"deletion_reason": string | null,
+"department_id": string,
+"district": string,
+"id": string,
+"internal_responsible_id": string | null,
+"name": string,
+"notes": string | null,
+"occupation_date": string | null,
+"organization_id": string,
+"postal_code": string,
+"purpose": string,
+"state": string,
+"status": Database["public"]['Enums']["property_status"],
+"street": string,
+"unit_department_id": string | null,
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "properties"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
-            "department_kind": "secretariat"|"directorate"|"unit","user_status": "active"|"inactive"|"blocked"
+            "approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","department_kind": "secretariat"|"directorate"|"unit","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","user_status": "active"|"inactive"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -791,7 +1337,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "department_kind": ["secretariat", "directorate", "unit"],"user_status": ["active", "inactive", "blocked"]
+            "approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"department_kind": ["secretariat", "directorate", "unit"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"user_status": ["active", "inactive", "blocked"]
           }
         }
 } as const

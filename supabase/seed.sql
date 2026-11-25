@@ -19,49 +19,7 @@ values ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-0000000
         'secretariat', 'Secretaria Municipal da Fazenda', 'SEMFAZ')
 on conflict (id) do nothing;
 
--- -----------------------------------------------------------------------------
--- Catálogo de permissões (módulo.ação). is_privileged = exige MFA (AAL2).
--- -----------------------------------------------------------------------------
-insert into public.permissions (code, module, description, is_privileged) values
-  -- Administração (Fase 1)
-  ('users.manage',               'users',         'Cadastrar, convidar, editar e desativar usuários', true),
-  ('roles.manage',               'permissions',   'Criar e editar perfis de acesso e suas permissões', true),
-  ('departments.manage',         'departments',   'Cadastrar e editar a estrutura organizacional', true),
-  ('audit.view',                 'audit',         'Consultar a trilha de auditoria', true),
-  ('settings.manage',            'settings',      'Alterar configurações do sistema', true),
-  -- Imóveis e locações (Fase 2)
-  ('properties.view',            'properties',    'Consultar imóveis no escopo do usuário', false),
-  ('properties.create',          'properties',    'Solicitar o cadastro de imóveis', false),
-  ('properties.update',          'properties',    'Editar imóveis e solicitar alterações sensíveis', false),
-  ('landlords.view',             'properties',    'Consultar locadores', false),
-  ('landlords.manage',           'properties',    'Cadastrar e editar locadores', false),
-  ('landlords.view_sensitive',   'properties',    'Ver CPF e telefone completos de locadores', false),
-  ('contracts.view',             'contracts',     'Consultar contratos e aditivos', false),
-  ('contracts.manage',           'contracts',     'Solicitar cadastro e alterações de contratos e aditivos', false),
-  ('contracts.documents.view',   'contracts',     'Consultar documentos contratuais', false),
-  -- Unidades consumidoras e financeiro (Fase 3)
-  ('utilities.view',             'utilities',     'Consultar unidades consumidoras', false),
-  ('utilities.manage',           'utilities',     'Cadastrar unidades consumidoras e vínculos', false),
-  ('invoices.view',              'finance',       'Consultar faturas e aluguéis', false),
-  ('invoices.manage',            'finance',       'Lançar faturas e solicitar pagamentos', false),
-  ('finance.documents.view',     'finance',       'Consultar documentos financeiros e comprovantes', false),
-  ('payments.approve',           'finance',       'Aprovar movimentações financeiras', true),
-  -- Demandas e calendário (Fase 4)
-  ('tasks.view_all',             'tasks',         'Consultar demandas de todo o escopo', false),
-  ('tasks.create',               'tasks',         'Criar demandas', false),
-  ('tasks.complete',             'tasks',         'Concluir demandas', false),
-  ('tasks.delete_own',           'tasks',         'Solicitar exclusão das próprias demandas', false),
-  ('tasks.delete_any',           'tasks',         'Autorizar exclusões excepcionais de demandas', true),
-  ('tasks.categories.manage',    'tasks',         'Criar categorias de demandas', false),
-  -- Aprovações (Fase 2)
-  ('approvals.review',           'approvals',     'Aprovar ou rejeitar solicitações', true),
-  -- Produtividade (Fase 5)
-  ('productivity.view_own',      'productivity',  'Ver os próprios indicadores', false),
-  ('productivity.view_team',     'productivity',  'Ver indicadores da equipe', false),
-  -- Relatórios (Fase 6)
-  ('reports.export',             'reports',       'Exportar relatórios (Excel/PDF)', false)
-on conflict (code) do update
-  set module = excluded.module, description = excluded.description, is_privileged = excluded.is_privileged;
+-- O catálogo de permissões é mantido pela migration 20261125000050_permissions_catalog.sql.
 
 -- -----------------------------------------------------------------------------
 -- Perfis de acesso iniciais (configuráveis). O perfil "admin" possui todas as
@@ -133,13 +91,13 @@ insert into public.notification_types (code, module, description, is_available) 
   ('task_overdue',          'tasks',      'Demanda em atraso', false),
   ('task_completed',        'tasks',      'Demanda concluída', false),
   ('task_review',           'tasks',      'Demanda em revisão', false),
-  ('contract_expiring',     'contracts',  'Vencimento contratual', false),
-  ('contract_adjustment',   'contracts',  'Reajuste contratual (data-base)', false),
+  ('contract_expiring',     'contracts',  'Vencimento contratual', true),
+  ('contract_adjustment',   'contracts',  'Reajuste contratual (data-base)', true),
   ('invoice_overdue',       'finance',    'Fatura vencida', false),
   ('consumption_alert',     'finance',    'Alerta de consumo', false),
-  ('approval_pending',      'approvals',  'Aprovação pendente', false),
-  ('approval_approved',     'approvals',  'Solicitação aprovada', false),
-  ('approval_rejected',     'approvals',  'Solicitação rejeitada', false)
+  ('approval_pending',      'approvals',  'Aprovação pendente', true),
+  ('approval_approved',     'approvals',  'Solicitação aprovada', true),
+  ('approval_rejected',     'approvals',  'Solicitação rejeitada', true)
 on conflict (code) do update set module = excluded.module, description = excluded.description;
 
 -- -----------------------------------------------------------------------------
@@ -151,3 +109,10 @@ insert into public.system_settings (organization_id, key, value, description) va
   ('00000000-0000-4000-8000-000000000001', 'documents.signed_url_ttl_seconds', '60'::jsonb, 'Validade das URLs temporárias de download, em segundos.'),
   ('00000000-0000-4000-8000-000000000001', 'app.display_timezone', '"America/Maceio"'::jsonb, 'Fuso horário de exibição.')
 on conflict (organization_id, key) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- Regras de aprovação: todas as operações cadastradas exigem aprovação por padrão.
+-- -----------------------------------------------------------------------------
+insert into public.approval_rules (organization_id, operation_code, requires_approval)
+select '00000000-0000-4000-8000-000000000001', o.code, true from public.approval_operations o
+on conflict (organization_id, operation_code) do nothing;
