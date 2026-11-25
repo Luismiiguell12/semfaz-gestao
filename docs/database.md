@@ -36,6 +36,20 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | `20261125000800_structural_defaults.sql`         | aplica de forma idempotente os dados estruturais das Fases 2 e 3 nos ambientes remotos                                                                                                                            |
 | `20261125000700_unit_create_with_assignment.sql` | cadastro de unidade exige imóvel e data de vinculação (mesma transação)                                                                                                                                           |
 
+## Migrations da Alteração 01
+
+| Arquivo                                         | Conteúdo                                                                                                                                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20261125000900_consumer_units_permissions.sql` | `consumer_units.view/manage` e `finance.reports.view`; concessões equivalentes; funções e políticas reescritas; remoção de `utilities.*`                                                                |
+| `20261125001000_registration_wizard.sql`        | `registration_drafts`; buscas `find_landlord_by_document`, `find_similar_properties`, `find_consumer_unit`; operação `registration.package`; `submit_registration_package`, `reopen_registration_draft` |
+| `20261125001100_expense_reports.sql`            | visão `expense_items`; `private.expense_rows`, `private.contract_landlord_factors`; `expense_report(filtros)`; `dashboard_finance_stats` sobre a mesma base; custo das funções de autorização           |
+
+| Objeto                                    | Observações                                                                                                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `registration_drafts`                     | rascunho do assistente; RLS: só o autor (`user_id = auth.uid()`), criação exige `contracts.manage`; edição só enquanto `draft`; sem exclusão física; auditado |
+| `expense_items` (visão, security invoker) | faturas + aluguéis com situação calculada; base dos relatórios e do Painel                                                                                    |
+| `expense_report(jsonb)`                   | exige `finance.reports.view`; resumo, por tipo, imóvel, secretaria, fornecedor/locador, mensal, comparativo anual e consumo                                   |
+
 ## Tabelas da Fase 3
 
 | Tabela                | Observações                                                                                                            |
@@ -97,7 +111,7 @@ aprovações, alertas, financeiro, demandas e produtividade.
 | `admin_save_role`, `admin_delete_role`                                                                                                        | `roles.manage` + AAL2       | perfis de acesso                                               |
 | `soft_delete_department`                                                                                                                      | `departments.manage` + AAL2 | exclusão lógica com justificativa                              |
 | `service_register_document`                                                                                                                   | **somente service_role**    | registro transacional de documento (Edge Function)             |
-| `save_consumer_unit`, `assign_consumer_unit`, `end_consumer_unit_assignment`                                                                  | `utilities.manage`          | unidades e vínculos (no escopo do imóvel)                      |
+| `save_consumer_unit`, `assign_consumer_unit`, `end_consumer_unit_assignment`                                                                  | `consumer_units.manage`     | unidades e vínculos (no escopo do imóvel)                      |
 | `create_invoice`, `request_invoice_correction`, `request_invoice_cancel`                                                                      | `invoices.manage`           | faturas (duplicidade, correção e cancelamento via aprovação)   |
 | `request_rent_correction`, `request_rent_cancel`, `request_payment`                                                                           | `invoices.manage`           | solicitações financeiras (aprovadas por administrador)         |
 | `dashboard_finance_stats(months, department_id)`                                                                                              | `invoices.view`             | indicadores e séries mensais do painel                         |

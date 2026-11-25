@@ -103,6 +103,20 @@ tests/
   e2e/                      Playwright (desktop, tablet, celular)
 ```
 
+### Módulos e menu (após a Alteração 01)
+
+| Menu           | Rotas                                                                                                 | Módulos (`src/modules/`)                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Geral          | `/`, `/notificacoes/`                                                                                 | `dashboard`, `notifications`                                             |
+| Gestão         | `/cadastro-guiado/`, `/contratos/`, `/locadores/`, `/imoveis/`, `/unidades/`                          | `registration`, `contracts`, `landlords`, `properties`, `consumer-units` |
+| Financeiro     | `/financeiro/faturas/`, `/financeiro/alugueis/`, `/financeiro/pagamentos/`, `/financeiro/relatorios/` | `finance` (API, gráficos, detalhamento por URL)                          |
+| Acompanhamento | `/aprovacoes/` (+ Demandas, Calendário, Produtividade, Relatórios "Em breve")                         | `approvals`                                                              |
+| Administração  | `/administracao/*`                                                                                    | `users`, `roles`, `departments`, `settings`                              |
+
+O menu é declarado em `src/components/layout/navigation.ts` (rótulos de breadcrumb no mesmo arquivo).
+Os detalhamentos dos relatórios usam parâmetros de URL curtos (`de`, `ate`, `imovel`, `secretaria`,
+`tipo`, `situacao`, `fornecedor`, `locador`), aplicados no servidor.
+
 Cada módulo de negócio das próximas fases segue o mesmo padrão:
 migration(s) + testes pgTAP → `modules/<módulo>/api.ts` → páginas em
 `app/(app)/<rota>/` → testes de integração e E2E.

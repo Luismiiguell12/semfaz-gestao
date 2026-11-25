@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Unidade consumidora" };
 
 export default function UnitDetailPage() {
   return (
-    <RequirePermission permission="utilities.view">
+    <RequirePermission permission="consumer_units.view">
       <Suspense fallback={<FullPageLoading />}>
         <UnitDetail />
       </Suspense>

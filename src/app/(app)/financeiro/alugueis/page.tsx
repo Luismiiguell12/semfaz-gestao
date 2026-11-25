@@ -6,12 +6,19 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Banknote } from "lucide-react";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
-import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states";
+import { EmptyState, ErrorState, FullPageLoading, LoadingRows } from "@/components/shared/states";
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCompetence, useRents, type RentOverview } from "@/modules/finance/api";
 import { ChargeStatusBadge } from "@/modules/finance/components";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
+import {
+  hasDrill,
+  useDepartmentSubtree,
+  useDrillFilters,
+  useLandlordContractIds,
+} from "@/modules/finance/drill";
+import { DrillBanner } from "@/modules/finance/drill-banner";
 
 const columns: ColumnDef<RentOverview, unknown>[] = [
   {
@@ -75,8 +82,22 @@ const columns: ColumnDef<RentOverview, unknown>[] = [
 type Filter = "open" | "overdue" | "paid" | "all";
 
 function RentsContent() {
-  const list = useRents();
-  const [filter, setFilter] = React.useState<Filter>("open");
+  const drill = useDrillFilters();
+  const subtree = useDepartmentSubtree(drill.departmentId);
+  const landlordContracts = useLandlordContractIds(drill.landlordId);
+  const drilled = hasDrill(drill);
+  const list = useRents(
+    {
+      from: drill.from,
+      to: drill.to,
+      propertyId: drill.propertyId,
+      departmentIds: subtree ? [...subtree] : undefined,
+      statuses: drill.statuses,
+      contractIds: landlordContracts.data ? [...landlordContracts.data] : undefined,
+    },
+    (!drill.departmentId || subtree !== undefined) && (!drill.landlordId || landlordContracts.isSuccess),
+  );
+  const [filter, setFilter] = React.useState<Filter>(drilled ? "all" : "open");
   const data = (list.data ?? []).filter((r) =>
     filter === "all"
       ? true
@@ -90,6 +111,7 @@ function RentsContent() {
         title="Aluguéis"
         description="Gerados automaticamente todo mês para os contratos vigentes. Meses incompletos são proporcionais aos dias de vigência."
       />
+      {drilled && <DrillBanner filters={drill} clearHref="/financeiro/alugueis/" />}
       <Panel bodyClassName="p-0">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
           <TabsList className="border-b-0">
@@ -135,7 +157,9 @@ function RentsContent() {
 export default function RentsPage() {
   return (
     <RequirePermission permission="invoices.view">
-      <RentsContent />
+      <React.Suspense fallback={<FullPageLoading />}>
+        <RentsContent />
+      </React.Suspense>
     </RequirePermission>
   );
 }

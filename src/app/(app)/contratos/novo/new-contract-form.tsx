@@ -20,6 +20,10 @@ import { useProperties } from "@/modules/properties/api";
 import { useLandlords } from "@/modules/landlords/api";
 import { useContractLists, useRequestContractCreate } from "@/modules/contracts/api";
 import { contractCreateSchema } from "@shared/schemas/contracts.ts";
+import { parseBrlInput } from "@shared/schemas/br.ts";
+import { useDepartments } from "@/modules/departments/api";
+import { describeTerm, suggestGlobalValue } from "@/modules/contracts/suggest";
+import { formatCurrency } from "@/lib/format";
 
 // O formulário guarda tudo como texto; a validação completa usa o schema
 // compartilhado (o mesmo das regras do banco) no envio, campo a campo.
@@ -76,6 +80,18 @@ export function NewContractForm() {
   });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "landlords" });
   const errors = form.formState.errors;
+  const departments = useDepartments();
+  const [propertyId, monthlyText, startDate, endDate, globalText] = form.watch([
+    "property_id",
+    "monthly_value",
+    "start_date",
+    "end_date",
+    "global_value",
+  ]);
+  const property = properties.data?.find((p) => p.id === propertyId);
+  const monthly = parseBrlInput(monthlyText);
+  const suggestion = suggestGlobalValue(monthly === null ? null : Number(monthly), startDate, endDate);
+  const suggested = suggestion ? (suggestion.cents / 100).toFixed(2) : null;
 
   async function onSubmit(values: FormValues) {
     setError(undefined);
@@ -138,6 +154,22 @@ export function NewContractForm() {
                 ))}
               </NativeSelect>
             </FormField>
+            {property && (
+              <div className="bg-surface rounded-md border px-4 py-3 text-sm sm:col-span-2">
+                <Link href={`/imoveis/detalhe/?id=${property.id}`} className="font-semibold hover:underline">
+                  {property.name}
+                </Link>
+                <p className="text-muted-foreground">
+                  {[property.street, property.address_number, property.complement, property.district]
+                    .filter(Boolean)
+                    .join(", ")}{" "}
+                  · {property.city}/{property.state}
+                </p>
+                <p className="text-muted-foreground">
+                  Secretaria: {departments.data?.find((d) => d.id === property.department_id)?.name ?? "—"}
+                </p>
+              </div>
+            )}
             <FormField
               id="c-number"
               label="Número do contrato"
@@ -194,9 +226,36 @@ export function NewContractForm() {
             >
               <Input inputMode="decimal" placeholder="0,00" {...form.register("monthly_value")} />
             </FormField>
-            <FormField id="c-global" label="Valor global (R$)" required error={errors.global_value?.message}>
+            <FormField
+              id="c-global"
+              label="Valor global (R$)"
+              required
+              error={errors.global_value?.message}
+              hint={
+                suggested && suggestion
+                  ? `Sugestão: ${formatCurrency(suggested)} (${describeTerm(suggestion.months, suggestion.days)}).`
+                  : "Sugerido a partir do valor mensal e da vigência."
+              }
+            >
               <Input inputMode="decimal" placeholder="0,00" {...form.register("global_value")} />
             </FormField>
+            {suggested && parseBrlInput(globalText) !== suggested && (
+              <div className="sm:col-span-2 lg:col-span-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    form.setValue(
+                      "global_value",
+                      Number(suggested).toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+                    )
+                  }
+                >
+                  Usar a sugestão de valor global ({formatCurrency(suggested)})
+                </Button>
+              </div>
+            )}
             <FormField id="c-index" label="Índice de reajuste">
               <NativeSelect {...form.register("adjustment_index_id")}>
                 <option value="">Não informado</option>

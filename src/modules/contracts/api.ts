@@ -182,3 +182,20 @@ export function useUpdateContractDetails() {
     onSuccess: invalidate,
   });
 }
+
+/** Aditivos de todos os contratos de um imóvel (ficha do imóvel). */
+export function usePropertyAmendments(contractIds: string[] | undefined) {
+  return useQuery({
+    queryKey: ["contracts", "amendments-by-contracts", contractIds ?? []],
+    enabled: Boolean(contractIds?.length),
+    queryFn: async () => {
+      const { data, error } = await getSupabase()
+        .from("contract_amendments")
+        .select("*")
+        .in("contract_id", contractIds!)
+        .order("signed_on", { ascending: false });
+      if (error) throw toAppError(error);
+      return data;
+    },
+  });
+}

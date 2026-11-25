@@ -2,6 +2,28 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado] — Alteração 01: cadastro integrado, menus e Relatórios de despesas
+
+### Adicionado
+
+- Novo cadastro a partir de contrato (assistente em 5 etapas, rascunho no banco, pacote único de aprovação com efetivação tudo ou nada; avisos de CPF/CNPJ, imóvel e unidade já cadastrados; transferência de unidade com histórico).
+- Ficha do locador; aba Aditivos e separação atual/anterior em contratos e unidades na ficha do imóvel.
+- Financeiro > Pagamentos e Financeiro > Relatórios de despesas (com página de lançamentos para detalhamento).
+- Sugestão de valor global (mensal × vigência) nos formulários de contrato; preenchimento automático de imóvel, fornecedor, secretaria e unidade de medida no lançamento de fatura.
+- Permissões `consumer_units.view`, `consumer_units.manage` e `finance.reports.view`.
+- 39 testes pgTAP do assistente e das permissões, 18 dos relatórios (227 no total), 6 unitários da sugestão de valor global e 12 E2E (menus, assistente completo, renovação com duplicidades e transferência, relatórios).
+
+### Alterado
+
+- Menu reorganizado: Gestão (cadastro guiado, contratos, locadores, imóveis, unidades consumidoras), Financeiro (faturas, aluguéis, pagamentos, relatórios de despesas) e Acompanhamento; itens futuros com selo "Em breve".
+- Unidades consumidoras saem do Financeiro (módulo `consumer-units`), com permissões próprias concedidas aos mesmos perfis.
+- Painel financeiro calculado pela mesma base dos relatórios.
+- Comparação "atual × proposto" das aprovações exibe os campos em ordem lógica.
+
+### Desempenho
+
+- Custo declarado nas funções de autorização usadas pela RLS: visões financeiras 10 a 16 vezes mais rápidas.
+
 ## [Não publicado] — Fase 3: Financeiro
 
 ### Adicionado

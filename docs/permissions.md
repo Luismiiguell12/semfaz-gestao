@@ -32,11 +32,12 @@ A interface oculta ações sem permissão, mas **a autorização real ocorre no 
 | landlords.view_sensitive                         |       ✓       |        |             |          |
 | contracts.view                                   |       ✓       |   ✓    |      ✓      |    ✓     |
 | contracts.manage / contracts.documents.view      |       ✓       |   ✓    |             |          |
-| utilities.view                                   |       ✓       |   ✓    |      ✓      |    ✓     |
-| utilities.manage                                 |       ✓       |   ✓    |             |          |
+| consumer_units.view                              |       ✓       |   ✓    |      ✓      |    ✓     |
+| consumer_units.manage                            |       ✓       |   ✓    |             |          |
 | invoices.view                                    |       ✓       |   ✓    |      ✓      |    ✓     |
 | invoices.manage                                  |       ✓       |   ✓    |      ✓      |          |
 | finance.documents.view                           |       ✓       |   ✓    |             |          |
+| finance.reports.view                             |       ✓       |   ✓    |      ✓      |    ✓     |
 | tasks.view_all                                   |       ✓       |   ✓    |             |          |
 | tasks.create / tasks.complete / tasks.delete_own |       ✓       |   ✓    |      ✓      |          |
 | tasks.categories.manage                          |       ✓       |   ✓    |             |          |
@@ -47,6 +48,16 @@ A interface oculta ações sem permissão, mas **a autorização real ocorre no 
 🔒 = privilegiada (exige MFA). As permissões das fases futuras já existem no
 catálogo para que os perfis possam ser configurados com antecedência; elas só
 têm efeito quando o módulo correspondente for implementado.
+
+## Alteração 01
+
+- `consumer_units.view` / `consumer_units.manage` substituem `utilities.view` / `utilities.manage`
+  (unidades consumidoras passaram ao grupo Gestão). A migration concedeu as novas aos **mesmos** perfis
+  que tinham as antigas, inclusive perfis criados pelos administradores; nenhum acesso foi ampliado ou reduzido.
+- `finance.reports.view` (Relatórios de despesas) foi concedida aos perfis que já viam os indicadores
+  financeiros (`invoices.view`). A exportação exigirá também `reports.export` (Fase 6).
+- O cadastro guiado exige `contracts.manage`; conforme o pacote, também `properties.create` (imóvel novo)
+  e `consumer_units.manage` (unidades), sempre no escopo da secretaria do imóvel.
 
 ## Regras de proteção
 

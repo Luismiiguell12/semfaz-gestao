@@ -4,7 +4,14 @@
 
 ## Fase atual
 
-**Fase 3 — Financeiro: concluída, aguardando validação.** A pedido do responsável, a Fase 3 foi iniciada antes da validação da Fase 2; as duas serão validadas juntas. A Fase 4 só começa após essa validação.
+**Alteração 01 aplicada, aguardando validação** (ver `docs/change-requests.md`). Fases 2 e 3 concluídas e aguardando a validação conjunta (a Fase 3 foi iniciada antes da validação da Fase 2, a pedido do responsável). A Alteração 01 chegou durante essa validação e foi aplicada como etapa própria. Próxima atividade do planejamento original, após a validação: **Fase 4 (demandas e calendário)**.
+
+## Alteração 01 (aplicada)
+
+- Cadastro guiado a partir do contrato (Gestão): 5 etapas, rascunho no banco visível só para o autor, uma única solicitação de aprovação para imóvel novo + contrato + locadores + unidades, efetivação tudo ou nada.
+- Integração entre cadastros: ficha do locador; ficha do imóvel com contratos atual/anteriores, aditivos e unidades atuais/histórico; contrato com endereço/secretaria do imóvel e sugestão de valor global; fatura com imóvel, fornecedor, secretaria e unidade de medida preenchidos; aluguel com imóvel, locadores e secretaria; nomes relacionados como links.
+- Menu reorganizado (Gestão, Financeiro, Acompanhamento); unidades consumidoras na Gestão com permissões próprias `consumer_units.view/manage` (mesmos perfis de antes).
+- Financeiro: telas Pagamentos e Relatórios de despesas (filtros, cartões, tabelas, comparativo anual, consumo, gráficos e detalhamento); Painel usa a mesma base de despesas.
 
 ## Funcionalidades concluídas (Fase 3)
 
@@ -32,41 +39,48 @@
 
 ## Em andamento
 
-- Nada. Aguardando validação conjunta das Fases 2 e 3.
+- Nada. Aguardando a validação das Fases 2 e 3 e da Alteração 01.
 
 ## Pendentes (próximas fases)
 
 - Fase 4: demandas e calendário.
 - Fase 5: produtividade (sem pontuação).
-- Fase 6: relatórios e exportações.
+- Fase 6: relatórios e exportações, incluindo a **exportação Excel/PDF dos Relatórios de despesas** (Alteração 01, item B). Os "Relatórios financeiros" do Módulo 4 foram substituídos pela tela Relatórios de despesas, já entregue.
 - Fase 7: testes finais, projetos de homologação/produção e publicação.
 
 ## Decisões técnicas
 
-| #   | Decisão                                                                                                          | Motivo                                                                                                                                                             |
-| --- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | TypeScript 6.0.3 em vez do 7.x                                                                                   | o 7.x (compilador nativo) é recente e com compatibilidade incerta com o ecossistema do Next/ESLint                                                                 |
-| 2   | Componentes shadcn/ui escritos no padrão oficial sobre `radix-ui`                                                | o host `ui.shadcn.com` estava bloqueado no ambiente de desenvolvimento; o resultado é o mesmo (código-fonte no projeto)                                            |
-| 3   | Funções de autorização no schema `private`                                                                       | não ficam expostas como RPC; políticas e RPCs as usam                                                                                                              |
-| 4   | Perfil `admin` com todas as permissões de forma implícita e não editável                                         | evita perda acidental de acesso administrativo e cobre permissões de módulos futuros                                                                               |
-| 5   | Permissões privilegiadas (`is_privileged`) exigem AAL2                                                           | implementa "MFA obrigatório para administradores" no backend, não só na interface                                                                                  |
-| 6   | Bloqueio duplo de usuário inativo: RLS + banimento no Supabase Auth                                              | RLS nega dados imediatamente; o banimento impede novo login e renovação de sessão                                                                                  |
-| 7   | Envio de documentos só pela Edge Function, com service role após autorização                                     | a verificação do tipo real exige ler o arquivo no servidor; o upload direto pelo navegador permitiria burlar a validação                                           |
-| 8   | Departamentos podem receber documentos                                                                           | tipo de registro disponível na Fase 1 para validar a infraestrutura genérica; imóveis, contratos etc. entram nas próximas fases                                    |
-| 9   | Schemas Zod em `supabase/functions/_shared/schemas` importados pelo frontend (`@shared/*`)                       | fonte única de validação para cliente e Edge Functions                                                                                                             |
-| 10  | Fluxo de autenticação `implicit` no `supabase-js`                                                                | compatível com convites gerados pelo administrador (sem `code_verifier` no navegador)                                                                              |
-| 11  | `permissions` e `notification_types` sem `organization_id`                                                       | catálogos globais mantidos por migration, não são dados de negócio                                                                                                 |
-| 12  | Tabelas de vínculo (`user_roles`, `role_permissions`, `user_department_access`) aceitam remoção física           | são configuração de acesso, não registros de negócio; toda remoção é auditada com os dados anteriores                                                              |
-| 13  | Seed estrutural idempotente aplicado também nos ambientes remotos (`db push --include-seed`)                     | perfis e permissões são necessários em produção                                                                                                                    |
-| 14  | Formatação de datas com `Intl` (America/Maceio); date-fns adiado para a Fase 4                                   | a fundação não precisa de cálculos de data; evita dependência ociosa                                                                                               |
-| 15  | Fila `notification_email_queue` sem envio                                                                        | arquitetura de e-mail preparada, conforme o escopo                                                                                                                 |
-| 16  | Fonte Public Sans auto-hospedada                                                                                 | identidade institucional sem CDN externo (compatível com a CSP)                                                                                                    |
-| 17  | Indicadores do painel em função SQL (`dashboard_foundation_stats`)                                               | cálculo no banco respeitando permissões                                                                                                                            |
-| 18  | Situação de faturas e aluguéis calculada em visões (`invoices_overview`, `rent_charges_overview`), nunca gravada | evita divergência entre pagamentos aprovados e o status exibido                                                                                                    |
-| 19  | Pagamentos e estornos imutáveis, criados somente pela aprovação `payment.register`                               | trilha financeira completa; estorno não apaga o pagamento original                                                                                                 |
-| 20  | Unidade consumidora nasce vinculada a um imóvel (mesma transação)                                                | o escopo de acesso é derivado do imóvel; sem vínculo, a unidade ficaria invisível para quem a cadastrou                                                            |
-| 21  | Gráficos com Recharts (colunas por mês, sem eixo duplo) e tabela de dados equivalente                            | leitura acessível e consistente com a identidade visual                                                                                                            |
-| 22  | Dados estruturais novos entram por migration idempotente, não só pelo seed                                       | nos ambientes remotos o `db push --include-seed` executa o seed apenas na primeira vez; alterações posteriores só atualizam o hash (corrigido em `20261125000800`) |
+| #   | Decisão                                                                                                                                     | Motivo                                                                                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | TypeScript 6.0.3 em vez do 7.x                                                                                                              | o 7.x (compilador nativo) é recente e com compatibilidade incerta com o ecossistema do Next/ESLint                                                                 |
+| 2   | Componentes shadcn/ui escritos no padrão oficial sobre `radix-ui`                                                                           | o host `ui.shadcn.com` estava bloqueado no ambiente de desenvolvimento; o resultado é o mesmo (código-fonte no projeto)                                            |
+| 3   | Funções de autorização no schema `private`                                                                                                  | não ficam expostas como RPC; políticas e RPCs as usam                                                                                                              |
+| 4   | Perfil `admin` com todas as permissões de forma implícita e não editável                                                                    | evita perda acidental de acesso administrativo e cobre permissões de módulos futuros                                                                               |
+| 5   | Permissões privilegiadas (`is_privileged`) exigem AAL2                                                                                      | implementa "MFA obrigatório para administradores" no backend, não só na interface                                                                                  |
+| 6   | Bloqueio duplo de usuário inativo: RLS + banimento no Supabase Auth                                                                         | RLS nega dados imediatamente; o banimento impede novo login e renovação de sessão                                                                                  |
+| 7   | Envio de documentos só pela Edge Function, com service role após autorização                                                                | a verificação do tipo real exige ler o arquivo no servidor; o upload direto pelo navegador permitiria burlar a validação                                           |
+| 8   | Departamentos podem receber documentos                                                                                                      | tipo de registro disponível na Fase 1 para validar a infraestrutura genérica; imóveis, contratos etc. entram nas próximas fases                                    |
+| 9   | Schemas Zod em `supabase/functions/_shared/schemas` importados pelo frontend (`@shared/*`)                                                  | fonte única de validação para cliente e Edge Functions                                                                                                             |
+| 10  | Fluxo de autenticação `implicit` no `supabase-js`                                                                                           | compatível com convites gerados pelo administrador (sem `code_verifier` no navegador)                                                                              |
+| 11  | `permissions` e `notification_types` sem `organization_id`                                                                                  | catálogos globais mantidos por migration, não são dados de negócio                                                                                                 |
+| 12  | Tabelas de vínculo (`user_roles`, `role_permissions`, `user_department_access`) aceitam remoção física                                      | são configuração de acesso, não registros de negócio; toda remoção é auditada com os dados anteriores                                                              |
+| 13  | Seed estrutural idempotente aplicado também nos ambientes remotos (`db push --include-seed`)                                                | perfis e permissões são necessários em produção                                                                                                                    |
+| 14  | Formatação de datas com `Intl` (America/Maceio); date-fns adiado para a Fase 4                                                              | a fundação não precisa de cálculos de data; evita dependência ociosa                                                                                               |
+| 15  | Fila `notification_email_queue` sem envio                                                                                                   | arquitetura de e-mail preparada, conforme o escopo                                                                                                                 |
+| 16  | Fonte Public Sans auto-hospedada                                                                                                            | identidade institucional sem CDN externo (compatível com a CSP)                                                                                                    |
+| 17  | Indicadores do painel em função SQL (`dashboard_foundation_stats`)                                                                          | cálculo no banco respeitando permissões                                                                                                                            |
+| 18  | Situação de faturas e aluguéis calculada em visões (`invoices_overview`, `rent_charges_overview`), nunca gravada                            | evita divergência entre pagamentos aprovados e o status exibido                                                                                                    |
+| 19  | Pagamentos e estornos imutáveis, criados somente pela aprovação `payment.register`                                                          | trilha financeira completa; estorno não apaga o pagamento original                                                                                                 |
+| 20  | Unidade consumidora nasce vinculada a um imóvel (mesma transação)                                                                           | o escopo de acesso é derivado do imóvel; sem vínculo, a unidade ficaria invisível para quem a cadastrou                                                            |
+| 21  | Gráficos com Recharts (colunas por mês, sem eixo duplo) e tabela de dados equivalente                                                       | leitura acessível e consistente com a identidade visual                                                                                                            |
+| 22  | Dados estruturais novos entram por migration idempotente, não só pelo seed                                                                  | nos ambientes remotos o `db push --include-seed` executa o seed apenas na primeira vez; alterações posteriores só atualizam o hash (corrigido em `20261125000800`) |
+| 23  | Cadastro guiado como operação de aprovação própria (`registration.package`) com função de gravação única usada na validação e na efetivação | garante que o que foi validado no envio é exatamente o que se efetiva, tudo ou nada                                                                                |
+| 24  | Rascunho guarda a interface (`data.ui`) e o pacote normalizado; só ids de locadores, nunca CPF/CNPJ                                         | retomada fiel do preenchimento sem dados pessoais no rascunho                                                                                                      |
+| 25  | Arquivo do contrato anexado à solicitação após o envio                                                                                      | o rascunho não é registro de negócio; reaproveita documentos de solicitações já existentes                                                                         |
+| 26  | Permissões `utilities.*` substituídas por `consumer_units.*` reescrevendo as funções existentes por migration (troca literal dos códigos)   | mesmo comportamento, sem copiar corpos longos à mão; teste garante que nenhuma referência antiga restou                                                            |
+| 27  | Base única `expense_items` + `private.expense_rows` para relatórios e Painel                                                                | um só cálculo para todas as telas, com RLS do usuário                                                                                                              |
+| 28  | Custo declarado nas funções de autorização (`cost 1000/200`)                                                                                | o planejador deixava de reavaliá-las a cada volta de nested loop; visões financeiras 10 a 16 vezes mais rápidas                                                    |
+| 29  | Detalhamento dos relatórios em página própria (`/financeiro/relatorios/lancamentos/`)                                                       | um mesmo total pode misturar faturas e aluguéis; a página lista ambos com os mesmos filtros                                                                        |
 
 ## Pontos pendentes de definição institucional
 
@@ -88,7 +102,7 @@
 
 ## Próximas atividades
 
-1. Validação conjunta das Fases 2 e 3 pela SEMFAZ.
+1. Validação conjunta das Fases 2 e 3 e da Alteração 01 pela SEMFAZ.
 2. Ativar secret scanning e push protection no GitHub (Settings → Code security).
 3. Configurar SMTP próprio (ou plano Pro) para os e-mails com código de 6 números.
 4. Iniciar a Fase 4 (demandas e calendário) após a validação.

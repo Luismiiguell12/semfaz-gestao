@@ -69,7 +69,7 @@ export function useReferenceNames() {
     staleTime: 60_000,
     queryFn: async () => {
       const s = getSupabase();
-      const [deps, users, props, lls, mods, idx, contracts] = await Promise.all([
+      const [deps, users, props, lls, mods, idx, contracts, sups, units] = await Promise.all([
         s.from("departments").select("id, name"),
         s.from("user_directory").select("id, full_name"),
         s.from("properties").select("id, name"),
@@ -77,6 +77,8 @@ export function useReferenceNames() {
         s.from("contract_modalities").select("id, name"),
         s.from("adjustment_indexes").select("id, name"),
         s.from("contracts").select("id, contract_number"),
+        s.from("suppliers").select("id, name"),
+        s.from("consumer_units").select("id, identifier, suppliers(name)"),
       ]);
       const m = new Map<string, string>();
       for (const r of deps.data ?? []) m.set(r.id, r.name);
@@ -86,6 +88,8 @@ export function useReferenceNames() {
       for (const r of mods.data ?? []) m.set(r.id, r.name);
       for (const r of idx.data ?? []) m.set(r.id, r.name);
       for (const r of contracts.data ?? []) m.set(r.id, `Contrato ${r.contract_number}`);
+      for (const r of sups.data ?? []) m.set(r.id, r.name);
+      for (const r of units.data ?? []) m.set(r.id, `${r.suppliers?.name ?? ""} ${r.identifier}`.trim());
       return m;
     },
   });
@@ -133,7 +137,8 @@ export function ProposalTable({
   proposed: Record<string, unknown>;
 }) {
   const names = useReferenceNames();
-  const fields = Object.keys(proposed).filter((f) => f in FIELD_LABEL);
+  // Ordem lógica dos campos (a do catálogo de rótulos), não a ordem interna do JSON.
+  const fields = Object.keys(FIELD_LABEL).filter((f) => f in proposed);
   const hasCurrent = Boolean(snapshot);
   return (
     <div className="overflow-hidden rounded-md border">
@@ -180,6 +185,73 @@ export function ProposalTable({
           })}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/** Pacote do cadastro guiado: imóvel (novo ou existente), contrato e unidades consumidoras. */
+export function PackageProposal({ proposed }: { proposed: Record<string, unknown> }) {
+  const names = useReferenceNames();
+  const property = (proposed.property ?? {}) as {
+    mode?: string;
+    id?: string;
+    data?: Record<string, unknown>;
+  };
+  const contract = (proposed.contract ?? {}) as Record<string, unknown>;
+  const units = (proposed.units ?? []) as {
+    mode: string;
+    unit_id?: string;
+    start_date?: string;
+    data?: Record<string, string>;
+  }[];
+  return (
+    <div className="space-y-5">
+      <section>
+        <h3 className="text-foreground mb-2 text-sm font-semibold">
+          {property.mode === "new" ? "Novo imóvel" : "Imóvel já cadastrado"}
+        </h3>
+        {property.mode === "new" ? (
+          <ProposalTable snapshot={null} proposed={property.data ?? {}} />
+        ) : (
+          <p className="text-sm">{names.data?.get(property.id ?? "") ?? "Imóvel de acesso restrito"}</p>
+        )}
+      </section>
+      <section>
+        <h3 className="text-foreground mb-2 text-sm font-semibold">Contrato</h3>
+        <ProposalTable snapshot={null} proposed={contract} />
+        <p className="text-muted-foreground mt-2 text-xs">
+          Os locadores do contrato também passam a ser os locadores do imóvel.
+        </p>
+      </section>
+      <section>
+        <h3 className="text-foreground mb-2 text-sm font-semibold">Unidades consumidoras</h3>
+        {units.length === 0 ? (
+          <p className="text-muted-foreground text-sm">Nenhuma unidade neste cadastro.</p>
+        ) : (
+          <ul className="divide-y rounded-md border text-sm">
+            {units.map((u, i) => (
+              <li key={i} className="px-4 py-2.5">
+                {u.mode === "new" ? (
+                  <>
+                    <strong>
+                      {names.data?.get(u.data?.supplier_id ?? "") ?? "Fornecedor"}{" "}
+                      {u.data?.identifier?.toUpperCase()}
+                    </strong>{" "}
+                    — nova unidade, titular {u.data?.holder_name}
+                  </>
+                ) : (
+                  <>
+                    <strong>{names.data?.get(u.unit_id ?? "") ?? "Unidade existente"}</strong> — vínculo ou
+                    transferência de unidade existente (o vínculo anterior é encerrado e preservado no
+                    histórico)
+                  </>
+                )}
+                {u.start_date && <>, a partir de {formatCalendarDate(u.start_date)}</>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

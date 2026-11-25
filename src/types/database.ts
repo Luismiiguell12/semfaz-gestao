@@ -975,6 +975,32 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"registration_drafts": {
+                  Row: {
+                    "approval_request_id": string | null,"created_at": string,"created_by": string | null,"current_step": number,"data": NonNullable<Json>,"id": string,"organization_id": string,"status": string,"title": string | null,"updated_at": string,"updated_by": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "approval_request_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"current_step"?: number,"data"?: NonNullable<Json>,"id"?: string,"organization_id": string,"status"?: string,"title"?: string | null,"updated_at"?: string,"updated_by"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "approval_request_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"current_step"?: number,"data"?: NonNullable<Json>,"id"?: string,"organization_id"?: string,"status"?: string,"title"?: string | null,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "registration_drafts_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "registration_drafts_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"rent_charges": {
                   Row: {
                     "amount": number,"calc_memo": NonNullable<Json>,"calculated_amount": number,"cancellation_reason": string | null,"cancelled_at": string | null,"competence": string,"contract_id": string,"correction_note": string | null,"created_at": string,"created_by": string | null,"due_date": string,"id": string,"organization_id": string,"property_id": string,"updated_at": string,"updated_by": string | null
@@ -1316,6 +1342,14 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"expense_items": {
+                  Row: {
+                    "amount": number | null,"balance": number | null,"competence": string | null,"consumption": number | null,"contract_id": string | null,"department_id": string | null,"due_date": string | null,"id": string | null,"kind": string | null,"last_paid_on": string | null,"measure_unit": string | null,"paid_total": number | null,"property_id": string | null,"property_name": string | null,"source": string | null,"status": string | null,"supplier_id": string | null,"supplier_name": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
                 },"invoices_overview": {
                   Row: {
                     "amount": number,"approval_request_id": string | null,"balance": number | null,"cancellation_reason": string | null,"cancelled_at": string | null,"competence": string,"consumption": number,"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string,"due_date": string,"id": string,"invoice_number": string | null,"is_justified_duplicate": boolean,"issue_date": string | null,"last_paid_on": string | null,"measure_unit": string,"organization_id": string,"paid_total": number | null,"property_id": string,"property_name": string,"status": string | null,"supplier_id": string,"supplier_kind": Database["public"]['Enums']["supplier_kind"],"supplier_name": string,"unit_id": string,"unit_identifier": string,"updated_at": string,"updated_by": string | null
@@ -1654,6 +1688,20 @@ isOneToOne: false
 "end_consumer_unit_assignment":
 { Args: { "p_end_date": string,"p_reason": string,"p_unit_id": string }; Returns: undefined
                            },
+"expense_report":
+{ Args: { "p_filters"?: Json }; Returns: Json
+                           },
+"find_consumer_unit":
+{ Args: { "p_identifier": string,"p_supplier_id": string }; Returns: Json
+                           },
+"find_landlord_by_document":
+{ Args: { "p_document": string }; Returns: {
+              "document_masked": string,"id": string,"name": string,"person_type": Database["public"]['Enums']["person_type"]
+            }[]
+                           },
+"find_similar_properties":
+{ Args: { "p_address_number": string,"p_postal_code": string }; Returns: Json
+                           },
 "get_landlord_sensitive":
 { Args: { "p_landlord_id": string }; Returns: Json
                            },
@@ -1671,6 +1719,9 @@ isOneToOne: false
                            },
 "mark_notification_read":
 { Args: { "p_notification_id": string }; Returns: undefined
+                           },
+"reopen_registration_draft":
+{ Args: { "p_draft_id": string }; Returns: undefined
                            },
 "request_amendment_create":
 { Args: { "p_data": Json,"p_justification": string }; Returns: {
@@ -2112,6 +2163,39 @@ isOneToOne: false
 "soft_delete_department":
 { Args: { "p_department_id": string,"p_reason": string }; Returns: undefined
                            },
+"submit_registration_package":
+{ Args: { "p_draft_id": string,"p_justification": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "update_contract_details":
 { Args: { "p_contract_id": string,"p_data": Json,"p_reason": string }; Returns: {
               "adjustment_index_id": string | null,

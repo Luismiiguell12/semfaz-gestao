@@ -26,40 +26,54 @@ export const moneySchema = (label: string) =>
     return parsed;
   });
 
-export const contractCreateSchema = z
-  .object({
+/** Campos do contrato (sem imóvel e justificativa), usados também no cadastro guiado. */
+export const contractFieldsObject = z.object({
+  contract_number: z.string().trim().min(1, "Informe o número do contrato.").max(60),
+  process_number: z.string().trim().max(60).optional(),
+  modality_id: optionalUuid,
+  object: z.string().trim().min(5, "Descreva o objeto (mínimo de 5 caracteres).").max(2000),
+  signed_on: isoDate("a data de assinatura"),
+  start_date: isoDate("o início da vigência"),
+  end_date: isoDate("o fim da vigência"),
+  global_value: moneySchema("o valor global"),
+  monthly_value: moneySchema("o valor mensal"),
+  adjustment_index_id: optionalUuid,
+  base_date: optionalDate,
+  inspector_id: optionalUuid,
+  manager_id: optionalUuid,
+  notes: z.string().trim().max(4000).optional(),
+});
+
+function refineContractDates(
+  v: { start_date: string; end_date: string; signed_on: string },
+  ctx: z.RefinementCtx,
+) {
+  if (v.end_date < v.start_date)
+    ctx.addIssue({
+      code: "custom",
+      path: ["end_date"],
+      message: "O fim da vigência deve ser posterior ao início.",
+    });
+  if (v.signed_on > v.end_date)
+    ctx.addIssue({
+      code: "custom",
+      path: ["signed_on"],
+      message: "A assinatura não pode ser posterior ao fim da vigência.",
+    });
+}
+
+export const contractCreateSchema = contractFieldsObject
+  .extend({
     property_id: uuidSchema,
-    contract_number: z.string().trim().min(1, "Informe o número do contrato.").max(60),
-    process_number: z.string().trim().max(60).optional(),
-    modality_id: optionalUuid,
-    object: z.string().trim().min(5, "Descreva o objeto (mínimo de 5 caracteres).").max(2000),
-    signed_on: isoDate("a data de assinatura"),
-    start_date: isoDate("o início da vigência"),
-    end_date: isoDate("o fim da vigência"),
-    global_value: moneySchema("o valor global"),
-    monthly_value: moneySchema("o valor mensal"),
-    adjustment_index_id: optionalUuid,
-    base_date: optionalDate,
-    inspector_id: optionalUuid,
-    manager_id: optionalUuid,
-    notes: z.string().trim().max(4000).optional(),
     landlords: landlordSharesSchema,
     justification: reasonSchema,
   })
-  .superRefine((v, ctx) => {
-    if (v.end_date < v.start_date)
-      ctx.addIssue({
-        code: "custom",
-        path: ["end_date"],
-        message: "O fim da vigência deve ser posterior ao início.",
-      });
-    if (v.signed_on > v.end_date)
-      ctx.addIssue({
-        code: "custom",
-        path: ["signed_on"],
-        message: "A assinatura não pode ser posterior ao fim da vigência.",
-      });
-  });
+  .superRefine(refineContractDates);
+
+/** Etapa "Dados do contrato" do cadastro guiado. */
+export const registrationContractSchema = contractFieldsObject.superRefine(refineContractDates);
+export type RegistrationContractInput = z.input<typeof registrationContractSchema>;
+
 export type ContractCreateInput = z.input<typeof contractCreateSchema>;
 
 export const amendmentKindSchema = z.enum(["term", "value", "term_and_value", "other"], {

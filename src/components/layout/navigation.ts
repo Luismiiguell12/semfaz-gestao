@@ -1,5 +1,8 @@
 import {
+  Banknote,
   Bell,
+  ChartColumn,
+  FilePlus2,
   Receipt,
   SlidersHorizontal,
   UserRound,
@@ -47,25 +50,43 @@ export const NAVIGATION: NavSection[] = [
   {
     label: "Gestão",
     items: [
-      { label: "Aprovações", href: "/aprovacoes/", icon: Stamp },
-      { label: "Imóveis", href: "/imoveis/", icon: Home, permission: "properties.view" },
-      { label: "Locadores", href: "/locadores/", icon: UserRound, permission: "landlords.view" },
+      {
+        label: "Novo cadastro a partir de contrato",
+        href: "/cadastro-guiado/",
+        icon: FilePlus2,
+        permission: "contracts.manage",
+      },
       { label: "Contratos", href: "/contratos/", icon: FileSignature, permission: "contracts.view" },
+      { label: "Locadores", href: "/locadores/", icon: UserRound, permission: "landlords.view" },
+      { label: "Imóveis", href: "/imoveis/", icon: Home, permission: "properties.view" },
+      {
+        label: "Unidades consumidoras",
+        href: "/unidades/",
+        icon: PlugZap,
+        permission: "consumer_units.view",
+      },
     ],
   },
   {
     label: "Financeiro",
     items: [
-      { label: "Unidades consumidoras", href: "/unidades/", icon: PlugZap, permission: "utilities.view" },
       { label: "Faturas", href: "/financeiro/faturas/", icon: Receipt, permission: "invoices.view" },
       { label: "Aluguéis", href: "/financeiro/alugueis/", icon: Wallet, permission: "invoices.view" },
+      { label: "Pagamentos", href: "/financeiro/pagamentos/", icon: Banknote, permission: "invoices.view" },
+      {
+        label: "Relatórios de despesas",
+        href: "/financeiro/relatorios/",
+        icon: ChartColumn,
+        permission: "finance.reports.view",
+      },
     ],
   },
   {
-    label: "Próximas fases",
+    label: "Acompanhamento",
     items: [
       { label: "Demandas", href: "/demandas/", icon: ClipboardList, comingSoon: true },
       { label: "Calendário", href: "/calendario/", icon: CalendarDays, comingSoon: true },
+      { label: "Aprovações", href: "/aprovacoes/", icon: Stamp },
       { label: "Produtividade", href: "/produtividade/", icon: TrendingUp, comingSoon: true },
       { label: "Relatórios", href: "/relatorios/", icon: FileBarChart, comingSoon: true },
     ],
@@ -118,6 +139,11 @@ export const ROUTE_LABELS: Record<string, string> = {
   faturas: "Faturas",
   alugueis: "Aluguéis",
   nova: "Novo lançamento",
+  pagamentos: "Pagamentos",
+  relatorios: "Relatórios de despesas",
+  "cadastro-guiado": "Novo cadastro a partir de contrato",
+  editar: "Cadastro em andamento",
+  lancamentos: "Lançamentos",
 };
 
 export const ORGANIZATION_ICON = Building2;

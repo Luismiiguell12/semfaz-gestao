@@ -52,6 +52,37 @@ garantidas no backend.
 | CPF/telefone completos só com `landlords.view_sensitive`, com registro na auditoria                                                              | `get_landlord_sensitive`                                 |
 | Alertas: 90/60/30 dias antes, vencido e data-base; diários, sem duplicidade                                                                      | `generate_contract_alerts` + `pg_cron` + `alerts_unique` |
 
+## Cadastro a partir do contrato (Alteração 01)
+
+Fluxo real da SEMFAZ: o contrato chega → cadastra-se o locador → o imóvel → as unidades consumidoras.
+
+| Regra                                                                                                                                                            | Implementação                                          |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Rascunho salvo no banco a cada etapa, visível e editável só pelo autor                                                                                           | `registration_drafts` + RLS                            |
+| CPF/CNPJ já cadastrado: o sistema oferece o cadastro existente (sem duplicar)                                                                                    | `find_landlord_by_document` + `save_landlord`          |
+| Locador novo é gravado na hora (não exige aprovação) e permanece mesmo se o pacote for rejeitado                                                                 | `save_landlord`                                        |
+| Imóvel com o mesmo CEP e número gera aviso (os de fora do escopo aparecem só na contagem)                                                                        | `find_similar_properties`                              |
+| Unidade já cadastrada em outro imóvel: transferência encerra o vínculo anterior na véspera e preserva o histórico; fora do escopo, só um administrador transfere | `find_consumer_unit`, `write_registration_package`     |
+| Data de vinculação sugerida = início da vigência; endereço do imóvel sugerido para a Iguá                                                                        | interface do assistente                                |
+| Imóvel novo + contrato + locadores (do contrato e do imóvel) + unidades = **uma** solicitação                                                                    | `submit_registration_package` → `registration.package` |
+| Envio valida o pacote inteiro com as regras reais do banco, sem gravar                                                                                           | subtransação desfeita                                  |
+| Aprovação: tudo ou nada; rejeição: nada do pacote é criado; autoaprovação bloqueada                                                                              | `decide_approval` + `apply_registration_package`       |
+| Na efetivação, os locadores do imóvel passam a ser os do contrato (anteriores encerrados com motivo)                                                             | `write_registration_package`                           |
+| Rascunho rejeitado, cancelado ou não efetivado pode ser reaberto e corrigido                                                                                     | `reopen_registration_draft`                            |
+| Valor global sugerido = valor mensal × meses completos + dias restantes proporcionais; o usuário confirma                                                        | `modules/contracts/suggest.ts`                         |
+
+## Relatórios de despesas (Alteração 01)
+
+| Regra                                                                                                                       | Implementação                       |
+| --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| Base competência (padrão): cada despesa pelo mês de competência; base pagamento: pagamentos aprovados pelo mês do pagamento | `private.expense_rows`              |
+| Canceladas ficam fora; estornos são abatidos                                                                                | `expense_items` + `expense_rows`    |
+| Aluguel com vários locadores é distribuído pelo percentual de participação                                                  | `private.contract_landlord_factors` |
+| Comparativo com o mesmo período do ano anterior (R$ e %), quando houver dados                                               | `expense_report`                    |
+| Tudo com a RLS do usuário; Painel usa a mesma base                                                                          | `security invoker`                  |
+| Período máximo de 60 meses                                                                                                  | `expense_report`                    |
+| Exportação Excel/PDF: pendência da Fase 6 (mecanismo auditado de exportações)                                               | —                                   |
+
 ## Financeiro
 
 | Regra                                                                                                                                      | Implementação                                       |

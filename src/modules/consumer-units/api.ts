@@ -8,8 +8,22 @@ import type { Database } from "@/types/database";
 export type ConsumerUnit = Database["public"]["Tables"]["consumer_units"]["Row"];
 export type Supplier = Database["public"]["Tables"]["suppliers"]["Row"];
 export type Assignment = Database["public"]["Tables"]["unit_assignments"]["Row"] & {
-  properties: { name: string } | null;
+  properties: { name: string; department_id?: string } | null;
 };
+
+/**
+ * Imóvel da unidade numa competência (mesma regra do banco): o vínculo vigente
+ * no último dia do mês; se não houver, o vigente no primeiro dia.
+ */
+export function assignmentAt(assignments: Assignment[], competence: string): Assignment | null {
+  if (!/^\d{4}-\d{2}$/.test(competence)) return null;
+  const [y, m] = competence.split("-").map(Number) as [number, number];
+  const first = `${competence}-01`;
+  const last = `${competence}-${String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, "0")}`;
+  const at = (d: string) =>
+    assignments.find((a) => a.start_date <= d && (a.end_date === null || a.end_date >= d));
+  return at(last) ?? at(first) ?? null;
+}
 
 export const SUPPLIER_KIND_LABEL: Record<Database["public"]["Enums"]["supplier_kind"], string> = {
   energy: "Energia",
@@ -17,10 +31,10 @@ export const SUPPLIER_KIND_LABEL: Record<Database["public"]["Enums"]["supplier_k
 };
 
 export const utilityKeys = {
-  units: ["utilities", "units"] as const,
-  unit: (id: string) => ["utilities", "unit", id] as const,
-  suppliers: ["utilities", "suppliers"] as const,
-  byProperty: (id: string) => ["utilities", "property", id] as const,
+  units: ["consumer-units", "units"] as const,
+  unit: (id: string) => ["consumer-units", "unit", id] as const,
+  suppliers: ["consumer-units", "suppliers"] as const,
+  byProperty: (id: string) => ["consumer-units", "property", id] as const,
 };
 
 export function useSuppliers() {
@@ -43,7 +57,7 @@ export function useConsumerUnits() {
       const { data, error } = await getSupabase()
         .from("consumer_units")
         .select(
-          "*, suppliers(name, kind), unit_assignments(id, property_id, start_date, end_date, properties(name))",
+          "*, suppliers(name, kind), unit_assignments(id, property_id, start_date, end_date, properties(name, department_id))",
         )
         .order("identifier");
       if (error) throw toAppError(error);
@@ -65,7 +79,7 @@ export function useConsumerUnit(id: string | null) {
         s.from("consumer_units").select("*, suppliers(name, kind)").eq("id", id!).maybeSingle(),
         s
           .from("unit_assignments")
-          .select("*, properties(name)")
+          .select("*, properties(name, department_id)")
           .eq("unit_id", id!)
           .order("start_date", { ascending: false }),
         s
@@ -103,7 +117,7 @@ export function usePropertyUnits(propertyId: string | null) {
 
 function useInvalidate() {
   const qc = useQueryClient();
-  return () => qc.invalidateQueries({ queryKey: ["utilities"] });
+  return () => qc.invalidateQueries({ queryKey: ["consumer-units"] });
 }
 
 async function rpc<T>(fn: string, args: Record<string, unknown>): Promise<T> {

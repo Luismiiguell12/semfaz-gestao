@@ -6,13 +6,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Plus, Receipt } from "lucide-react";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
-import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states";
+import { EmptyState, ErrorState, FullPageLoading, LoadingRows } from "@/components/shared/states";
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCompetence, useInvoices, type InvoiceOverview } from "@/modules/finance/api";
 import { ChargeStatusBadge } from "@/modules/finance/components";
 import { useAuth } from "@/providers/auth-provider";
+import { hasDrill, useDepartmentSubtree, useDrillFilters } from "@/modules/finance/drill";
+import { DrillBanner } from "@/modules/finance/drill-banner";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
 
 const columns: ColumnDef<InvoiceOverview, unknown>[] = [
@@ -71,8 +73,22 @@ type Filter = "open" | "overdue" | "paid" | "all";
 
 function InvoicesContent() {
   const { can } = useAuth();
-  const list = useInvoices();
-  const [filter, setFilter] = React.useState<Filter>("open");
+  const drill = useDrillFilters();
+  const subtree = useDepartmentSubtree(drill.departmentId);
+  const drilled = hasDrill(drill);
+  const list = useInvoices(
+    {
+      from: drill.from,
+      to: drill.to,
+      propertyId: drill.propertyId,
+      departmentIds: subtree ? [...subtree] : undefined,
+      statuses: drill.statuses,
+      kinds: drill.kinds?.filter((k) => k !== "rent"),
+      supplierId: drill.supplierId,
+    },
+    !drill.departmentId || subtree !== undefined,
+  );
+  const [filter, setFilter] = React.useState<Filter>(drilled ? "all" : "open");
   const data = (list.data ?? []).filter((i) =>
     filter === "all"
       ? true
@@ -95,6 +111,7 @@ function InvoicesContent() {
           )
         }
       />
+      {drilled && <DrillBanner filters={drill} clearHref="/financeiro/faturas/" />}
       <Panel bodyClassName="p-0">
         <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="px-4 pt-2">
           <TabsList className="border-b-0">
@@ -134,7 +151,9 @@ function InvoicesContent() {
 export default function InvoicesPage() {
   return (
     <RequirePermission permission="invoices.view">
-      <InvoicesContent />
+      <React.Suspense fallback={<FullPageLoading />}>
+        <InvoicesContent />
+      </React.Suspense>
     </RequirePermission>
   );
 }

@@ -180,7 +180,13 @@ export function ContractDetail() {
                 {q.data?.landlords.map((l) => (
                   <li key={l.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
                     <span>
-                      {l.landlords?.name}{" "}
+                      {l.landlords ? (
+                        <Link href={`/locadores/detalhe/?id=${l.landlord_id}`} className="hover:underline">
+                          {l.landlords.name}
+                        </Link>
+                      ) : (
+                        <span className="text-muted-foreground">Acesso restrito</span>
+                      )}{" "}
                       <span className="text-muted-foreground text-xs">{l.landlords?.document_masked}</span>
                     </span>
                     <span className="tabular">

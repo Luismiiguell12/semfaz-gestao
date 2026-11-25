@@ -18,7 +18,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/shared/form-field";
 import { InlineAlert } from "@/components/shared/states";
 import { useProperties } from "@/modules/properties/api";
-import { SUPPLIER_KIND_LABEL, useSaveUnit, useSuppliers, type ConsumerUnit } from "@/modules/utilities/api";
+import {
+  SUPPLIER_KIND_LABEL,
+  useSaveUnit,
+  useSuppliers,
+  type ConsumerUnit,
+} from "@/modules/consumer-units/api";
 
 export function UnitDialog({
   unit,

@@ -59,7 +59,7 @@ export function useUpdateSetting() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: settingsKeys.rules });
       qc.invalidateQueries({ queryKey: ["contract-lists"] });
-      qc.invalidateQueries({ queryKey: ["utilities"] });
+      qc.invalidateQueries({ queryKey: ["consumer-units"] });
     },
   });
 }
@@ -79,7 +79,7 @@ export function useAddSupplier() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: settingsKeys.rules });
-      qc.invalidateQueries({ queryKey: ["utilities"] });
+      qc.invalidateQueries({ queryKey: ["consumer-units"] });
     },
   });
 }

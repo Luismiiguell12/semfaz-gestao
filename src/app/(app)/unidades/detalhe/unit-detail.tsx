@@ -29,10 +29,11 @@ import {
   useAssignUnit,
   useConsumerUnit,
   useEndAssignment,
-} from "@/modules/utilities/api";
+} from "@/modules/consumer-units/api";
 import { useProperties } from "@/modules/properties/api";
 import { formatCompetence, useInvoices } from "@/modules/finance/api";
 import { ChargeStatusBadge } from "@/modules/finance/components";
+import { useDepartments } from "@/modules/departments/api";
 import { DocumentsPanel } from "@/modules/documents/documents-panel";
 import { useAuth } from "@/providers/auth-provider";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
@@ -138,6 +139,7 @@ export function UnitDetail() {
   const invoices = useInvoices({ unitId: id ?? undefined });
   const [dialog, setDialog] = React.useState<"edit" | "assign" | "end" | null>(null);
 
+  const deps = useDepartments();
   if (q.isLoading) return <FullPageLoading />;
   if (q.isError) return <ErrorState message={q.error.message} />;
   const u = q.data?.unit;
@@ -147,7 +149,8 @@ export function UnitDetail() {
     );
   const supplier = u.suppliers as { name: string; kind: "energy" | "water" } | null;
   const current = q.data!.assignments.find((a) => a.end_date === null);
-  const canManage = can("utilities.manage");
+  const departments = deps;
+  const canManage = can("consumer_units.manage");
 
   return (
     <>
@@ -195,6 +198,13 @@ export function UnitDetail() {
                     "Sem vínculo"
                   ),
                 },
+                {
+                  label: "Secretaria",
+                  value: current
+                    ? (departments.data?.find((d) => d.id === current.properties?.department_id)?.name ??
+                      "Acesso restrito")
+                    : "—",
+                },
                 { label: "Medidor", value: u.meter_number ?? "—" },
                 { label: "Complemento", value: u.complement ?? "—" },
                 { label: "Endereço", value: u.address ?? "—" },
@@ -212,7 +222,9 @@ export function UnitDetail() {
                       key={a.id}
                       className="flex flex-col gap-1 px-4 py-2.5 text-sm sm:flex-row sm:justify-between"
                     >
-                      <span>{a.properties?.name}</span>
+                      <Link href={`/imoveis/detalhe/?id=${a.property_id}`} className="hover:underline">
+                        {a.properties?.name ?? "Imóvel de acesso restrito"}
+                      </Link>
                       <span className="tabular text-muted-foreground">
                         {formatCalendarDate(a.start_date)} a{" "}
                         {a.end_date ? formatCalendarDate(a.end_date) : "atual"}

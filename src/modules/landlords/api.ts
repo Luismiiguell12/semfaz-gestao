@@ -24,6 +24,22 @@ export interface Landlord {
 
 export const landlordKeys = { all: ["landlords"] as const };
 
+export interface FoundLandlord {
+  id: string;
+  name: string;
+  person_type: "individual" | "company";
+  document_masked: string;
+}
+
+/** Locador já cadastrado com o CPF/CNPJ informado (devolve o documento mascarado). */
+export async function findLandlordByDocument(document: string): Promise<FoundLandlord | null> {
+  const digits = onlyDigits(document);
+  if (digits.length !== 11 && digits.length !== 14) return null;
+  const { data, error } = await getSupabase().rpc("find_landlord_by_document", { p_document: digits });
+  if (error) throw toAppError(error);
+  return ((data as FoundLandlord[] | null) ?? [])[0] ?? null;
+}
+
 export function useLandlords() {
   return useQuery({
     queryKey: landlordKeys.all,
@@ -67,4 +83,36 @@ export async function fetchLandlordSensitive(
   const { data, error } = await getSupabase().rpc("get_landlord_sensitive", { p_landlord_id: id });
   if (error) throw toAppError(error);
   return data as unknown as { document: string; phone: string | null };
+}
+
+/** Ficha do locador: dados mascarados, imóveis e contratos vinculados (no escopo do usuário). */
+export function useLandlord(id: string | null) {
+  return useQuery({
+    queryKey: [...landlordKeys.all, "detail", id ?? ""],
+    enabled: Boolean(id),
+    queryFn: async () => {
+      const s = getSupabase();
+      const [l, props, contracts] = await Promise.all([
+        s.from("landlords").select(LANDLORD_COLUMNS).eq("id", id!).maybeSingle(),
+        s
+          .from("property_landlords")
+          .select("id, property_id, share_percent, deleted_at, properties(id, name, city, state)")
+          .eq("landlord_id", id!)
+          .order("created_at", { ascending: false }),
+        s
+          .from("contract_landlords")
+          .select(
+            "id, contract_id, share_percent, contracts(id, contract_number, start_date, end_date, property_id, properties(name))",
+          )
+          .eq("landlord_id", id!)
+          .is("deleted_at", null),
+      ]);
+      for (const r of [l, props, contracts]) if (r.error) throw toAppError(r.error);
+      return {
+        landlord: l.data as unknown as Landlord | null,
+        properties: props.data ?? [],
+        contracts: contracts.data ?? [],
+      };
+    },
+  });
 }

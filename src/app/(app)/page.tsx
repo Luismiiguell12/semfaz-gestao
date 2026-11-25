@@ -230,9 +230,17 @@ export default function DashboardPage() {
               icon={Banknote}
             />
           </div>
-          <h3 className="text-foreground mt-6 mb-3 text-sm font-semibold">
-            Gastos mensais nos últimos 12 meses
-          </h3>
+          <div className="mt-6 mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="text-foreground text-sm font-semibold">Gastos mensais nos últimos 12 meses</h3>
+            {can("finance.reports.view") && (
+              <Link
+                href="/financeiro/relatorios/"
+                className="text-primary text-sm font-semibold hover:underline"
+              >
+                Ver relatórios de despesas
+              </Link>
+            )}
+          </div>
           <div className="grid gap-4 lg:grid-cols-3">
             <MonthlySpendChart title="Aluguel" data={f.series} field="rent" />
             <MonthlySpendChart title="Água" data={f.series} field="water" />

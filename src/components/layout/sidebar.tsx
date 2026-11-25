@@ -26,7 +26,7 @@ function NavLink({
   const active = isActive(pathname, item.href);
   const Icon = item.icon;
   const base = cn(
-    "group relative flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium",
+    "group relative flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
     collapsed && "justify-center px-0",
   );
 
@@ -39,8 +39,14 @@ function NavLink({
         className={cn(base, "text-brand-muted/55 cursor-not-allowed")}
       >
         <Icon className="size-[18px] shrink-0" aria-hidden="true" />
-        <span className={collapsed ? "sr-only" : "truncate"}>{item.label}</span>
-        <span className="sr-only"> (em breve)</span>
+        <span className={collapsed ? "sr-only" : "min-w-0 flex-1 leading-tight"}>{item.label}</span>
+        {collapsed ? (
+          <span className="sr-only"> (em breve)</span>
+        ) : (
+          <span className="border-brand-muted/30 text-brand-muted shrink-0 rounded-sm border px-1.5 py-px text-[10px] font-semibold whitespace-nowrap">
+            Em breve
+          </span>
+        )}
       </span>
     );
   }
@@ -68,7 +74,7 @@ function NavLink({
       {collapsed ? (
         <span className="sr-only">{item.label}</span>
       ) : (
-        <span className="truncate">{item.label}</span>
+        <span className="min-w-0 leading-tight">{item.label}</span>
       )}
     </Link>
   );
@@ -92,11 +98,6 @@ export function SidebarNav({
             {!collapsed ? (
               <p className="text-brand-muted/80 mb-1.5 flex items-center justify-between px-3 text-xs font-semibold">
                 {section.label}
-                {items.every((i) => i.comingSoon) && (
-                  <span className="border-brand-muted/30 text-brand-muted rounded-sm border px-1.5 py-px text-[10px] font-semibold whitespace-nowrap">
-                    Em breve
-                  </span>
-                )}
               </p>
             ) : (
               <div className="mx-auto mb-2 h-px w-6 bg-white/10" aria-hidden="true" />

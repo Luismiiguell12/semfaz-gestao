@@ -21,7 +21,7 @@ import {
   useSetPropertyLandlords,
   type Property,
 } from "@/modules/properties/api";
-import { usePropertyContracts } from "@/modules/contracts/api";
+import { AMENDMENT_KIND_LABEL, usePropertyAmendments, usePropertyContracts } from "@/modules/contracts/api";
 import { useEntityApprovals } from "@/modules/approvals/api";
 import { useLandlords } from "@/modules/landlords/api";
 import { useDepartments } from "@/modules/departments/api";
@@ -30,7 +30,7 @@ import { DocumentsPanel } from "@/modules/documents/documents-panel";
 import { landlordSharesSchema } from "@shared/schemas/properties.ts";
 import { useAuth } from "@/providers/auth-provider";
 import { formatCalendarDate, formatCurrency, formatDateTime } from "@/lib/format";
-import { usePropertyUnits } from "@/modules/utilities/api";
+import { usePropertyUnits } from "@/modules/consumer-units/api";
 import { formatCompetence, useInvoices } from "@/modules/finance/api";
 import { ChargeStatusBadge } from "@/modules/finance/components";
 import { AddressChangeDialog, DepartmentChangeDialog, DetailsDialog } from "./property-dialogs";
@@ -85,7 +85,16 @@ function LandlordsTab({ property, canEdit }: { property: Property; canEdit: bool
             {links.data?.map((l) => (
               <li key={l.id} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
                 <span>
-                  <span className="font-medium">{l.landlords?.name}</span>
+                  {l.landlords ? (
+                    <Link
+                      href={`/locadores/detalhe/?id=${l.landlord_id}`}
+                      className="font-medium hover:underline"
+                    >
+                      {l.landlords.name}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">Acesso restrito</span>
+                  )}
                   <span className="text-muted-foreground block text-xs">{l.landlords?.document_masked}</span>
                 </span>
                 <span className="tabular">
@@ -178,39 +187,84 @@ function LandlordsTab({ property, canEdit }: { property: Property; canEdit: bool
 function PropertyUnitsTab({ propertyId }: { propertyId: string }) {
   const q = usePropertyUnits(propertyId);
   const { can } = useAuth();
-  if (!can("utilities.view")) return <EmptyState title="Acesso restrito" className="py-6" />;
+  if (!can("consumer_units.view")) return <EmptyState title="Acesso restrito" className="py-6" />;
   if (q.isLoading) return <LoadingRows rows={2} />;
   return (
     <div>
       {q.data && q.data.length === 0 && (
         <EmptyState title="Nenhuma unidade consumidora vinculada" className="py-6" />
       )}
-      <ul className="divide-y rounded-md border empty:hidden">
-        {q.data?.map((a) => {
-          const u = a.consumer_units as {
-            id: string;
-            identifier: string;
-            holder_name: string;
-            suppliers: { name: string } | null;
-          } | null;
-          return (
-            <li key={a.id}>
-              <Link
-                href={`/unidades/detalhe/?id=${u?.id}`}
-                className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span className="text-sm font-medium">
-                  {u?.suppliers?.name} {u?.identifier}
-                </span>
-                <span className="tabular text-muted-foreground text-sm">
-                  {formatCalendarDate(a.start_date)} a {a.end_date ? formatCalendarDate(a.end_date) : "atual"}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      {(["current", "past"] as const).map((group) => {
+        const rows = (q.data ?? []).filter((a) => (group === "current" ? !a.end_date : a.end_date));
+        if (rows.length === 0) return null;
+        return (
+          <section key={group} className="mb-4">
+            <h3 className="text-muted-foreground mb-2 text-xs font-semibold">
+              {group === "current" ? "Vinculadas atualmente" : "Histórico de vínculos encerrados"}
+            </h3>
+            <ul className="divide-y rounded-md border">
+              {rows.map((a) => {
+                const u = a.consumer_units as {
+                  id: string;
+                  identifier: string;
+                  holder_name: string;
+                  suppliers: { name: string } | null;
+                } | null;
+                return (
+                  <li key={a.id}>
+                    <Link
+                      href={`/unidades/detalhe/?id=${u?.id}`}
+                      className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <span className="text-sm font-medium">
+                        {u?.suppliers?.name} {u?.identifier}
+                      </span>
+                      <span className="tabular text-muted-foreground text-sm">
+                        {formatCalendarDate(a.start_date)} a{" "}
+                        {a.end_date ? formatCalendarDate(a.end_date) : "atual"}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        );
+      })}
     </div>
+  );
+}
+
+function PropertyAmendmentsTab({
+  contracts,
+}: {
+  contracts: { id: string | null; contract_number: string | null }[];
+}) {
+  const ids = contracts.map((c) => c.id!).filter(Boolean);
+  const q = usePropertyAmendments(ids);
+  const number = (id: string) => contracts.find((c) => c.id === id)?.contract_number ?? "";
+  if (ids.length === 0) return <EmptyState title="Nenhum contrato para este imóvel" className="py-6" />;
+  if (q.isLoading) return <LoadingRows rows={2} />;
+  if (!q.data?.length) return <EmptyState title="Nenhum aditivo registrado" className="py-6" />;
+  return (
+    <ul className="divide-y rounded-md border">
+      {q.data.map((a) => (
+        <li key={a.id}>
+          <Link
+            href={`/contratos/detalhe/?id=${a.contract_id}`}
+            className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span className="text-sm font-medium">
+              Aditivo {a.amendment_number} · Contrato {number(a.contract_id)}
+            </span>
+            <span className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
+              <span>{AMENDMENT_KIND_LABEL[a.kind as keyof typeof AMENDMENT_KIND_LABEL]}</span>
+              <span className="tabular">assinado em {formatCalendarDate(a.signed_on)}</span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -288,6 +342,7 @@ export function PropertyDetail() {
             <TabsTrigger value="dados">Dados</TabsTrigger>
             <TabsTrigger value="locadores">Locadores</TabsTrigger>
             <TabsTrigger value="contratos">Contratos</TabsTrigger>
+            <TabsTrigger value="aditivos">Aditivos</TabsTrigger>
             <TabsTrigger value="unidades">Unidades consumidoras</TabsTrigger>
             <TabsTrigger value="faturas">Faturas</TabsTrigger>
             <TabsTrigger value="documentos">Documentos</TabsTrigger>
@@ -333,25 +388,38 @@ export function PropertyDetail() {
             {contracts.data && contracts.data.length === 0 && (
               <EmptyState title="Nenhum contrato para este imóvel" className="py-6" />
             )}
-            <ul className="divide-y rounded-md border empty:hidden">
-              {contracts.data?.map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={`/contratos/detalhe/?id=${c.id}`}
-                    className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <span className="font-medium">Contrato {c.contract_number}</span>
-                    <span className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
-                      <span className="tabular">
-                        {formatCalendarDate(c.start_date)} a {formatCalendarDate(c.effective_end_date)}
-                      </span>
-                      <span className="tabular">{formatCurrency(c.effective_monthly_value)}/mês</span>
-                      <ValidityBadge status={c.validity_status} />
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {(["current", "past"] as const).map((group) => {
+              const rows = (contracts.data ?? []).filter((c) =>
+                group === "current" ? c.validity_status !== "expired" : c.validity_status === "expired",
+              );
+              if (rows.length === 0) return null;
+              return (
+                <section key={group} className="mb-4">
+                  <h3 className="text-muted-foreground mb-2 text-xs font-semibold">
+                    {group === "current" ? "Contrato atual" : "Contratos anteriores"}
+                  </h3>
+                  <ul className="divide-y rounded-md border">
+                    {rows.map((c) => (
+                      <li key={c.id}>
+                        <Link
+                          href={`/contratos/detalhe/?id=${c.id}`}
+                          className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <span className="font-medium">Contrato {c.contract_number}</span>
+                          <span className="text-muted-foreground flex flex-wrap items-center gap-3 text-sm">
+                            <span className="tabular">
+                              {formatCalendarDate(c.start_date)} a {formatCalendarDate(c.effective_end_date)}
+                            </span>
+                            <span className="tabular">{formatCurrency(c.effective_monthly_value)}/mês</span>
+                            <ValidityBadge status={c.validity_status} />
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
             {can("contracts.manage") && (
               <Button asChild variant="outline" size="sm" className="mt-4">
                 <Link href={`/contratos/novo/?imovel=${p.id}`}>
@@ -359,6 +427,9 @@ export function PropertyDetail() {
                 </Link>
               </Button>
             )}
+          </TabsContent>
+          <TabsContent value="aditivos">
+            <PropertyAmendmentsTab contracts={contracts.data ?? []} />
           </TabsContent>
           <TabsContent value="unidades">
             <PropertyUnitsTab propertyId={p.id} />

@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/select";
 import { useAddListItem, useAddSupplier, useRulesAndLists, useUpdateSetting } from "@/modules/settings/api";
-import { SUPPLIER_KIND_LABEL } from "@/modules/utilities/api";
+import { SUPPLIER_KIND_LABEL } from "@/modules/consumer-units/api";
 import { useAuth } from "@/providers/auth-provider";
 
 const ALERT_LABEL: Record<string, string> = {

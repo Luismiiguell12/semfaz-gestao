@@ -34,17 +34,38 @@ export function formatCompetence(value: string | null | undefined): string {
   return `${m}/${y}`;
 }
 
-export function useInvoices(filter?: { propertyId?: string; unitId?: string; contractId?: string }) {
+/** Filtros aplicados no servidor (lista e detalhamento dos relatórios). */
+export interface ListQuery {
+  propertyId?: string;
+  unitId?: string;
+  contractId?: string;
+  from?: string; // AAAA-MM
+  to?: string;
+  departmentIds?: string[];
+  statuses?: string[];
+  kinds?: string[];
+  supplierId?: string;
+  contractIds?: string[];
+}
+
+export function useInvoices(filter?: ListQuery, enabled = true) {
   return useQuery({
     queryKey: [...financeKeys.invoices, filter ?? {}],
+    enabled,
     queryFn: async () => {
       let q = getSupabase()
         .from("invoices_overview")
         .select("*")
         .order("competence", { ascending: false })
-        .limit(500);
+        .limit(1000);
       if (filter?.propertyId) q = q.eq("property_id", filter.propertyId);
       if (filter?.unitId) q = q.eq("unit_id", filter.unitId);
+      if (filter?.from) q = q.gte("competence", `${filter.from}-01`);
+      if (filter?.to) q = q.lte("competence", `${filter.to}-01`);
+      if (filter?.departmentIds) q = q.in("department_id", filter.departmentIds);
+      if (filter?.statuses?.length) q = q.in("status", filter.statuses);
+      if (filter?.kinds?.length) q = q.in("supplier_kind", filter.kinds as ("water" | "energy")[]);
+      if (filter?.supplierId) q = q.eq("supplier_id", filter.supplierId);
       const { data, error } = await q;
       if (error) throw toAppError(error);
       return data;
@@ -75,17 +96,23 @@ export function useInvoice(id: string | null) {
   });
 }
 
-export function useRents(filter?: { contractId?: string; propertyId?: string }) {
+export function useRents(filter?: ListQuery, enabled = true) {
   return useQuery({
     queryKey: [...financeKeys.rents, filter ?? {}],
+    enabled,
     queryFn: async () => {
       let q = getSupabase()
         .from("rent_charges_overview")
         .select("*")
         .order("competence", { ascending: false })
-        .limit(500);
+        .limit(1000);
       if (filter?.contractId) q = q.eq("contract_id", filter.contractId);
       if (filter?.propertyId) q = q.eq("property_id", filter.propertyId);
+      if (filter?.from) q = q.gte("competence", `${filter.from}-01`);
+      if (filter?.to) q = q.lte("competence", `${filter.to}-01`);
+      if (filter?.departmentIds) q = q.in("department_id", filter.departmentIds);
+      if (filter?.statuses?.length) q = q.in("status", filter.statuses);
+      if (filter?.contractIds) q = q.in("contract_id", filter.contractIds);
       const { data, error } = await q;
       if (error) throw toAppError(error);
       return data;
@@ -208,8 +235,9 @@ export interface FinanceStats {
   rents_open_amount: string;
   rents_overdue: number;
   series: { competence: string; rent: string; water: string; energy: string }[];
-  by_property: { name: string; total: string }[];
+  by_property: { id?: string; name: string; total: string }[];
   can_view: boolean;
+  can_view_reports?: boolean;
 }
 
 export function useFinanceStats(months = 12, departmentId?: string) {
@@ -222,6 +250,176 @@ export function useFinanceStats(months = 12, departmentId?: string) {
       });
       if (error) throw toAppError(error);
       return data as unknown as FinanceStats;
+    },
+  });
+}
+
+// ---------------------------------------------------------------- Relatórios de despesas
+export type ExpenseKind = "rent" | "water" | "energy";
+export const EXPENSE_KIND_LABEL: Record<ExpenseKind, string> = {
+  rent: "Aluguel",
+  water: "Água",
+  energy: "Energia",
+};
+export type ExpenseStatus = "paid" | "pending" | "partially_paid" | "overdue";
+
+export interface ExpenseFilters {
+  start: string; // AAAA-MM-01
+  end: string;
+  basis: "competence" | "payment";
+  kinds: ExpenseKind[];
+  statuses: ExpenseStatus[];
+  department_id?: string;
+  property_id?: string;
+  counterpart_id?: string;
+}
+
+interface Totals {
+  total: string;
+  paid: string;
+  pending: string;
+  overdue: string;
+}
+
+export interface ExpenseReport {
+  filters: { start: string; end: string; basis: string };
+  summary: Totals & { items: number };
+  by_kind: (Totals & { kind: ExpenseKind })[];
+  by_property: (Totals & { id: string; name: string | null })[];
+  by_department: (Totals & { id: string; name: string | null })[];
+  by_counterpart: { id: string | null; type: "supplier" | "landlord"; name: string | null; total: string }[];
+  monthly: { period: string; rent: string; water: string; energy: string; total: string }[];
+  comparison: {
+    available: boolean;
+    previous_start: string;
+    previous_end: string;
+    total_current: string;
+    total_previous: string;
+    by_kind: { kind: ExpenseKind; current: string; previous: string; diff: string; percent: string | null }[];
+  };
+  consumption: {
+    property_id: string;
+    property_name: string | null;
+    period: string;
+    kind: "water" | "energy";
+    measure_unit: string;
+    consumption: string;
+    amount: string;
+  }[];
+}
+
+export function useExpenseReport(filters: ExpenseFilters) {
+  return useQuery({
+    queryKey: ["finance", "expense-report", filters],
+    queryFn: async () => {
+      const { data, error } = await getSupabase().rpc("expense_report", { p_filters: filters as never });
+      if (error) throw toAppError(error);
+      return data as unknown as ExpenseReport;
+    },
+  });
+}
+
+// ---------------------------------------------------------------- Pagamentos
+export interface PaymentRow {
+  id: string;
+  kind: "payment" | "reversal";
+  amount: number | string;
+  paid_on: string;
+  created_at: string;
+  notes: string | null;
+  reversal_of: string | null;
+  invoice_id: string | null;
+  rent_charge_id: string | null;
+}
+
+export function usePayments() {
+  return useQuery({
+    queryKey: ["finance", "payments"],
+    queryFn: async () => {
+      const s = getSupabase();
+      const pays = await s
+        .from("payments")
+        .select("id, kind, amount, paid_on, created_at, notes, reversal_of, invoice_id, rent_charge_id")
+        .order("paid_on", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1000);
+      if (pays.error) throw toAppError(pays.error);
+      const invoiceIds = [...new Set(pays.data.map((p) => p.invoice_id).filter(Boolean))] as string[];
+      const rentIds = [...new Set(pays.data.map((p) => p.rent_charge_id).filter(Boolean))] as string[];
+      const [inv, rent] = await Promise.all([
+        invoiceIds.length
+          ? s
+              .from("invoices_overview")
+              .select(
+                "id, competence, property_id, property_name, department_id, supplier_name, supplier_kind, unit_identifier, supplier_id",
+              )
+              .in("id", invoiceIds)
+          : Promise.resolve({ data: [], error: null }),
+        rentIds.length
+          ? s
+              .from("rent_charges_overview")
+              .select(
+                "id, competence, property_id, property_name, department_id, contract_id, contract_number",
+              )
+              .in("id", rentIds)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (inv.error) throw toAppError(inv.error);
+      if (rent.error) throw toAppError(rent.error);
+      const invMap = new Map((inv.data ?? []).map((i) => [i.id!, i]));
+      const rentMap = new Map((rent.data ?? []).map((r) => [r.id!, r]));
+      return pays.data.map((p) => {
+        const i = p.invoice_id ? invMap.get(p.invoice_id) : undefined;
+        const r = p.rent_charge_id ? rentMap.get(p.rent_charge_id) : undefined;
+        return {
+          ...(p as PaymentRow),
+          kind_of_expense: (i ? i.supplier_kind : "rent") as ExpenseKind,
+          competence: (i?.competence ?? r?.competence ?? null) as string | null,
+          property_id: (i?.property_id ?? r?.property_id ?? null) as string | null,
+          property_name: (i?.property_name ?? r?.property_name ?? null) as string | null,
+          department_id: (i?.department_id ?? r?.department_id ?? null) as string | null,
+          supplier_id: (i?.supplier_id ?? null) as string | null,
+          contract_id: (r?.contract_id ?? null) as string | null,
+          description: i
+            ? `${i.supplier_name} ${i.unit_identifier}`
+            : r
+              ? `Aluguel do contrato ${r.contract_number}`
+              : "Lançamento",
+          href: p.invoice_id
+            ? `/financeiro/faturas/detalhe/?id=${p.invoice_id}`
+            : `/financeiro/alugueis/detalhe/?id=${p.rent_charge_id}`,
+        };
+      });
+    },
+  });
+}
+export type PaymentListRow = NonNullable<ReturnType<typeof usePayments>["data"]>[number];
+
+export type ExpenseItem = Database["public"]["Views"]["expense_items"]["Row"];
+
+/** Faturas e aluguéis que compõem um total dos relatórios (base competência). */
+export function useExpenseItems(filter: ListQuery, enabled = true) {
+  return useQuery({
+    queryKey: ["finance", "expense-items", filter],
+    enabled,
+    queryFn: async () => {
+      let q = getSupabase()
+        .from("expense_items")
+        .select("*")
+        .neq("status", "cancelled")
+        .order("competence", { ascending: false })
+        .limit(2000);
+      if (filter.from) q = q.gte("competence", `${filter.from}-01`);
+      if (filter.to) q = q.lte("competence", `${filter.to}-01`);
+      if (filter.propertyId) q = q.eq("property_id", filter.propertyId);
+      if (filter.departmentIds) q = q.in("department_id", filter.departmentIds);
+      if (filter.statuses?.length) q = q.in("status", filter.statuses);
+      if (filter.kinds?.length) q = q.in("kind", filter.kinds);
+      if (filter.supplierId) q = q.eq("supplier_id", filter.supplierId);
+      if (filter.contractIds) q = q.in("contract_id", filter.contractIds);
+      const { data, error } = await q;
+      if (error) throw toAppError(error);
+      return data;
     },
   });
 }

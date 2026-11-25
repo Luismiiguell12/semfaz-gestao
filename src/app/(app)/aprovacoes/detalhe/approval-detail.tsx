@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useApprovalRequest, useCancelApproval, useDecideApproval } from "@/modules/approvals/api";
-import { ProposalTable } from "@/modules/approvals/references";
+import { PackageProposal, ProposalTable } from "@/modules/approvals/references";
 import { DocumentsPanel } from "@/modules/documents/documents-panel";
 import { useUserDirectory } from "@/modules/users/api";
 import { useAuth } from "@/providers/auth-provider";
@@ -162,10 +162,14 @@ export function ApprovalDetail() {
             title={r.current_snapshot ? "Alteração proposta" : "Dados do novo registro"}
             description={r.current_snapshot ? "Campos alterados aparecem destacados." : undefined}
           >
-            <ProposalTable
-              snapshot={r.current_snapshot as Record<string, unknown> | null}
-              proposed={r.proposed_data as Record<string, unknown>}
-            />
+            {r.operation_code === "registration.package" ? (
+              <PackageProposal proposed={r.proposed_data as Record<string, unknown>} />
+            ) : (
+              <ProposalTable
+                snapshot={r.current_snapshot as Record<string, unknown> | null}
+                proposed={r.proposed_data as Record<string, unknown>}
+              />
+            )}
           </Panel>
           <Panel title="Documentos da solicitação">
             <DocumentsPanel

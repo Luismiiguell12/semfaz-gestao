@@ -17,7 +17,7 @@ export const MODULE_LABEL: Record<string, string> = {
   settings: "Configurações",
   properties: "Imóveis e locadores",
   contracts: "Contratos",
-  utilities: "Unidades consumidoras",
+  consumer_units: "Unidades consumidoras",
   finance: "Financeiro",
   tasks: "Demandas",
   approvals: "Aprovações",

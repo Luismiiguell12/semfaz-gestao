@@ -31,6 +31,8 @@ import {
 } from "@/modules/finance/api";
 import { ChargeStatusBadge, PaymentsPanel } from "@/modules/finance/components";
 import { DocumentsPanel } from "@/modules/documents/documents-panel";
+import { useContract } from "@/modules/contracts/api";
+import { useDepartments } from "@/modules/departments/api";
 import { useAuth } from "@/providers/auth-provider";
 import { formatCalendarDate, formatCurrency } from "@/lib/format";
 import { parseBrlInput } from "@shared/schemas/br.ts";
@@ -61,6 +63,9 @@ export function RentDetail() {
   const [amount, setAmount] = React.useState("");
   const [just, setJust] = React.useState("");
   const [error, setError] = React.useState<string>();
+  const contract = useContract(q.data?.rent?.contract_id ?? null);
+  const departments = useDepartments();
+  const department = departments.data?.find((d) => d.id === q.data?.rent?.department_id)?.name;
 
   if (q.isLoading) return <FullPageLoading />;
   if (q.isError) return <ErrorState message={q.error.message} />;
@@ -102,7 +107,32 @@ export function RentDetail() {
             <Link className="text-primary hover:underline" href={`/contratos/detalhe/?id=${r.contract_id}`}>
               {r.contract_number}
             </Link>
-            , {r.property_name}
+            ,{" "}
+            <Link className="text-primary hover:underline" href={`/imoveis/detalhe/?id=${r.property_id}`}>
+              {r.property_name}
+            </Link>
+            {department ? `, ${department}` : ""}
+            {contract.data?.landlords && contract.data.landlords.length > 0 && (
+              <span className="block">
+                Locador{contract.data.landlords.length > 1 ? "es" : ""}:{" "}
+                {contract.data.landlords.map((l, i) => (
+                  <React.Fragment key={l.id}>
+                    {i > 0 && ", "}
+                    {l.landlords ? (
+                      <Link
+                        className="text-primary hover:underline"
+                        href={`/locadores/detalhe/?id=${l.landlord_id}`}
+                      >
+                        {l.landlords.name}
+                      </Link>
+                    ) : (
+                      "acesso restrito"
+                    )}
+                    {l.share_percent !== null ? ` (${String(l.share_percent).replace(".", ",")}%)` : ""}
+                  </React.Fragment>
+                ))}
+              </span>
+            )}
           </>
         }
         actions={<ChargeStatusBadge status={r.status} />}

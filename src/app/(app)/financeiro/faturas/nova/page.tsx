@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useConsumerUnits } from "@/modules/utilities/api";
+import { assignmentAt, useConsumerUnits, type Assignment } from "@/modules/consumer-units/api";
+import { useDepartments } from "@/modules/departments/api";
 import { useCreateInvoice } from "@/modules/finance/api";
 import { parseBrlInput } from "@shared/schemas/br.ts";
 
@@ -126,6 +127,7 @@ function NewInvoiceForm() {
             <FormField id="f-comp" label="Competência" required error={errors.competence}>
               <Input type="month" value={v.competence} onChange={set("competence")} />
             </FormField>
+            {unit && <UnitPreview unit={unit} competence={v.competence} />}
             <FormField id="f-num" label="Número da fatura" error={errors.invoice_number}>
               <Input value={v.invoice_number} onChange={set("invoice_number")} />
             </FormField>
@@ -171,6 +173,56 @@ function NewInvoiceForm() {
         </p>
       </form>
     </>
+  );
+}
+
+/** Dados preenchidos automaticamente a partir da unidade e da competência. */
+function UnitPreview({
+  unit,
+  competence,
+}: {
+  unit: { suppliers: unknown; unit_assignments: unknown };
+  competence: string;
+}) {
+  const deps = useDepartments();
+  const supplier = unit.suppliers as { name: string; kind: "energy" | "water" } | null;
+  const a = assignmentAt((unit.unit_assignments ?? []) as Assignment[], competence);
+  const dept = deps.data?.find((d) => d.id === a?.properties?.department_id)?.name;
+  return (
+    <div
+      className="bg-surface rounded-md border px-4 py-3 text-sm sm:col-span-2 lg:col-span-3"
+      aria-live="polite"
+    >
+      <p className="text-muted-foreground mb-1 text-xs font-semibold">Preenchido a partir da unidade</p>
+      <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <dt className="text-muted-foreground text-xs">Fornecedor</dt>
+          <dd>{supplier?.name ?? "—"}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground text-xs">Unidade de medida</dt>
+          <dd>{supplier?.kind === "water" ? "m³" : "kWh"}</dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground text-xs">Imóvel na competência</dt>
+          <dd>
+            {!competence ? (
+              "Informe a competência"
+            ) : a ? (
+              <Link href={`/imoveis/detalhe/?id=${a.property_id}`} className="text-primary hover:underline">
+                {a.properties?.name ?? "Acesso restrito"}
+              </Link>
+            ) : (
+              <span className="text-danger">Sem vínculo na competência</span>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground text-xs">Secretaria</dt>
+          <dd>{a ? (dept ?? "Acesso restrito") : "—"}</dd>
+        </div>
+      </dl>
+    </div>
   );
 }
 

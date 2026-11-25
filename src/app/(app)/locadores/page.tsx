@@ -1,181 +1,20 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, Pencil, Plus, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
-import { EmptyState, ErrorState, InlineAlert, LoadingRows } from "@/components/shared/states";
-import { FormField } from "@/components/shared/form-field";
+import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states";
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogBody,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { NativeSelect } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  fetchLandlordSensitive,
-  useLandlords,
-  useSaveLandlord,
-  type Landlord,
-} from "@/modules/landlords/api";
-import { landlordSchema, type LandlordInput } from "@shared/schemas/properties.ts";
+import { fetchLandlordSensitive, useLandlords, type Landlord } from "@/modules/landlords/api";
+import { LandlordDialog } from "@/modules/landlords/landlord-dialog";
 import { formatCpfCnpj, formatPhone } from "@shared/schemas/br.ts";
 import { useAuth } from "@/providers/auth-provider";
-
-function LandlordDialog({
-  editing,
-  open,
-  onOpenChange,
-}: {
-  editing: Landlord | null;
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-}) {
-  const save = useSaveLandlord();
-  const [error, setError] = React.useState<string>();
-  const [reason, setReason] = React.useState("");
-  const form = useForm<LandlordInput>({
-    resolver: zodResolver(landlordSchema),
-    defaultValues: editing
-      ? {
-          person_type: editing.person_type,
-          name: editing.name,
-          document: "",
-          phone: "",
-          email: editing.email ?? "",
-          address: editing.address ?? "",
-          notes: editing.notes ?? "",
-        }
-      : { person_type: "individual", name: "", document: "", phone: "", email: "", address: "", notes: "" },
-  });
-  const type = form.watch("person_type");
-  const errors = form.formState.errors;
-
-  async function onSubmit(values: LandlordInput) {
-    setError(undefined);
-    if (editing && reason.trim().length < 10) {
-      setError("Informe a justificativa da alteração (mínimo de 10 caracteres).");
-      return;
-    }
-    try {
-      await save.mutateAsync({ id: editing?.id ?? null, values, reason: reason.trim() });
-      toast.success(editing ? "Locador atualizado." : "Locador cadastrado.");
-      onOpenChange(false);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg">
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="contents">
-          <DialogHeader>
-            <DialogTitle>{editing ? "Editar locador" : "Novo locador"}</DialogTitle>
-            <DialogDescription>
-              Dados bancários não são armazenados. CPF e telefone ficam mascarados por padrão.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogBody className="grid gap-4 sm:grid-cols-2">
-            {error && (
-              <InlineAlert tone="danger" className="sm:col-span-2">
-                {error}
-              </InlineAlert>
-            )}
-            {editing && (
-              <InlineAlert tone="info" className="sm:col-span-2">
-                Por proteção de dados, informe novamente o CPF/CNPJ e o telefone ao editar.
-              </InlineAlert>
-            )}
-            <FormField id="l-type" label="Tipo de pessoa" required>
-              <NativeSelect {...form.register("person_type")}>
-                <option value="individual">Pessoa física</option>
-                <option value="company">Pessoa jurídica</option>
-              </NativeSelect>
-            </FormField>
-            <FormField
-              id="l-doc"
-              label={type === "individual" ? "CPF" : "CNPJ"}
-              required
-              error={errors.document?.message}
-            >
-              <Input
-                {...form.register("document", {
-                  onChange: (e) => form.setValue("document", formatCpfCnpj(e.target.value)),
-                })}
-                inputMode="numeric"
-                autoComplete="off"
-              />
-            </FormField>
-            <FormField
-              id="l-name"
-              label={type === "individual" ? "Nome" : "Razão social"}
-              required
-              error={errors.name?.message}
-              className="sm:col-span-2"
-            >
-              <Input {...form.register("name")} autoComplete="off" />
-            </FormField>
-            <FormField id="l-phone" label="Telefone" error={errors.phone?.message}>
-              <Input
-                {...form.register("phone", {
-                  onChange: (e) => form.setValue("phone", formatPhone(e.target.value)),
-                })}
-                inputMode="tel"
-                autoComplete="off"
-              />
-            </FormField>
-            <FormField id="l-email" label="E-mail" error={errors.email?.message}>
-              <Input type="email" {...form.register("email")} autoComplete="off" />
-            </FormField>
-            <FormField
-              id="l-address"
-              label="Endereço"
-              className="sm:col-span-2"
-              error={errors.address?.message}
-            >
-              <Input {...form.register("address")} autoComplete="off" />
-            </FormField>
-            <FormField
-              id="l-notes"
-              label="Observações"
-              className="sm:col-span-2"
-              error={errors.notes?.message}
-            >
-              <Textarea rows={2} {...form.register("notes")} />
-            </FormField>
-            {editing && (
-              <FormField id="l-reason" label="Justificativa" required className="sm:col-span-2">
-                <Textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} />
-              </FormField>
-            )}
-          </DialogBody>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" loading={form.formState.isSubmitting}>
-              {editing ? "Salvar alterações" : "Cadastrar"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function SensitiveButton({ landlord }: { landlord: Landlord }) {
   const [data, setData] = React.useState<{ document: string; phone: string | null } | null>(null);
@@ -225,7 +64,12 @@ function LandlordsContent() {
       meta: { label: "Locador", hideOnCard: true },
       cell: ({ row }) => (
         <span>
-          <span className="block font-semibold">{row.original.name}</span>
+          <Link
+            href={`/locadores/detalhe/?id=${row.original.id}`}
+            className="hover:text-primary block font-semibold hover:underline"
+          >
+            {row.original.name}
+          </Link>
           <Badge tone="neutral">
             {row.original.person_type === "individual" ? "Pessoa física" : "Pessoa jurídica"}
           </Badge>
@@ -298,7 +142,14 @@ function LandlordsContent() {
             data={list.data}
             getRowId={(l) => l.id}
             searchPlaceholder="Buscar por nome"
-            cardTitle={(l) => <span className="font-semibold">{l.name}</span>}
+            cardTitle={(l) => (
+              <Link
+                href={`/locadores/detalhe/?id=${l.id}`}
+                className="text-primary font-semibold hover:underline"
+              >
+                {l.name}
+              </Link>
+            )}
             emptyState={<EmptyState icon={UserRound} title="Nenhum locador cadastrado" />}
           />
         )}

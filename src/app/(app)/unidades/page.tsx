@@ -10,7 +10,7 @@ import { EmptyState, ErrorState, LoadingRows } from "@/components/shared/states"
 import { RequirePermission } from "@/components/auth/route-guard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SUPPLIER_KIND_LABEL, useConsumerUnits } from "@/modules/utilities/api";
+import { SUPPLIER_KIND_LABEL, useConsumerUnits } from "@/modules/consumer-units/api";
 import { useAuth } from "@/providers/auth-provider";
 import { UnitDialog } from "./unit-dialog";
 
@@ -78,7 +78,7 @@ function UnitsContent() {
         title="Unidades consumidoras"
         description="Unidades de energia (Energisa) e água (Iguá), com o histórico de vínculo a cada imóvel."
         actions={
-          can("utilities.manage") && (
+          can("consumer_units.manage") && (
             <Button onClick={() => setOpen(true)}>
               <Plus aria-hidden="true" /> Nova unidade
             </Button>
@@ -113,7 +113,7 @@ function UnitsContent() {
 
 export default function UnitsPage() {
   return (
-    <RequirePermission permission="utilities.view">
+    <RequirePermission permission="consumer_units.view">
       <UnitsContent />
     </RequirePermission>
   );
