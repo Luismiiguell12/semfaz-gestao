@@ -903,6 +903,38 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"productivity_snapshots": {
+                  Row: {
+                    "generated_at": string,"id": string,"metrics": NonNullable<Json>,"organization_id": string,"period_end": string,"period_start": string,"period_type": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "generated_at"?: string,"id"?: string,"metrics": NonNullable<Json>,"organization_id": string,"period_end": string,"period_start": string,"period_type": string,"user_id": string
+                  }
+                  Update: {
+                    "generated_at"?: string,"id"?: string,"metrics"?: NonNullable<Json>,"organization_id"?: string,"period_end"?: string,"period_start"?: string,"period_type"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "productivity_snapshots_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "productivity_snapshots_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "productivity_snapshots_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string | null,"email": string,"employee_number": string | null,"full_name": string,"id": string,"job_title": string | null,"organization_id": string,"organization_wide_access": boolean,"status": Database["public"]['Enums']["user_status"],"status_reason": string | null,"updated_at": string,"updated_by": string | null,"username": string
@@ -1274,6 +1306,20 @@ isOneToOne: false
       referencedRelation: "tasks_overview"
       referencedColumns: ["id","organization_id"]
     }
+                  ]
+                },"task_complexity_levels": {
+                  Row: {
+                    "code": Database["public"]['Enums']["task_complexity"],"description": string | null,"label": string,"sort_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": Database["public"]['Enums']["task_complexity"],"description"?: string | null,"label": string,"sort_order": number
+                  }
+                  Update: {
+                    "code"?: Database["public"]['Enums']["task_complexity"],"description"?: string | null,"label"?: string,"sort_order"?: number
+                  }
+                  Relationships: [
+                    
                   ]
                 },"task_event_attendees": {
                   Row: {
@@ -2147,6 +2193,12 @@ isOneToOne: false
                            },
 "mark_notification_read":
 { Args: { "p_notification_id": string }; Returns: undefined
+                           },
+"productivity_report":
+{ Args: { "p_department_id"?: string,"p_period_type": string,"p_ref": string,"p_user_id"?: string }; Returns: Json
+                           },
+"productivity_series":
+{ Args: { "p_count"?: number,"p_period_type": string,"p_user_id"?: string }; Returns: Json
                            },
 "reopen_registration_draft":
 { Args: { "p_draft_id": string }; Returns: undefined
