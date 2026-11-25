@@ -1,7 +1,7 @@
 -- Financeiro: unidades e vínculos, faturas, pagamentos/estornos, aluguéis e consumo.
 begin;
 \ir _helpers.psql
-select plan(34);
+select plan(35);
 
 select tests.create_user('fi_admin', array['admin']) as admin \gset
 select tests.create_user('fi_colab', array['collaborator']) as colab \gset
@@ -25,11 +25,13 @@ select date_trunc('month', :'today'::date)::date as cur \gset
 -- ---------------------------------------------------------------- Unidades
 set local role authenticated;
 select tests.set_claims(:'admin', 'aal2');
-select public.save_consumer_unit(null, jsonb_build_object('supplier_id', :'energisa', 'identifier', 'uc-1001', 'holder_name', 'Prefeitura Teste')) as unit \gset
-select throws_ok(format($$select public.save_consumer_unit(null, jsonb_build_object('supplier_id', %L, 'identifier', 'UC-1001', 'holder_name', 'Outro'))$$, :'energisa'),
+select throws_ok(format($$select public.save_consumer_unit(null, jsonb_build_object('supplier_id', %L, 'identifier', 'UC-SEM', 'holder_name', 'Sem imóvel'))$$, :'energisa'),
+  '22023', null, 'Unidade nova exige imóvel e data de vinculação');
+select public.save_consumer_unit(null, jsonb_build_object('supplier_id', :'energisa', 'identifier', 'uc-1001', 'holder_name', 'Prefeitura Teste',
+  'property_id', '90000000-0000-4000-8000-000000000001', 'start_date', (:'cur'::date - interval '5 month')::date)) as unit \gset
+select throws_ok(format($$select public.save_consumer_unit(null, jsonb_build_object('supplier_id', %L, 'identifier', 'UC-1001', 'holder_name', 'Outro', 'property_id', '90000000-0000-4000-8000-000000000001', 'start_date', %L))$$, :'energisa', :'cur'),
   '23505', null, 'Número da UC é único por fornecedor');
-select lives_ok(format($$select public.assign_consumer_unit(%L, '90000000-0000-4000-8000-000000000001', %L, 'Vínculo inicial da unidade')$$, :'unit', (:'cur'::date - interval '5 month')::date),
-  'Unidade vinculada ao imóvel A');
+select is((select count(*)::int from public.unit_assignments where unit_id = :'unit' and end_date is null), 1, 'Unidade criada já vinculada ao imóvel A');
 select lives_ok(format($$select public.assign_consumer_unit(%L, '90000000-0000-4000-8000-000000000002', %L, 'Transferência para o imóvel B')$$, :'unit', :'cur'),
   'Transferência encerra o vínculo anterior e abre outro');
 select is((select count(*)::int from public.unit_assignments where unit_id = :'unit'), 2, 'Histórico de vínculos preservado');

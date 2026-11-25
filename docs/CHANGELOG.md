@@ -2,6 +2,18 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
+## [Não publicado] — Fase 3: Financeiro
+
+### Adicionado
+
+- Fornecedores (Energisa e Iguá) e unidades consumidoras com histórico de vínculos a imóveis; a unidade é cadastrada já vinculada a um imóvel.
+- Faturas de água e energia com imóvel derivado do vínculo na competência, bloqueio de duplicidade (só com justificativa e aprovação), correção e cancelamento via aprovação.
+- Aluguéis gerados automaticamente a partir dos contratos, com proporcionalidade e memória de cálculo.
+- Pagamentos parciais e estornos imutáveis via aprovação; situação calculada no banco.
+- Análise de consumo (média dos 3 meses anteriores, alerta acima de 30%) e alertas de fatura vencida em rotina diária.
+- Telas de Unidades consumidoras, Faturas e Aluguéis; indicadores e gráficos financeiros no painel.
+- 35 novos testes pgTAP (170 no total) e E2E do fluxo de fatura e pagamento parcial em desktop, tablet e celular.
+
 ## [Não publicado] — Fase 2: Aprovações, imóveis e contratos
 
 ### Adicionado

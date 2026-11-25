@@ -11,9 +11,14 @@ import {
   Stamp,
   Users,
   Wallet,
+  AlertTriangle,
+  Banknote,
+  Receipt,
 } from "lucide-react";
 import { useAuth } from "@/providers/auth-provider";
 import { useContractStats, useFoundationStats } from "@/modules/dashboard/api";
+import { useFinanceStats } from "@/modules/finance/api";
+import { MonthlySpendChart, PropertySpendChart } from "@/modules/finance/charts";
 import { PageHeader, Panel } from "@/components/shared/page-header";
 import { EmptyState, ErrorState, InlineAlert } from "@/components/shared/states";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -61,11 +66,6 @@ function Indicator({
 
 const UPCOMING = [
   {
-    phase: "Fase 3",
-    title: "Financeiro",
-    text: "Faturas pendentes e vencidas, despesas de água, energia e aluguel.",
-  },
-  {
     phase: "Fase 4",
     title: "Demandas e calendário",
     text: "Demandas abertas, em andamento, concluídas, atrasadas e próximos compromissos.",
@@ -81,6 +81,8 @@ export default function DashboardPage() {
   const { access, can } = useAuth();
   const stats = useFoundationStats();
   const cs = useContractStats();
+  const fs = useFinanceStats(12);
+  const f = fs.data;
   const c = cs.data;
   const firstName = access?.profile?.full_name.split(" ")[0] ?? "";
   const d = stats.data;
@@ -198,6 +200,52 @@ export default function DashboardPage() {
         </section>
       )}
 
+      {f?.can_view && (
+        <section aria-label="Financeiro" className="mt-6">
+          <h2 className="text-brand mb-3 text-base font-semibold">Financeiro</h2>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <Indicator
+              label="Faturas pendentes"
+              value={f.invoices_pending}
+              href="/financeiro/faturas/"
+              icon={Receipt}
+            />
+            <Indicator
+              label="Faturas vencidas"
+              value={f.invoices_overdue}
+              href="/financeiro/faturas/"
+              icon={AlertTriangle}
+            />
+            <Indicator
+              label="Saldo de faturas em aberto"
+              value={formatCurrency(f.invoices_open_amount)}
+              href="/financeiro/faturas/"
+              icon={Wallet}
+            />
+            <Indicator
+              label="Saldo de aluguéis em aberto"
+              value={formatCurrency(f.rents_open_amount)}
+              detail={`${f.rents_overdue} vencidos`}
+              href="/financeiro/alugueis/"
+              icon={Banknote}
+            />
+          </div>
+          <h3 className="text-foreground mt-6 mb-3 text-sm font-semibold">
+            Gastos mensais nos últimos 12 meses
+          </h3>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <MonthlySpendChart title="Aluguel" data={f.series} field="rent" />
+            <MonthlySpendChart title="Água" data={f.series} field="water" />
+            <MonthlySpendChart title="Energia" data={f.series} field="energy" />
+          </div>
+          {f.by_property.length > 0 && (
+            <div className="mt-4">
+              <PropertySpendChart data={f.by_property} />
+            </div>
+          )}
+        </section>
+      )}
+
       <Panel
         className="mt-6"
         title="Próximos módulos"
@@ -205,7 +253,7 @@ export default function DashboardPage() {
       >
         <EmptyState
           icon={Building2}
-          title="Ainda não há indicadores de financeiro, demandas ou produtividade"
+          title="Ainda não há indicadores de demandas ou produtividade"
           description="Nenhum número é exibido antes de existirem registros reais no sistema."
           className="py-6"
         />

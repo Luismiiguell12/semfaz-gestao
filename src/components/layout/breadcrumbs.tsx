@@ -21,7 +21,7 @@ export function Breadcrumbs() {
         {crumbs.map((c, i) => {
           const last = i === crumbs.length - 1;
           // "Administração" não tem página própria: exibido como texto.
-          const linkable = !last && c.href !== "/administracao/";
+          const linkable = !last && c.href !== "/administracao/" && c.href !== "/financeiro/";
           return (
             <li key={c.href} className={`flex min-w-0 items-center gap-1 ${!last ? "hidden sm:flex" : ""}`}>
               {i > 0 && (

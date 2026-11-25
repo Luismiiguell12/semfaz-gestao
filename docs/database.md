@@ -27,6 +27,25 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | `20261125000300_contracts.sql`            | `contract_modalities`, `adjustment_indexes`, `contracts`, `contract_landlords`, `contract_amendments`, visão `contracts_overview`, documentos por registro |
 | `20261125000400_alerts_dashboard.sql`     | `alert_rules`, `alerts`, rotina `pg_cron`, `dashboard_contract_stats`                                                                                      |
 
+## Migrations da Fase 3
+
+| Arquivo                                          | Conteúdo                                                                                                                                                                                                          |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `20261125000500_utilities.sql`                   | `suppliers`, `consumer_units`, `unit_assignments` (exclusão de períodos sobrepostos), `can_access_unit`, RPCs de unidades e vínculos                                                                              |
+| `20261125000600_finance.sql`                     | `invoices`, `rent_charges`, `payments`, `consumption_records`, visões `invoices_overview` e `rent_charges_overview`, operações de aprovação financeiras, rotina `semfaz-finance-daily`, `dashboard_finance_stats` |
+| `20261125000700_unit_create_with_assignment.sql` | cadastro de unidade exige imóvel e data de vinculação (mesma transação)                                                                                                                                           |
+
+## Tabelas da Fase 3
+
+| Tabela                | Observações                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `consumer_units`      | identificador único por fornecedor; acesso derivado do imóvel vinculado                                                |
+| `unit_assignments`    | um vínculo aberto por unidade; períodos sem sobreposição; vínculo encerrado imutável                                   |
+| `invoices`            | `numeric(14,2)`; imóvel derivado do vínculo na competência; duplicidade só justificada e aprovada; cancelamento lógico |
+| `rent_charges`        | um lançamento por contrato e competência; memória de cálculo (`calc_memo`)                                             |
+| `payments`            | pagamentos e estornos imutáveis (sem UPDATE/DELETE); criados só pela aprovação                                         |
+| `consumption_records` | consumo × média dos 3 meses anteriores; `alert`, `normal` ou `insufficient_history`                                    |
+
 ## Tabelas da Fase 2
 
 | Tabela                | Observações                                                                                                                                   |
@@ -77,6 +96,10 @@ aprovações, alertas, financeiro, demandas e produtividade.
 | `admin_save_role`, `admin_delete_role`                                                                                                        | `roles.manage` + AAL2       | perfis de acesso                                               |
 | `soft_delete_department`                                                                                                                      | `departments.manage` + AAL2 | exclusão lógica com justificativa                              |
 | `service_register_document`                                                                                                                   | **somente service_role**    | registro transacional de documento (Edge Function)             |
+| `save_consumer_unit`, `assign_consumer_unit`, `end_consumer_unit_assignment`                                                                  | `utilities.manage`          | unidades e vínculos (no escopo do imóvel)                      |
+| `create_invoice`, `request_invoice_correction`, `request_invoice_cancel`                                                                      | `invoices.manage`           | faturas (duplicidade, correção e cancelamento via aprovação)   |
+| `request_rent_correction`, `request_rent_cancel`, `request_payment`                                                                           | `invoices.manage`           | solicitações financeiras (aprovadas por administrador)         |
+| `dashboard_finance_stats(months, department_id)`                                                                                              | `invoices.view`             | indicadores e séries mensais do painel                         |
 | `bootstrap_first_admin`                                                                                                                       | **somente service_role**    | primeiro administrador (script local)                          |
 
 ## Seed

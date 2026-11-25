@@ -54,7 +54,9 @@ export function useEntityApprovals(entityId: string | undefined) {
       const { data, error } = await getSupabase()
         .from("approval_requests")
         .select(SELECT)
-        .or(`entity_id.eq.${entityId},result_entity_id.eq.${entityId}`)
+        .or(
+          `entity_id.eq.${entityId},result_entity_id.eq.${entityId},proposed_data->>target_id.eq.${entityId}`,
+        )
         .order("requested_at", { ascending: false });
       if (error) throw toAppError(error);
       return data as unknown as ApprovalRequest[];

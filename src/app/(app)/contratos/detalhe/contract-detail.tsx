@@ -20,6 +20,8 @@ import { useEntityApprovals } from "@/modules/approvals/api";
 import { useUserDirectory } from "@/modules/users/api";
 import { DocumentsPanel } from "@/modules/documents/documents-panel";
 import { useAuth } from "@/providers/auth-provider";
+import { formatCompetence, useRents } from "@/modules/finance/api";
+import { ChargeStatusBadge } from "@/modules/finance/components";
 import { formatCalendarDate, formatCurrency, formatDateTime } from "@/lib/format";
 import {
   AmendmentDialog,
@@ -27,6 +29,41 @@ import {
   TermChangeDialog,
   ValueChangeDialog,
 } from "./contract-dialogs";
+
+function ContractRentsTab({ contractId }: { contractId: string }) {
+  const q = useRents({ contractId });
+  const { can } = useAuth();
+  if (!can("invoices.view")) return <EmptyState title="Acesso restrito" className="py-6" />;
+  return (
+    <div>
+      {q.data && q.data.length === 0 && (
+        <EmptyState
+          title="Nenhum aluguel gerado"
+          description="Os lançamentos são gerados automaticamente enquanto o contrato estiver vigente."
+          className="py-6"
+        />
+      )}
+      <ul className="divide-y rounded-md border empty:hidden">
+        {q.data?.map((r) => (
+          <li key={r.id}>
+            <Link
+              href={`/financeiro/alugueis/detalhe/?id=${r.id}`}
+              className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <span className="tabular text-sm font-medium">
+                Competência {formatCompetence(r.competence)}
+              </span>
+              <span className="flex items-center gap-3 text-sm">
+                <span className="tabular">{formatCurrency(r.amount)}</span>
+                <ChargeStatusBadge status={r.status} />
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function ContractDetail() {
   const id = useSearchParams().get("id");
@@ -109,6 +146,7 @@ export function ContractDetail() {
           <TabsList>
             <TabsTrigger value="resumo">Resumo</TabsTrigger>
             <TabsTrigger value="aditivos">Aditivos ({q.data?.amendments.length ?? 0})</TabsTrigger>
+            <TabsTrigger value="alugueis">Aluguéis</TabsTrigger>
             <TabsTrigger value="documentos">Documentos</TabsTrigger>
             <TabsTrigger value="alertas">Alertas</TabsTrigger>
             <TabsTrigger value="historico">Histórico</TabsTrigger>
@@ -207,6 +245,9 @@ export function ContractDetail() {
                 <Plus aria-hidden="true" /> Solicitar aditivo
               </Button>
             )}
+          </TabsContent>
+          <TabsContent value="alugueis">
+            <ContractRentsTab contractId={c.id!} />
           </TabsContent>
           <TabsContent value="documentos">
             {can("contracts.documents.view") ? (

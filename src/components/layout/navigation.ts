@@ -1,5 +1,6 @@
 import {
   Bell,
+  Receipt,
   SlidersHorizontal,
   UserRound,
   Building2,
@@ -53,10 +54,16 @@ export const NAVIGATION: NavSection[] = [
     ],
   },
   {
+    label: "Financeiro",
+    items: [
+      { label: "Unidades consumidoras", href: "/unidades/", icon: PlugZap, permission: "utilities.view" },
+      { label: "Faturas", href: "/financeiro/faturas/", icon: Receipt, permission: "invoices.view" },
+      { label: "Aluguéis", href: "/financeiro/alugueis/", icon: Wallet, permission: "invoices.view" },
+    ],
+  },
+  {
     label: "Próximas fases",
     items: [
-      { label: "Unidades consumidoras", href: "/unidades/", icon: PlugZap, comingSoon: true },
-      { label: "Financeiro", href: "/financeiro/", icon: Wallet, comingSoon: true },
       { label: "Demandas", href: "/demandas/", icon: ClipboardList, comingSoon: true },
       { label: "Calendário", href: "/calendario/", icon: CalendarDays, comingSoon: true },
       { label: "Produtividade", href: "/produtividade/", icon: TrendingUp, comingSoon: true },
@@ -106,6 +113,11 @@ export const ROUTE_LABELS: Record<string, string> = {
   contratos: "Contratos",
   novo: "Nova solicitação",
   regras: "Regras e listas",
+  unidades: "Unidades consumidoras",
+  financeiro: "Financeiro",
+  faturas: "Faturas",
+  alugueis: "Aluguéis",
+  nova: "Novo lançamento",
 };
 
 export const ORGANIZATION_ICON = Building2;

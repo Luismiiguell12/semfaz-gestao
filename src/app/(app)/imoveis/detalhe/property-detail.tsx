@@ -30,6 +30,9 @@ import { DocumentsPanel } from "@/modules/documents/documents-panel";
 import { landlordSharesSchema } from "@shared/schemas/properties.ts";
 import { useAuth } from "@/providers/auth-provider";
 import { formatCalendarDate, formatCurrency, formatDateTime } from "@/lib/format";
+import { usePropertyUnits } from "@/modules/utilities/api";
+import { formatCompetence, useInvoices } from "@/modules/finance/api";
+import { ChargeStatusBadge } from "@/modules/finance/components";
 import { AddressChangeDialog, DepartmentChangeDialog, DetailsDialog } from "./property-dialogs";
 
 function LandlordsTab({ property, canEdit }: { property: Property; canEdit: boolean }) {
@@ -172,6 +175,77 @@ function LandlordsTab({ property, canEdit }: { property: Property; canEdit: bool
   );
 }
 
+function PropertyUnitsTab({ propertyId }: { propertyId: string }) {
+  const q = usePropertyUnits(propertyId);
+  const { can } = useAuth();
+  if (!can("utilities.view")) return <EmptyState title="Acesso restrito" className="py-6" />;
+  if (q.isLoading) return <LoadingRows rows={2} />;
+  return (
+    <div>
+      {q.data && q.data.length === 0 && (
+        <EmptyState title="Nenhuma unidade consumidora vinculada" className="py-6" />
+      )}
+      <ul className="divide-y rounded-md border empty:hidden">
+        {q.data?.map((a) => {
+          const u = a.consumer_units as {
+            id: string;
+            identifier: string;
+            holder_name: string;
+            suppliers: { name: string } | null;
+          } | null;
+          return (
+            <li key={a.id}>
+              <Link
+                href={`/unidades/detalhe/?id=${u?.id}`}
+                className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span className="text-sm font-medium">
+                  {u?.suppliers?.name} {u?.identifier}
+                </span>
+                <span className="tabular text-muted-foreground text-sm">
+                  {formatCalendarDate(a.start_date)} a {a.end_date ? formatCalendarDate(a.end_date) : "atual"}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function PropertyInvoicesTab({ propertyId }: { propertyId: string }) {
+  const q = useInvoices({ propertyId });
+  const { can } = useAuth();
+  if (!can("invoices.view")) return <EmptyState title="Acesso restrito" className="py-6" />;
+  if (q.isLoading) return <LoadingRows rows={2} />;
+  return (
+    <div>
+      {q.data && q.data.length === 0 && (
+        <EmptyState title="Nenhuma fatura para este imóvel" className="py-6" />
+      )}
+      <ul className="divide-y rounded-md border empty:hidden">
+        {q.data?.map((i) => (
+          <li key={i.id}>
+            <Link
+              href={`/financeiro/faturas/detalhe/?id=${i.id}`}
+              className="hover:bg-surface flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <span className="text-sm font-medium">
+                {i.supplier_name} {i.unit_identifier}, {formatCompetence(i.competence)}
+              </span>
+              <span className="flex items-center gap-3 text-sm">
+                <span className="tabular">{formatCurrency(i.amount)}</span>
+                <ChargeStatusBadge status={i.status} />
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function PropertyDetail() {
   const id = useSearchParams().get("id");
   const { can } = useAuth();
@@ -214,6 +288,8 @@ export function PropertyDetail() {
             <TabsTrigger value="dados">Dados</TabsTrigger>
             <TabsTrigger value="locadores">Locadores</TabsTrigger>
             <TabsTrigger value="contratos">Contratos</TabsTrigger>
+            <TabsTrigger value="unidades">Unidades consumidoras</TabsTrigger>
+            <TabsTrigger value="faturas">Faturas</TabsTrigger>
             <TabsTrigger value="documentos">Documentos</TabsTrigger>
             <TabsTrigger value="historico">Histórico</TabsTrigger>
           </TabsList>
@@ -283,6 +359,12 @@ export function PropertyDetail() {
                 </Link>
               </Button>
             )}
+          </TabsContent>
+          <TabsContent value="unidades">
+            <PropertyUnitsTab propertyId={p.id} />
+          </TabsContent>
+          <TabsContent value="faturas">
+            <PropertyInvoicesTab propertyId={p.id} />
           </TabsContent>
           <TabsContent value="documentos">
             <DocumentsPanel entityType="property" entityId={p.id} canAttach={canUpdate} />

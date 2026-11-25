@@ -52,6 +52,21 @@ garantidas no backend.
 | CPF/telefone completos só com `landlords.view_sensitive`, com registro na auditoria                                                              | `get_landlord_sensitive`                                 |
 | Alertas: 90/60/30 dias antes, vencido e data-base; diários, sem duplicidade                                                                      | `generate_contract_alerts` + `pg_cron` + `alerts_unique` |
 
+## Financeiro
+
+| Regra                                                                                                                                      | Implementação                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| Unidade consumidora é cadastrada já vinculada a um imóvel; transferência encerra o vínculo anterior                                        | `save_consumer_unit`, `assign_consumer_unit`        |
+| Períodos de vínculo não se sobrepõem; vínculo encerrado não muda                                                                           | constraint de exclusão + trigger                    |
+| A fatura pertence ao imóvel vinculado à unidade na competência                                                                             | `create_invoice`                                    |
+| Fatura duplicada na competência só com justificativa e aprovação                                                                           | `create_invoice` → `invoice.duplicate`              |
+| Aluguel mensal gerado automaticamente; mês parcial = valor mensal ÷ dias do mês × dias, por período de valor, arredondado (meio para cima) | `private.rent_calculation`, `generate_rent_charges` |
+| Vencimento dos aluguéis: dia 10 da competência (configurável)                                                                              | `rents.due_day`                                     |
+| Pagamento e estorno só via aprovação; registros imutáveis; não pode exceder o saldo                                                        | `request_payment` → `payment.register`              |
+| Situação calculada (pendente, parcialmente paga, paga, vencida, cancelada); comprovante anexado não marca como paga                        | `private.charge_status`                             |
+| Alerta de consumo acima de 30% (configurável) da média dos 3 meses anteriores; sem 3 meses, "histórico insuficiente"                       | `consumption_records`, `consumption.alert_percent`  |
+| Rotina diária às 6h05 de Maceió: aluguéis do mês e alertas de fatura vencida                                                               | `pg_cron` `semfaz-finance-daily`                    |
+
 ## Documentos
 
 | Regra                                                                  | Implementação                                                                             |
