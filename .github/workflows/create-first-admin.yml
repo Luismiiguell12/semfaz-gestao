@@ -44,7 +44,7 @@ jobs:
         run: |
           for k in admin_email admin_full_name admin_username; do
             v=$(jq -r ".inputs.$k // empty" "$GITHUB_EVENT_PATH")
-            [ -n "$v" ] && echo "::add-mask::$v"
+            if [ -n "$v" ]; then echo "::add-mask::$v"; fi
           done
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
