@@ -8,14 +8,109 @@ import { RequirePermission } from "@/components/auth/route-guard";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { useAddListItem, useRulesAndLists, useUpdateSetting } from "@/modules/settings/api";
+import { NativeSelect } from "@/components/ui/select";
+import { useAddListItem, useAddSupplier, useRulesAndLists, useUpdateSetting } from "@/modules/settings/api";
+import { SUPPLIER_KIND_LABEL } from "@/modules/utilities/api";
 import { useAuth } from "@/providers/auth-provider";
 
 const ALERT_LABEL: Record<string, string> = {
   contract_expiring: "Vencimento próximo",
   contract_expired: "Contrato vencido",
   contract_adjustment: "Data-base (reajuste)",
+  invoice_overdue: "Fatura vencida",
 };
+
+function SupplierEditor({
+  items,
+}: {
+  items: { id: string; name: string; kind: "energy" | "water"; is_active: boolean }[];
+}) {
+  const { access } = useAuth();
+  const add = useAddSupplier();
+  const update = useUpdateSetting();
+  const [name, setName] = React.useState("");
+  const [kind, setKind] = React.useState<"" | "energy" | "water">("");
+  return (
+    <Panel
+      title="Fornecedores de água e energia"
+      description="Aparecem no cadastro de unidades consumidoras. Fornecedores desativados não podem receber novas unidades."
+    >
+      <ul className="mb-4 divide-y rounded-md border">
+        {items.length === 0 && (
+          <li className="text-muted-foreground px-4 py-2.5 text-sm">Nenhum fornecedor cadastrado.</li>
+        )}
+        {items.map((i) => (
+          <li key={i.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+            <span className={i.is_active ? "" : "text-muted-foreground line-through"}>
+              {i.name}{" "}
+              <span className="text-muted-foreground">({SUPPLIER_KIND_LABEL[i.kind].toLowerCase()})</span>
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                update.mutate(
+                  { table: "suppliers", id: i.id, values: { is_active: !i.is_active } },
+                  { onError: (e) => toast.error(e.message) },
+                )
+              }
+            >
+              {i.is_active ? "Desativar" : "Reativar"}
+            </Button>
+          </li>
+        ))}
+      </ul>
+      <form
+        className="flex flex-wrap gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (name.trim().length < 2) return toast.error("Informe um nome com pelo menos 2 caracteres.");
+          if (!kind) return toast.error("Selecione o tipo do fornecedor (água ou energia).");
+          add.mutate(
+            { name, kind, organizationId: access!.profile!.organization_id },
+            {
+              onSuccess: () => {
+                setName("");
+                setKind("");
+                toast.success("Fornecedor adicionado.");
+              },
+              onError: (err) => toast.error(err.message),
+            },
+          );
+        }}
+      >
+        <label htmlFor="supplier-new" className="sr-only">
+          Nome do fornecedor
+        </label>
+        <Input
+          id="supplier-new"
+          className="min-w-40 flex-1"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nome do fornecedor"
+          maxLength={120}
+        />
+        <label htmlFor="supplier-kind" className="sr-only">
+          Tipo do fornecedor
+        </label>
+        <div className="w-36">
+          <NativeSelect
+            id="supplier-kind"
+            value={kind}
+            onChange={(e) => setKind(e.target.value as "" | "energy" | "water")}
+          >
+            <option value="">Tipo</option>
+            <option value="energy">{SUPPLIER_KIND_LABEL.energy}</option>
+            <option value="water">{SUPPLIER_KIND_LABEL.water}</option>
+          </NativeSelect>
+        </div>
+        <Button type="submit" variant="outline" loading={add.isPending}>
+          Adicionar
+        </Button>
+      </form>
+    </Panel>
+  );
+}
 
 function ListEditor({
   title,
@@ -136,7 +231,7 @@ function RulesContent() {
             ))}
           </ul>
         </Panel>
-        <Panel title="Alertas de contratos" description="Gerados todos os dias às 6h (horário de Maceió).">
+        <Panel title="Alertas" description="Gerados todos os dias às 6h (horário de Maceió).">
           <ul className="divide-y">
             {d.alert.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center gap-3 py-3">
@@ -153,7 +248,7 @@ function RulesContent() {
                 <label htmlFor={`al-${r.id}`} className="min-w-40 flex-1 cursor-pointer text-sm">
                   {ALERT_LABEL[r.code]}
                 </label>
-                {r.code !== "contract_expired" && (
+                {r.days_before > 0 && (
                   <span className="flex items-center gap-2">
                     <label htmlFor={`ald-${r.id}`} className="sr-only">
                       Dias de antecedência
@@ -186,6 +281,7 @@ function RulesContent() {
         </Panel>
         <ListEditor title="Modalidades de contrato" table="contract_modalities" items={d.modalities} />
         <ListEditor title="Índices de reajuste" table="adjustment_indexes" items={d.indexes} />
+        <SupplierEditor items={d.suppliers} />
       </div>
     </>
   );

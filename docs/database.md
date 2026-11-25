@@ -33,6 +33,7 @@ PostgreSQL 17 (Supabase). Toda alteração é feita por migration em
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `20261125000500_utilities.sql`                   | `suppliers`, `consumer_units`, `unit_assignments` (exclusão de períodos sobrepostos), `can_access_unit`, RPCs de unidades e vínculos                                                                              |
 | `20261125000600_finance.sql`                     | `invoices`, `rent_charges`, `payments`, `consumption_records`, visões `invoices_overview` e `rent_charges_overview`, operações de aprovação financeiras, rotina `semfaz-finance-daily`, `dashboard_finance_stats` |
+| `20261125000800_structural_defaults.sql`         | aplica de forma idempotente os dados estruturais das Fases 2 e 3 nos ambientes remotos                                                                                                                            |
 | `20261125000700_unit_create_with_assignment.sql` | cadastro de unidade exige imóvel e data de vinculação (mesma transação)                                                                                                                                           |
 
 ## Tabelas da Fase 3

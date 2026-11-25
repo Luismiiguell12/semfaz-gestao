@@ -11,7 +11,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - Aluguéis gerados automaticamente a partir dos contratos, com proporcionalidade e memória de cálculo.
 - Pagamentos parciais e estornos imutáveis via aprovação; situação calculada no banco.
 - Análise de consumo (média dos 3 meses anteriores, alerta acima de 30%) e alertas de fatura vencida em rotina diária.
+- Cadastro de fornecedores em Administração > Regras e listas.
 - Telas de Unidades consumidoras, Faturas e Aluguéis; indicadores e gráficos financeiros no painel.
+
+### Corrigido
+
+- Dados estruturais das Fases 2 e 3 (fornecedores, regras de aprovação e de alerta, listas e configurações) ausentes no banco remoto: aplicados por migration idempotente.
+
+### Testes
+
 - 35 novos testes pgTAP (170 no total) e E2E do fluxo de fatura e pagamento parcial em desktop, tablet e celular.
 
 ## [Não publicado] — Fase 2: Aprovações, imóveis e contratos

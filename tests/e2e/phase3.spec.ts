@@ -107,3 +107,26 @@ test("gestor lança fatura e pagamento parcial; administrador aprova", async ({ 
   await expect(page.getByText("R$ 200,00").first()).toBeVisible();
   await expectNoHorizontalScroll(page);
 });
+
+test("administrador cadastra fornecedor em Regras e listas", async ({ page }) => {
+  const name = `Fornecedor E2E ${Date.now().toString(36)}`;
+  await loginAdmin(page);
+  await page.goto("administracao/regras/");
+  const panel = page.getByRole("region", { name: "Fornecedores de água e energia" });
+  await expect(panel.getByText("Energisa")).toBeVisible();
+  await panel.getByLabel("Nome do fornecedor").fill(name);
+  await panel.getByLabel("Tipo do fornecedor").selectOption("water");
+  await panel.getByRole("button", { name: "Adicionar" }).click();
+  await expect(page.getByText("Fornecedor adicionado.")).toBeVisible();
+  await expect(panel.getByText(name)).toBeVisible();
+  await expectNoHorizontalScroll(page);
+
+  await page.goto("unidades/");
+  await page.getByRole("button", { name: "Nova unidade" }).click();
+  await expect(
+    page
+      .getByRole("dialog")
+      .getByLabel(/^Fornecedor/)
+      .locator("option", { hasText: name }),
+  ).toHaveCount(1);
+});

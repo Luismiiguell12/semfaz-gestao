@@ -104,6 +104,12 @@ export function UnitDialog({
                 {error}
               </InlineAlert>
             )}
+            {suppliers.data && suppliers.data.filter((s) => s.is_active).length === 0 && (
+              <InlineAlert tone="warning" className="sm:col-span-2">
+                Nenhum fornecedor ativo. Um administrador pode cadastrar em Administração &gt; Regras e
+                listas.
+              </InlineAlert>
+            )}
             <FormField id="u-sup" label="Fornecedor" required>
               <NativeSelect value={v.supplier_id} onChange={set("supplier_id")} disabled={Boolean(unit)}>
                 <option value="">Selecione</option>

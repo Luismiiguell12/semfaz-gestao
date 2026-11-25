@@ -4,8 +4,8 @@
 -- tipos de notificação e configurações padrão. Nenhum dado pessoal ou fictício.
 -- Aplicado localmente por `supabase db reset` e nos ambientes remotos por
 -- `supabase db push --include-seed` (workflow de migrations).
--- Itens das fases seguintes (categorias, regras de alerta e de aprovação,
--- fornecedores) serão adicionados junto com suas tabelas.
+-- ATENÇÃO: nos ambientes remotos o seed só roda na primeira vez. Dados
+-- estruturais novos devem entrar também por migration (ver 20261125000800).
 -- =============================================================================
 
 -- Organização inicial
