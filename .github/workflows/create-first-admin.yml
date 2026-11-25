@@ -12,7 +12,7 @@ on:
       action:
         description: Ação
         type: choice
-        options: [create, resend_invite]
+        options: [create, resend_invite, create_test_users]
         default: create
       environment:
         description: Ambiente
@@ -20,8 +20,11 @@ on:
         options: [staging, production]
         default: staging
       admin_email:
-        description: E-mail do administrador
-        required: true
+        description: E-mail do administrador (create/resend_invite)
+        required: false
+      test_password:
+        description: Senha das contas de teste (somente create_test_users, em staging)
+        required: false
       admin_full_name:
         description: Nome completo (somente para create)
         required: false
@@ -42,7 +45,7 @@ jobs:
     steps:
       - name: Mascarar dados pessoais
         run: |
-          for k in admin_email admin_full_name admin_username; do
+          for k in admin_email admin_full_name admin_username test_password; do
             v=$(jq -r ".inputs.$k // empty" "$GITHUB_EVENT_PATH")
             if [ -n "$v" ]; then echo "::add-mask::$v"; fi
           done
@@ -68,7 +71,11 @@ jobs:
           export ADMIN_EMAIL=$(jq -r '.inputs.admin_email' "$GITHUB_EVENT_PATH")
           export ADMIN_FULL_NAME=$(jq -r '.inputs.admin_full_name' "$GITHUB_EVENT_PATH")
           export ADMIN_USERNAME=$(jq -r '.inputs.admin_username' "$GITHUB_EVENT_PATH")
-          if [ "${{ inputs.action }}" = "resend_invite" ]; then
+          if [ "${{ inputs.action }}" = "create_test_users" ]; then
+            export TARGET_ENVIRONMENT="${{ inputs.environment }}"
+            export TEST_PASSWORD=$(jq -r '.inputs.test_password // empty' "$GITHUB_EVENT_PATH")
+            node scripts/create-test-users.mjs
+          elif [ "${{ inputs.action }}" = "resend_invite" ]; then
             node scripts/resend-invite.mjs
           else
             node scripts/create-admin.mjs
