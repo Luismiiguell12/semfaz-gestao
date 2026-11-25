@@ -51,10 +51,10 @@ jobs:
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
       - name: Migrations pendentes (prévia)
         if: steps.config.outputs.ready == 'true'
-        run: supabase migration list --password "$SUPABASE_DB_PASSWORD"
+        run: supabase migration list --remote --password "$SUPABASE_DB_PASSWORD"
       - name: Aplicar migrations e seed estrutural (idempotente)
         if: steps.config.outputs.ready == 'true'
-        run: supabase db push --include-seed --password "$SUPABASE_DB_PASSWORD"
+        run: supabase db push --remote --include-seed --password "$SUPABASE_DB_PASSWORD"
       - name: Configurar variáveis das Edge Functions (não secretas)
         if: steps.config.outputs.ready == 'true'
         run: |
