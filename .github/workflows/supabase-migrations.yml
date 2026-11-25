@@ -54,13 +54,13 @@ jobs:
         run: supabase migration list --remote --password "$SUPABASE_DB_PASSWORD"
       - name: Aplicar migrations e seed estrutural (idempotente)
         if: steps.config.outputs.ready == 'true'
-        run: supabase db push --remote --include-seed --password "$SUPABASE_DB_PASSWORD"
+        run: supabase db push --remote --include-seed --yes --password "$SUPABASE_DB_PASSWORD"
       - name: Configurar variáveis das Edge Functions (não secretas)
         if: steps.config.outputs.ready == 'true'
         run: |
-          supabase secrets set \
+          supabase secrets set --yes \
             ALLOWED_ORIGINS="${{ vars.ALLOWED_ORIGINS }}" \
             APP_URL="${{ vars.APP_URL }}"
       - name: Publicar Edge Functions
         if: steps.config.outputs.ready == 'true'
-        run: supabase functions deploy --use-api
+        run: supabase functions deploy --use-api --yes
