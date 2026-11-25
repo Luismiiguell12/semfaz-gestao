@@ -1,0 +1,66 @@
+# Cria o PRIMEIRO administrador de um ambiente (execução manual).
+# A chave administrativa do Supabase é obtida na hora pelo token de acesso já
+# guardado nos secrets do ambiente, mascarada nos registros e descartada ao fim.
+# Nome e e-mail informados são mascarados antes de qualquer saída, pois os
+# registros de execução de um repositório público são públicos.
+# A função bootstrap_first_admin recusa a operação se já existir administrador ativo.
+name: Criar primeiro administrador
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Ambiente
+        type: choice
+        options: [staging, production]
+        default: staging
+      admin_email:
+        description: E-mail do administrador
+        required: true
+      admin_full_name:
+        description: Nome completo
+        required: true
+      admin_username:
+        description: Nome de usuário
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  create-admin:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - name: Mascarar dados pessoais
+        run: |
+          for k in admin_email admin_full_name admin_username; do
+            v=$(jq -r ".inputs.$k" "$GITHUB_EVENT_PATH")
+            echo "::add-mask::$v"
+          done
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 3.4.0
+      - name: Criar administrador
+        run: |
+          set -euo pipefail
+          KEY=$(supabase projects api-keys --remote="$SUPABASE_PROJECT_REF" --reveal -o json \
+            | jq -r '[.. | objects | select(has("api_key")) | select(.type == "secret" or .name == "service_role") | .api_key] | first // empty')
+          if [ -z "$KEY" ]; then echo "Chave administrativa não encontrada no projeto."; exit 1; fi
+          echo "::add-mask::$KEY"
+          export SUPABASE_URL="https://${SUPABASE_PROJECT_REF}.supabase.co"
+          export SUPABASE_SERVICE_ROLE_KEY="$KEY"
+          export APP_URL="${{ vars.APP_URL }}"
+          export ADMIN_EMAIL=$(jq -r '.inputs.admin_email' "$GITHUB_EVENT_PATH")
+          export ADMIN_FULL_NAME=$(jq -r '.inputs.admin_full_name' "$GITHUB_EVENT_PATH")
+          export ADMIN_USERNAME=$(jq -r '.inputs.admin_username' "$GITHUB_EVENT_PATH")
+          node scripts/create-admin.mjs

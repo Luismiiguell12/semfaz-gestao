@@ -33,16 +33,27 @@ const orgId = process.env.ORGANIZATION_ID ?? DEFAULT_ORG_ID;
 if (!url || !serviceKey) fail("defina SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no ambiente desta execução.");
 if (!appUrl) fail("defina APP_URL (endereço da aplicação, usado no link do convite).");
 
-const rl = createInterface({ input, output });
-console.log("SEMFAZ Gestão — criação do primeiro administrador");
-console.log(`Projeto: ${url}`);
-const fullName = (await rl.question("Nome completo: ")).trim();
-const email = (await rl.question("E-mail institucional: ")).trim().toLowerCase();
-const username = (await rl.question("Nome de usuário (ex.: joao.silva): ")).trim().toLowerCase();
-const confirm = (await rl.question(`Confirmar criação de ${fullName} <${email}>? (sim/não): `))
-  .trim()
-  .toLowerCase();
-rl.close();
+// Modo não interativo (GitHub Actions): dados por variáveis de ambiente.
+const nonInteractive = Boolean(process.env.ADMIN_EMAIL);
+let fullName, email, username, confirm;
+if (nonInteractive) {
+  fullName = (process.env.ADMIN_FULL_NAME ?? "").trim();
+  email = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
+  username = (process.env.ADMIN_USERNAME ?? "").trim().toLowerCase();
+  confirm = "sim";
+  console.log("SEMFAZ Gestão — criação do primeiro administrador (modo não interativo)");
+} else {
+  const rl = createInterface({ input, output });
+  console.log("SEMFAZ Gestão — criação do primeiro administrador");
+  console.log(`Projeto: ${url}`);
+  fullName = (await rl.question("Nome completo: ")).trim();
+  email = (await rl.question("E-mail institucional: ")).trim().toLowerCase();
+  username = (await rl.question("Nome de usuário (ex.: joao.silva): ")).trim().toLowerCase();
+  confirm = (await rl.question(`Confirmar criação de ${fullName} <${email}>? (sim/não): `))
+    .trim()
+    .toLowerCase();
+  rl.close();
+}
 
 if (confirm !== "sim") fail("operação cancelada.");
 if (fullName.length < 3) fail("nome muito curto.");
