@@ -425,11 +425,11 @@ select private.generate_task_reminders();
 
 -- ----------------------------------------------------------------------------- resumo
 select 'Carga de demonstração aplicada' as resultado,
-  (select count(*) from public.properties where id::text like 'd4%') as imoveis,
-  (select count(*) from public.contracts where id::text like 'd5%') as contratos,
-  (select count(*) from public.rent_charges where contract_id::text like 'd5%') as alugueis,
-  (select count(*) from public.invoices where unit_id::text like 'd6%') as faturas,
-  (select count(*) from public.payments p where p.invoice_id in (select id from public.invoices where unit_id::text like 'd6%')
-      or p.rent_charge_id in (select id from public.rent_charges where contract_id::text like 'd5%')) as pagamentos,
-  (select count(*) from public.tasks where id::text like 'd7%') as demandas;
+  (select count(*) from public.properties where id::text like 'd4000000-%') as imoveis,
+  (select count(*) from public.contracts where id::text like 'd5000000-%') as contratos,
+  (select count(*) from public.rent_charges where contract_id::text like 'd5000000-%') as alugueis,
+  (select count(*) from public.invoices where unit_id::text like 'd6000000-%') as faturas,
+  (select count(*) from public.payments p where p.invoice_id in (select id from public.invoices where unit_id::text like 'd6000000-%')
+      or p.rent_charge_id in (select id from public.rent_charges where contract_id::text like 'd5000000-%')) as pagamentos,
+  (select count(*) from public.tasks where id::text like 'd7000000-%') as demandas;
 commit;

@@ -112,6 +112,20 @@ O GitHub Pages **não permite cabeçalhos HTTP personalizados**. Consequências:
 A migração para uma hospedagem com servidor (Vercel ou infraestrutura da
 Prefeitura) permite cabeçalhos completos sem alterar o backend.
 
+## Dados de demonstração (somente homologação)
+
+Para apresentar o sistema com dados realistas: GitHub → _Actions_ → **Carga de demonstração** →
+_Run workflow_, ação `aplicar` e confirmação `HOMOLOGACAO`. O workflow é fixo no ambiente `staging`
+(não alcança produção) e recusa uma segunda aplicação. Para limpar antes de cadastrar os dados reais:
+mesma tela, ação `remover`.
+
+Conteúdo (100% fictício, datas relativas ao dia da carga): 7 secretarias/diretorias, 10 servidores
+**sem senha** (e-mails `@demonstracao.invalid`), 12 locadores, 14 imóveis, 13 contratos com aditivos e
+vencimentos em 30/60/90 dias, aluguéis e faturas de água/energia de 12 meses com pagamentos, atrasos e
+um alerta de consumo, 25 demandas, compromissos no calendário e 2 solicitações aguardando aprovação.
+A remoção mantém as chaves estrangeiras ativas: se algum dado real estiver ligado a um fictício, nada é
+removido. Scripts em `scripts/demo/`.
+
 ## Backups e restauração
 
 ### O que o Supabase Pro faz
