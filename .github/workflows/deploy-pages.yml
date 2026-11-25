@@ -14,6 +14,10 @@ on:
   workflow_run:
     workflows: [CI, Release produção]
     types: [completed]
+    # main (CI) e tags de versão (Release produção). Sem o filtro, execuções da CI
+    # em outros ramos (ex.: Dependabot) entram na fila e podem cancelar uma
+    # publicação legítima que está aguardando.
+    branches: [main, "v*.*.*"]
   workflow_dispatch:
 
 permissions:
