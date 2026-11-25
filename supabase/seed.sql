@@ -160,3 +160,19 @@ on conflict (organization_id, key) do nothing;
 insert into public.alert_rules (organization_id, code, days_before, description) values
   ('00000000-0000-4000-8000-000000000001', 'invoice_overdue', 0, 'Fatura vencida com saldo em aberto')
 on conflict (organization_id, code, days_before) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- Demandas (Fase 4): categorias iniciais e prazo de aviso. Também aplicados por
+-- migration nos ambientes remotos (o seed só roda na primeira vez).
+-- -----------------------------------------------------------------------------
+insert into public.task_categories (organization_id, name, is_system)
+select '00000000-0000-4000-8000-000000000001', c.name, true
+from (values ('Financeiro'), ('Contratos'), ('Licitações e compras'), ('Atendimento'),
+             ('Controle administrativo'), ('Relatórios'), ('Outros')) as c(name)
+on conflict do nothing;
+insert into public.system_settings (organization_id, key, value, description) values
+  ('00000000-0000-4000-8000-000000000001', 'tasks.due_soon_days', '2'::jsonb, 'Dias antes do prazo para avisar que a demanda está próxima do vencimento.')
+on conflict (organization_id, key) do nothing;
+insert into public.approval_rules (organization_id, operation_code, requires_approval)
+select '00000000-0000-4000-8000-000000000001', o.code, true from public.approval_operations o
+on conflict (organization_id, operation_code) do nothing;

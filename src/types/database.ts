@@ -126,6 +126,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "approval_decisions_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "approval_decisions_step_id_fkey"
       columns: ["step_id"]
 isOneToOne: false
@@ -135,14 +141,14 @@ isOneToOne: false
                   ]
                 },"approval_operations": {
                   Row: {
-                    "code": string,"created_at": string,"description": string,"entity_type": string,"handler": string,"module": string,"request_permission": string
+                    "approval_mandatory": boolean,"code": string,"created_at": string,"description": string,"entity_type": string,"handler": string,"module": string,"request_permission": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "code": string,"created_at"?: string,"description": string,"entity_type": string,"handler": string,"module": string,"request_permission": string
+                    "approval_mandatory"?: boolean,"code": string,"created_at"?: string,"description": string,"entity_type": string,"handler": string,"module": string,"request_permission": string
                   }
                   Update: {
-                    "code"?: string,"created_at"?: string,"description"?: string,"entity_type"?: string,"handler"?: string,"module"?: string,"request_permission"?: string
+                    "approval_mandatory"?: boolean,"code"?: string,"created_at"?: string,"description"?: string,"entity_type"?: string,"handler"?: string,"module"?: string,"request_permission"?: string
                   }
                   Relationships: [
                     {
@@ -272,6 +278,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "approval_steps_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "approval_steps_required_permission_fkey"
       columns: ["required_permission"]
 isOneToOne: false
@@ -382,6 +394,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "contract_amendments_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "contract_amendments_contract_fk"
       columns: ["contract_id","organization_id"]
 isOneToOne: false
@@ -476,6 +494,12 @@ isOneToOne: false
       columns: ["approval_request_id"]
 isOneToOne: false
       referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "contracts_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "contracts_index_fk"
@@ -608,6 +632,12 @@ isOneToOne: false
       columns: ["approval_request_id"]
 isOneToOne: false
       referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "invoices_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "invoices_organization_id_fkey"
@@ -816,6 +846,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "payments_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "payments_invoice_fk"
       columns: ["invoice_id","organization_id"]
 isOneToOne: false
@@ -912,6 +948,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "properties_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "properties_department_fk"
       columns: ["department_id","organization_id"]
 isOneToOne: false
@@ -992,6 +1034,12 @@ isOneToOne: false
       columns: ["approval_request_id"]
 isOneToOne: false
       referencedRelation: "approval_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "registration_drafts_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "registration_drafts_organization_id_fkey"
@@ -1129,6 +1177,260 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "organizations"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"task_assignees": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"organization_id": string,"participation_weight": number | null,"role": string,"task_id": string,"updated_at": string,"updated_by": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"organization_id": string,"participation_weight"?: number | null,"role": string,"task_id": string,"updated_at"?: string,"updated_by"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"organization_id"?: string,"participation_weight"?: number | null,"role"?: string,"task_id"?: string,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_assignees_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "task_assignees_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_assignees_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks_overview"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_assignees_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_assignees_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"task_categories": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"is_active": boolean,"is_system": boolean,"name": string,"organization_id": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"is_system"?: boolean,"name": string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"is_active"?: boolean,"is_system"?: boolean,"name"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_categories_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"task_comments": {
+                  Row: {
+                    "author_id": string,"body": string,"created_at": string,"id": string,"organization_id": string,"task_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string,"body": string,"created_at"?: string,"id"?: string,"organization_id": string,"task_id": string
+                  }
+                  Update: {
+                    "author_id"?: string,"body"?: string,"created_at"?: string,"id"?: string,"organization_id"?: string,"task_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_comments_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "task_comments_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_comments_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks_overview"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"task_event_attendees": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"event_id": string,"id": string,"organization_id": string,"updated_at": string,"updated_by": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"event_id": string,"id"?: string,"organization_id": string,"updated_at"?: string,"updated_by"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"event_id"?: string,"id"?: string,"organization_id"?: string,"updated_at"?: string,"updated_by"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_event_attendees_event_fk"
+      columns: ["event_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "task_events"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_event_attendees_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "task_event_attendees_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_event_attendees_user_fk"
+      columns: ["user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"task_events": {
+                  Row: {
+                    "all_day": boolean,"cancellation_reason": string | null,"cancelled_at": string | null,"created_at": string,"created_by": string | null,"description": string | null,"ends_at": string | null,"id": string,"kind": Database["public"]['Enums']["task_event_kind"],"location": string | null,"organization_id": string,"starts_at": string,"task_id": string | null,"title": string,"updated_at": string,"updated_by": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "all_day"?: boolean,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"ends_at"?: string | null,"id"?: string,"kind": Database["public"]['Enums']["task_event_kind"],"location"?: string | null,"organization_id": string,"starts_at": string,"task_id"?: string | null,"title": string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Update: {
+                    "all_day"?: boolean,"cancellation_reason"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string | null,"ends_at"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["task_event_kind"],"location"?: string | null,"organization_id"?: string,"starts_at"?: string,"task_id"?: string | null,"title"?: string,"updated_at"?: string,"updated_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_events_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "task_events_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_events_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks_overview"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"task_status_history": {
+                  Row: {
+                    "changed_at": string,"changed_by": string | null,"from_status": Database["public"]['Enums']["task_status"] | null,"id": string,"note": string | null,"organization_id": string,"task_id": string,"to_status": Database["public"]['Enums']["task_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "changed_at"?: string,"changed_by"?: string | null,"from_status"?: Database["public"]['Enums']["task_status"] | null,"id"?: string,"note"?: string | null,"organization_id": string,"task_id": string,"to_status": Database["public"]['Enums']["task_status"]
+                  }
+                  Update: {
+                    "changed_at"?: string,"changed_by"?: string | null,"from_status"?: Database["public"]['Enums']["task_status"] | null,"id"?: string,"note"?: string | null,"organization_id"?: string,"task_id"?: string,"to_status"?: Database["public"]['Enums']["task_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_status_history_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "task_status_history_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "task_status_history_task_fk"
+      columns: ["task_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "tasks_overview"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
+                },"tasks": {
+                  Row: {
+                    "cancelled_at": string | null,"category_id": string,"completed_at": string | null,"completed_by": string | null,"completion_note": string | null,"complexity": Database["public"]['Enums']["task_complexity"],"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string,"description": string | null,"due_date": string | null,"due_time": string | null,"id": string,"organization_id": string,"priority": Database["public"]['Enums']["task_priority"],"requester_name": string | null,"requester_user_id": string | null,"responsible_id": string,"start_date": string | null,"status": Database["public"]['Enums']["task_status"],"title": string,"updated_at": string,"updated_by": string | null,"urgency": Database["public"]['Enums']["task_urgency"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "cancelled_at"?: string | null,"category_id": string,"completed_at"?: string | null,"completed_by"?: string | null,"completion_note"?: string | null,"complexity"?: Database["public"]['Enums']["task_complexity"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"department_id": string,"description"?: string | null,"due_date"?: string | null,"due_time"?: string | null,"id"?: string,"organization_id": string,"priority"?: Database["public"]['Enums']["task_priority"],"requester_name"?: string | null,"requester_user_id"?: string | null,"responsible_id": string,"start_date"?: string | null,"status"?: Database["public"]['Enums']["task_status"],"title": string,"updated_at"?: string,"updated_by"?: string | null,"urgency"?: Database["public"]['Enums']["task_urgency"]
+                  }
+                  Update: {
+                    "cancelled_at"?: string | null,"category_id"?: string,"completed_at"?: string | null,"completed_by"?: string | null,"completion_note"?: string | null,"complexity"?: Database["public"]['Enums']["task_complexity"],"created_at"?: string,"created_by"?: string | null,"deleted_at"?: string | null,"deleted_by"?: string | null,"deletion_reason"?: string | null,"department_id"?: string,"description"?: string | null,"due_date"?: string | null,"due_time"?: string | null,"id"?: string,"organization_id"?: string,"priority"?: Database["public"]['Enums']["task_priority"],"requester_name"?: string | null,"requester_user_id"?: string | null,"responsible_id"?: string,"start_date"?: string | null,"status"?: Database["public"]['Enums']["task_status"],"title"?: string,"updated_at"?: string,"updated_by"?: string | null,"urgency"?: Database["public"]['Enums']["task_urgency"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "tasks_category_fk"
+      columns: ["category_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "task_categories"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_department_fk"
+      columns: ["department_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tasks_requester_fk"
+      columns: ["requester_user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_requester_fk"
+      columns: ["requester_user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_responsible_fk"
+      columns: ["responsible_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_responsible_fk"
+      columns: ["responsible_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
     }
                   ]
                 },"unit_assignments": {
@@ -1293,6 +1595,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "contracts_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "contracts_index_fk"
       columns: ["adjustment_index_id","organization_id"]
 isOneToOne: false
@@ -1363,6 +1671,12 @@ isOneToOne: false
       referencedRelation: "approval_requests"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "invoices_approval_request_id_fkey"
+      columns: ["approval_request_id"]
+isOneToOne: false
+      referencedRelation: "task_deletion_requests"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "invoices_organization_id_fkey"
       columns: ["organization_id"]
 isOneToOne: false
@@ -1420,6 +1734,106 @@ isOneToOne: false
       referencedColumns: ["id","organization_id"]
     }
                   ]
+                },"task_deletion_requests": {
+                  Row: {
+                    "decided_at": string | null,"decided_by": string | null,"decision_comment": string | null,"id": string,"is_exceptional": boolean | null,"justification": string,"operation_code": string,"organization_id": string,"requested_at": string,"requested_by": string,"status": Database["public"]['Enums']["approval_status"],"task_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                           "decided_at"?: string | null,"decided_by"?: string | null,"decision_comment"?: string | null,"id"?: string | null,"is_exceptional"?: never,"justification"?: string | null,"operation_code"?: string | null,"organization_id"?: string | null,"requested_at"?: string | null,"requested_by"?: string | null,"status"?: Database["public"]['Enums']["approval_status"] | null,"task_id"?: string | null
+                         }
+                        Update: {
+                           "decided_at"?: string | null,"decided_by"?: string | null,"decision_comment"?: string | null,"id"?: string | null,"is_exceptional"?: never,"justification"?: string | null,"operation_code"?: string | null,"organization_id"?: string | null,"requested_at"?: string | null,"requested_by"?: string | null,"status"?: Database["public"]['Enums']["approval_status"] | null,"task_id"?: string | null
+                         }
+                        Relationships: [
+                    {
+      foreignKeyName: "approval_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_operation_code_fkey"
+      columns: ["operation_code"]
+isOneToOne: false
+      referencedRelation: "approval_operations"
+      referencedColumns: ["code"]
+    },{
+      foreignKeyName: "approval_requests_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "approval_requests_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"tasks_overview": {
+                  Row: {
+                    "cancelled_at": string | null,"category_id": string,"category_name": string,"comments_count": number | null,"completed_at": string | null,"completed_by": string | null,"completion_note": string | null,"complexity": Database["public"]['Enums']["task_complexity"],"created_at": string,"created_by": string | null,"deleted_at": string | null,"deleted_by": string | null,"deletion_reason": string | null,"department_id": string,"department_name": string | null,"description": string | null,"due_date": string | null,"due_time": string | null,"id": string,"is_overdue": boolean | null,"organization_id": string,"participants_count": number | null,"priority": Database["public"]['Enums']["task_priority"],"requester_name": string | null,"requester_user_id": string | null,"responsible_id": string,"responsible_name": string | null,"start_date": string | null,"status": Database["public"]['Enums']["task_status"],"title": string,"updated_at": string,"updated_by": string | null,"urgency": Database["public"]['Enums']["task_urgency"]
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    {
+      foreignKeyName: "tasks_category_fk"
+      columns: ["category_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "task_categories"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_department_fk"
+      columns: ["department_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_organization_id_fkey"
+      columns: ["organization_id"]
+isOneToOne: false
+      referencedRelation: "organizations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tasks_requester_fk"
+      columns: ["requester_user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_requester_fk"
+      columns: ["requester_user_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_responsible_fk"
+      columns: ["responsible_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","organization_id"]
+    },{
+      foreignKeyName: "tasks_responsible_fk"
+      columns: ["responsible_id","organization_id"]
+isOneToOne: false
+      referencedRelation: "user_directory"
+      referencedColumns: ["id","organization_id"]
+    }
+                  ]
                 },"user_directory": {
                   Row: {
                     "department_id": string | null,"full_name": string,"id": string,"job_title": string | null,"organization_id": string,"status": Database["public"]['Enums']["user_status"],"username": string
@@ -1449,7 +1863,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "admin_create_profile":
+            "add_task_comment":
+{ Args: { "p_body": string,"p_task_id": string }; Returns: string
+                           },
+"admin_create_profile":
 { Args: { "p_department_id": string,"p_department_ids": (string)[],"p_employee_number": string,"p_full_name": string,"p_job_title": string,"p_organization_wide_access"?: boolean,"p_role_ids": (string)[],"p_user_id": string,"p_username": string }; Returns: {
               "created_at": string,
 "created_by": string | null,
@@ -1604,6 +2021,11 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"calendar_items":
+{ Args: { "p_from": string,"p_to": string }; Returns: {
+              "all_day": boolean,"ends_at": string,"event_kind": string,"id": string,"is_overdue": boolean,"item_type": string,"responsible_name": string,"starts_at": string,"task_id": string,"task_status": string,"title": string
+            }[]
+                           },
 "can_attach_document":
 { Args: { "p_entity_id": string,"p_entity_type": string }; Returns: boolean
                            },
@@ -1640,6 +2062,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"cancel_task_event":
+{ Args: { "p_event_id": string,"p_reason": string }; Returns: undefined
+                           },
 "create_invoice":
 { Args: { "p_data": Json,"p_justification"?: string }; Returns: Json
                            },
@@ -1650,6 +2075,9 @@ isOneToOne: false
 { Args: { "p_department_id"?: string,"p_months"?: number }; Returns: Json
                            },
 "dashboard_foundation_stats":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"dashboard_task_stats":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "decide_approval":
@@ -2119,11 +2547,83 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"request_task_deletion":
+{ Args: { "p_justification": string,"p_task_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"request_task_exceptional_deletion":
+{ Args: { "p_justification": string,"p_task_id": string }; Returns: {
+              "applied_at": string | null,
+"base_hash": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"created_by": string | null,
+"current_snapshot": Json | null,
+"decided_at": string | null,
+"decided_by": string | null,
+"decision_comment": string | null,
+"department_id": string | null,
+"entity_id": string | null,
+"entity_type": string,
+"failure_reason": string | null,
+"id": string,
+"justification": string,
+"operation_code": string,
+"organization_id": string,
+"proposed_data": NonNullable<Json>,
+"requested_at": string,
+"requested_by": string,
+"result_entity_id": string | null,
+"status": Database["public"]['Enums']["approval_status"],
+"updated_at": string,
+"updated_by": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "approval_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "save_consumer_unit":
 { Args: { "p_data": Json,"p_reason"?: string,"p_unit_id": string }; Returns: string
                            },
 "save_landlord":
 { Args: { "p_data": Json,"p_landlord_id": string,"p_reason"?: string }; Returns: string
+                           },
+"save_task":
+{ Args: { "p_data": Json,"p_reason"?: string,"p_task_id": string }; Returns: string
+                           },
+"save_task_event":
+{ Args: { "p_data": Json,"p_event_id": string }; Returns: string
                            },
 "service_register_document":
 { Args: { "p_description"?: string,"p_entity_id": string,"p_entity_type": string,"p_mime_type": string,"p_original_name": string,"p_replaces_document_id"?: string,"p_sha256": string,"p_size_bytes": number,"p_storage_path": string,"p_user_id": string }; Returns: {
@@ -2159,6 +2659,9 @@ isOneToOne: false
       } },
 "set_property_landlords":
 { Args: { "p_items": Json,"p_property_id": string,"p_reason": string }; Returns: undefined
+                           },
+"set_task_status":
+{ Args: { "p_note"?: string,"p_status": Database["public"]['Enums']["task_status"],"p_task_id": string }; Returns: undefined
                            },
 "soft_delete_department":
 { Args: { "p_department_id": string,"p_reason": string }; Returns: undefined
@@ -2267,7 +2770,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "amendment_kind": "term"|"value"|"term_and_value"|"other","approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","contract_admin_status": "active"|"suspended"|"terminated"|"closed","department_kind": "secretariat"|"directorate"|"unit","payment_kind": "payment"|"reversal","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","supplier_kind": "energy"|"water","unit_status": "active"|"inactive","user_status": "active"|"inactive"|"blocked"
+            "amendment_kind": "term"|"value"|"term_and_value"|"other","approval_status": "pending"|"approved"|"rejected"|"cancelled"|"failed","contract_admin_status": "active"|"suspended"|"terminated"|"closed","department_kind": "secretariat"|"directorate"|"unit","payment_kind": "payment"|"reversal","person_type": "individual"|"company","property_status": "active"|"inactive"|"vacated","supplier_kind": "energy"|"water","task_complexity": "simple"|"medium"|"complex"|"very_complex","task_event_kind": "meeting"|"appointment"|"deadline"|"reminder","task_priority": "low"|"normal"|"high"|"urgent","task_status": "todo"|"in_progress"|"waiting"|"review"|"done"|"cancelled","task_urgency": "low"|"medium"|"high"|"critical","unit_status": "active"|"inactive","user_status": "active"|"inactive"|"blocked"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -2387,7 +2890,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "amendment_kind": ["term", "value", "term_and_value", "other"],"approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"contract_admin_status": ["active", "suspended", "terminated", "closed"],"department_kind": ["secretariat", "directorate", "unit"],"payment_kind": ["payment", "reversal"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"supplier_kind": ["energy", "water"],"unit_status": ["active", "inactive"],"user_status": ["active", "inactive", "blocked"]
+            "amendment_kind": ["term", "value", "term_and_value", "other"],"approval_status": ["pending", "approved", "rejected", "cancelled", "failed"],"contract_admin_status": ["active", "suspended", "terminated", "closed"],"department_kind": ["secretariat", "directorate", "unit"],"payment_kind": ["payment", "reversal"],"person_type": ["individual", "company"],"property_status": ["active", "inactive", "vacated"],"supplier_kind": ["energy", "water"],"task_complexity": ["simple", "medium", "complex", "very_complex"],"task_event_kind": ["meeting", "appointment", "deadline", "reminder"],"task_priority": ["low", "normal", "high", "urgent"],"task_status": ["todo", "in_progress", "waiting", "review", "done", "cancelled"],"task_urgency": ["low", "medium", "high", "critical"],"unit_status": ["active", "inactive"],"user_status": ["active", "inactive", "blocked"]
           }
         }
 } as const

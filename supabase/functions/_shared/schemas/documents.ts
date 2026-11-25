@@ -11,6 +11,7 @@ export const documentEntityTypes = [
   "rent_charge",
   "payment",
   "consumer_unit",
+  "task",
 ] as const;
 
 export const documentUploadFieldsSchema = z.object({
